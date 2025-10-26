@@ -1,94 +1,162 @@
-# 10x Astro Starter
+# 10x-cards
 
-A modern, opinionated starter template for building fast, accessible, and AI-friendly web applications.
+A modern web application for creating and managing educational flashcards with AI-powered generation capabilities. Learn efficiently using spaced repetition algorithms while saving time with automated flashcard creation.
+
+## Table of Contents
+
+- [Project Description](#project-description)
+- [Tech Stack](#tech-stack)
+- [Getting Started Locally](#getting-started-locally)
+- [Available Scripts](#available-scripts)
+- [Project Scope](#project-scope)
+- [Project Status](#project-status)
+- [License](#license)
+
+## Project Description
+
+10x-cards is an educational web application that revolutionizes the way users create and study flashcards. The application addresses the time-consuming nature of manual flashcard creation by offering two primary modes:
+
+### Key Features
+
+- **AI-Powered Generation**: Paste text (1,000-10,000 characters) and let our LLM automatically generate flashcard suggestions
+- **Manual Creation**: Traditional flashcard creation with intuitive forms
+- **Spaced Repetition**: Built-in algorithm for optimal learning efficiency
+- **User Management**: Secure authentication with account management
+- **Learning Sessions**: Interactive study sessions with performance tracking
+- **Session History**: Track your learning progress over time
+- **Privacy-First**: Your flashcards remain private and secure
+
+### Target Metrics
+
+- 75% of flashcards created through AI generation
+- 75% acceptance rate of AI-generated flashcard suggestions
 
 ## Tech Stack
 
-- [Astro](https://astro.build/) v5.5.5 - Modern web framework for building fast, content-focused websites
-- [React](https://react.dev/) v19.0.0 - UI library for building interactive components
-- [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4.0.17 - Utility-first CSS framework
+### Frontend
+- **Astro 5** - Fast, modern web framework with minimal JavaScript
+- **React 19** - Interactive components where needed
+- **TypeScript 5** - Static typing and enhanced IDE support
+- **Tailwind 4** - Utility-first CSS framework
+- **Shadcn/ui** - Accessible React component library
 
-## Prerequisites
+### Backend
+- **Supabase** - Complete backend-as-a-service solution
+  - PostgreSQL database
+  - Built-in user authentication
+  - Real-time capabilities
+  - Open-source with self-hosting options
 
-- Node.js v22.14.0 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
+### AI Integration
+- **Azure OpenAI Service** - Generative model inference and embeddings
+- **Azure API Management** - Public API exposure with validation, rate limiting, and analytics
 
-## Getting Started
+### Infrastructure
+- **GitHub Actions** - CI/CD pipelines
+- **DigitalOcean** - Application hosting via Docker containers
+- **Docker** - Containerized deployment
 
-1. Clone the repository:
+## Getting Started Locally
 
-```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
-```
+### Prerequisites
 
-2. Install dependencies:
+- Node.js 22.14.0 (use `.nvmrc` for version management)
+- npm or yarn package manager
+- Git
 
-```bash
-npm install
-```
+### Installation
 
-3. Run the development server:
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/RSarota/10xdevs-project.git
+   cd 10xdevs-project
+   ```
 
-```bash
-npm run dev
-```
+2. **Set up Node.js version**
+   ```bash
+   nvm use
+   # or if you don't have nvm:
+   # Ensure you're using Node.js 22.14.0
+   ```
 
-4. Build for production:
+3. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-```bash
-npm run build
-```
+4. **Set up environment variables**
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env.local
+   # Edit .env.local with your configuration
+   ```
+
+5. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+6. **Open your browser**
+   Navigate to `http://localhost:4321` to see the application running.
+
+### Environment Configuration
+
+You'll need to configure the following environment variables:
+
+- `SUPABASE_URL` - Your Supabase project URL
+- `SUPABASE_ANON_KEY` - Your Supabase anonymous key
+- `AZURE_OPENAI_ENDPOINT` - Azure OpenAI service endpoint
+- `AZURE_OPENAI_API_KEY` - Azure OpenAI API key
 
 ## Available Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server with hot reload |
+| `npm run build` | Build the application for production |
+| `npm run preview` | Preview the production build locally |
+| `npm run astro` | Run Astro CLI commands |
+| `npm run lint` | Run ESLint to check code quality |
+| `npm run lint:fix` | Automatically fix ESLint issues |
+| `npm run format` | Format code with Prettier |
 
-## Project Structure
+### Development Workflow
 
-```md
-.
-├── src/
-│   ├── layouts/    # Astro layouts
-│   ├── pages/      # Astro pages
-│   │   └── api/    # API endpoints
-│   ├── components/ # UI components (Astro & React)
-│   └── assets/     # Static assets
-├── public/         # Public assets
-```
+The project includes pre-commit hooks via Husky and lint-staged for code quality:
+- TypeScript/React files are automatically linted and fixed
+- JSON, CSS, and Markdown files are formatted with Prettier
 
-## AI Development Support
+## Project Scope
 
-This project is configured with AI development tools to enhance the development experience, providing guidelines for:
+### Included in MVP
 
-- Project structure
-- Coding practices
-- Frontend development
-- Styling with Tailwind
-- Accessibility best practices
-- Astro and React guidelines
+✅ **Core Functionality**
+- User registration and authentication with email verification
+- AI-powered flashcard generation from text input
+- Manual flashcard creation with forms
+- Flashcard management (edit, delete, organize)
+- Spaced repetition learning sessions
+- Session history and progress tracking
+- Secure, private flashcard storage
 
-### Cursor IDE
+## Project Status
 
-The project includes AI rules in `.cursor/rules/` directory that help Cursor IDE understand the project structure and provide better code suggestions.
+🚧 **In Development** - MVP Phase
 
-### GitHub Copilot
+The project is currently in active development, focusing on implementing the core MVP features outlined in the product requirements. The foundation with Astro, React, and Supabase integration is established, with ongoing work on:
 
-AI instructions for GitHub Copilot are available in `.github/copilot-instructions.md`
-
-### Windsurf
-
-The `.windsurfrules` file contains AI configuration for Windsurf.
-
-## Contributing
-
-Please follow the AI guidelines and coding practices defined in the AI configuration files when contributing to this project.
+- User authentication system
+- AI integration with Azure OpenAI
+- Flashcard management interface
+- Learning session implementation
+- Spaced repetition algorithm
 
 ## License
 
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+**Contributing**: This project is part of the 10xDevs learning program. For questions or contributions, please open an issue or contact the maintainers.
+
+**Support**: For technical support or questions about the application, please refer to the documentation or open an issue in the GitHub repository.
