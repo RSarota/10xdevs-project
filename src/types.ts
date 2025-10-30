@@ -7,19 +7,25 @@ import type { Database } from "./db/database.types";
 // 1. Flashcard DTO - odpowiada rekordowi w tabeli flashcards
 export type FlashcardDTO = Database["public"]["Tables"]["flashcards"]["Row"];
 
+// 1a. FlashcardType - typ flashcarda przechowywany w bazie danych
+// Jest to enum z bazy danych używany w kolumnie "type" tabeli flashcards.
+// Możliwe wartości: "manual", "ai-full" (AI bez edycji), "ai-edited" (AI z edycją)
+export type FlashcardType = Database["public"]["Enums"]["flashcard_type"];
+
 // 2. CreateFlashcardCommand
 // Dane wejściowe dla tworzenia flashcarda.
-// Pole "source" określa typ flashcarda:
-//    - "manual" -> type: "manual" (i generation_id musi być pominięte lub null)
-//    - "ai-unedited" -> type: "ai-full" (i generation_id jest wymagane)
-//    - "ai-edited" -> type: "ai-edited" (i generation_id jest wymagane)
-export type FlashcardSource = "manual" | "ai-unedited" | "ai-edited";
+// FlashcardSource jest aliasem dla FlashcardType - używamy tych samych wartości w API i bazie danych.
+// Wymagania:
+//    - "manual" -> generation_id musi być null
+//    - "ai-full" -> generation_id jest wymagane (flashcard wygenerowany przez AI bez edycji)
+//    - "ai-edited" -> generation_id jest wymagane (flashcard wygenerowany przez AI z edycją)
+export type FlashcardSource = FlashcardType;
 
 export interface CreateFlashcardCommand {
   front: string; // wymagane, tekst frontu
   back: string; // wymagane, tekst backu
   source: FlashcardSource; // określa pochodzenie flashcarda
-  generation_id?: number; // wymagane dla "ai-unedited" i "ai-edited", null dla "manual"
+  generation_id?: number; // wymagane dla "ai-full" i "ai-edited", null dla "manual"
 }
 
 // 3. UpdateFlashcardCommand
@@ -44,8 +50,8 @@ export interface GenerateFlashcardsCommand {
 // 6. AcceptGeneratedFlashcardsCommand and GeneratedFlashcardProposal
 // Polecenie zatwierdzania wygenerowanych flashcardów.
 // Każda propozycja zawiera unikalny "temporary_id" do śledzenia, front, back i source.
-// Dla tego polecenia, source może być tylko "ai-unedited" lub "ai-edited".
-export type AcceptFlashcardSource = "ai-unedited" | "ai-edited";
+// Dla tego polecenia, source może być tylko "ai-full" (bez edycji) lub "ai-edited" (z edycją).
+export type AcceptFlashcardSource = "ai-full" | "ai-edited";
 
 export interface GeneratedFlashcardProposal {
   temporary_id: string;
@@ -69,11 +75,7 @@ export type GenerationErrorDTO = Database["public"]["Tables"]["generation_error_
 export interface UserStatisticsDTO {
   flashcards: {
     total: number;
-    by_type: {
-      manual: number;
-      "ai-full": number;
-      "ai-edited": number;
-    };
+    by_type: Record<FlashcardType, number>;
   };
   generations: {
     total_sessions: number;
