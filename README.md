@@ -104,7 +104,7 @@ A modern web application for creating and managing educational flashcards with A
 You'll need to configure the following environment variables:
 
 - `SUPABASE_URL` - Your Supabase project URL
-- `SUPABASE_ANON_KEY` - Your Supabase anonymous key
+- `SUPABASE_KEY` - Your Supabase anonymous key
 - `AZURE_OPENAI_ENDPOINT` - Azure OpenAI service endpoint
 - `AZURE_OPENAI_API_KEY` - Azure OpenAI API key
 

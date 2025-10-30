@@ -13,19 +13,36 @@ export type FlashcardDTO = Database["public"]["Tables"]["flashcards"]["Row"];
 export type FlashcardType = Database["public"]["Enums"]["flashcard_type"];
 
 // 2. CreateFlashcardCommand
-// Dane wejściowe dla tworzenia flashcarda.
+// Dane wejściowe dla tworzenia flashcarda (pojedynczego lub wielu).
 // FlashcardSource jest aliasem dla FlashcardType - używamy tych samych wartości w API i bazie danych.
 // Wymagania:
 //    - "manual" -> generation_id musi być null
 //    - "ai-full" -> generation_id jest wymagane (flashcard wygenerowany przez AI bez edycji)
 //    - "ai-edited" -> generation_id jest wymagane (flashcard wygenerowany przez AI z edycją)
+// Limity dla wszystkich flashcardów:
+//    - front: max 200 znaków
+//    - back: max 500 znaków
 export type FlashcardSource = FlashcardType;
 
 export interface CreateFlashcardCommand {
-  front: string; // wymagane, tekst frontu
-  back: string; // wymagane, tekst backu
+  front: string; // wymagane, tekst frontu (max 200 znaków)
+  back: string; // wymagane, tekst backu (max 500 znaków)
   source: FlashcardSource; // określa pochodzenie flashcarda
   generation_id?: number; // wymagane dla "ai-full" i "ai-edited", null dla "manual"
+}
+
+// 2a. BulkCreateFlashcardsCommand
+// Polecenie do tworzenia wielu flashcardów jednocześnie (max 100).
+// Używane w POST /api/flashcards z body: { flashcards: [...] }
+export interface BulkCreateFlashcardsCommand {
+  flashcards: CreateFlashcardCommand[]; // tablica flashcardów (max 100 elementów)
+}
+
+// 2b. BulkCreateFlashcardsResponse
+// Odpowiedź z endpointu POST /api/flashcards przy bulk create.
+export interface BulkCreateFlashcardsResponse {
+  count: number; // liczba utworzonych flashcardów
+  flashcards: FlashcardDTO[]; // utworzone flashcardy w tej samej kolejności co request
 }
 
 // 3. UpdateFlashcardCommand
@@ -43,34 +60,20 @@ export interface BulkDeleteFlashcardsCommand {
 
 // 5. GenerateFlashcardsCommand
 // Polecenie generowania propozycji flashcardów przy użyciu AI.
+// AI zwraca propozycje (front, back) które NIE są jeszcze zapisane w bazie.
+// Użytkownik przegląda propozycje i zatwierdza je przez POST /api/flashcards
+// (single lub bulk z CreateFlashcardCommand).
 export interface GenerateFlashcardsCommand {
   source_text: string; // tekst źródłowy o długości 1000-10000 znaków
 }
 
-// 6. AcceptGeneratedFlashcardsCommand and GeneratedFlashcardProposal
-// Polecenie zatwierdzania wygenerowanych flashcardów.
-// Każda propozycja zawiera unikalny "temporary_id" do śledzenia, front, back i source.
-// Dla tego polecenia, source może być tylko "ai-full" (bez edycji) lub "ai-edited" (z edycją).
-export type AcceptFlashcardSource = "ai-full" | "ai-edited";
-
-export interface GeneratedFlashcardProposal {
-  temporary_id: string;
-  front: string;
-  back: string;
-  source: AcceptFlashcardSource;
-}
-
-export interface AcceptGeneratedFlashcardsCommand {
-  flashcards: GeneratedFlashcardProposal[];
-}
-
-// 7. Generation DTO - odpowiada rekordowi w tabeli generations
+// 6. Generation DTO - odpowiada rekordowi w tabeli generations
 export type GenerationDTO = Database["public"]["Tables"]["generations"]["Row"];
 
-// 8. GenerationError DTO - odpowiada rekordowi w tabeli generation_error_logs
+// 7. GenerationError DTO - odpowiada rekordowi w tabeli generation_error_logs
 export type GenerationErrorDTO = Database["public"]["Tables"]["generation_error_logs"]["Row"];
 
-// 9. UserStatisticsDTO
+// 8. UserStatisticsDTO
 // Odpowiada strukturze danych z endpointu GET /api/users/me/statistics.
 export interface UserStatisticsDTO {
   flashcards: {

@@ -7,8 +7,8 @@
 - **user_id** – FOREIGN KEY odwołujący się do tabeli użytkowników (zarządzanej przez Supabase), typ: UUID
 - **generation_id** – (opcjonalnie) FOREIGN KEY do tabeli generations, typ: BIGINT
 - **type** – typ fiszki, ograniczony do wartości: ai-full, ai-edited, manual. Może być zdefiniowany jako kolumna typu ENUM lub ograniczony TEXT
-- **front** – tekst przodu fiszki, typ: VARCHAR(200) dla rekordów ręcznych lub TEXT dla wygenerowanych fiszek
-- **back** – tekst tyłu fiszki, typ: VARCHAR(500) dla rekordów ręcznych lub TEXT dla wygenerowanych fiszek
+- **front** – tekst przodu fiszki, typ: VARCHAR(200) dla wszystkich fiszek (manual i AI-generated)
+- **back** – tekst tyłu fiszki, typ: VARCHAR(500) dla wszystkich fiszek (manual i AI-generated)
 - **created_at** – timestamp z informacją o dacie utworzenia, domyślnie ustawiany na aktualny czas
 - **updated_at** – timestamp z informacją o ostatniej modyfikacji, aktualizowany przy każdej zmianie rekordu
 
