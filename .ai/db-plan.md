@@ -3,6 +3,7 @@
 ## 1. Tabele i kolumny
 
 ### a. Tabela: flashcards
+
 - **id** – PRIMARY KEY, typ: BIGSERIAL
 - **user_id** – FOREIGN KEY odwołujący się do tabeli użytkowników (zarządzanej przez Supabase), typ: UUID
 - **generation_id** – (opcjonalnie) FOREIGN KEY do tabeli generations, typ: BIGINT
@@ -13,6 +14,7 @@
 - **updated_at** – timestamp z informacją o ostatniej modyfikacji, aktualizowany przy każdej zmianie rekordu
 
 ### b. Tabela: generations
+
 - **id** – PRIMARY KEY, typ: BIGSERIAL
 - **user_id** – FOREIGN KEY odwołujący się do tabeli użytkowników (zarządzanej przez Supabase), typ: UUID
 - **generated_count** – liczba fiszek wygenerowanych w procesie, typ: INTEGER
@@ -25,6 +27,7 @@
 - **updated_at** – timestamp z informacją o ostatniej modyfikacji, aktualizowany przy każdej zmianie rekordu
 
 ### c. Tabela: generation_error_logs
+
 - **id** – PRIMARY KEY, typ: BIGSERIAL
 - **user_id** – FOREIGN KEY odwołujący się do tabeli użytkowników (zarządzanej przez Supabase), typ: UUID
 - **source_text_hash** – hash tekstu źródłowego (np. SHA256), typ: VARCHAR(64)
@@ -43,17 +46,20 @@
 ## 3. Indeksy
 
 ### Tabela flashcards
+
 - Indeks na kolumnie user_id do przyspieszenia zapytań filtrowanych po użytkowniku.
 - Indeks na kolumnie type do ułatwienia filtrowania rekordów według typu fiszki.
 - Indeks na kolumnie generation_id do szybkiego znajdowania fiszek z danego procesu generowania.
 - Indeks na kolumnach created_at i updated_at do sortowania i filtrowania wg. dat.
 
 ### Tabela generations
+
 - Indeks na kolumnie user_id do przyspieszenia zapytań filtrowanych po użytkowniku.
 - Indeks na kolumnie source_text_hash do szybkiego wyszukiwania duplikatów generowania.
 - Indeks na kolumnie created_at do sortowania i analizy historii generowania.
 
 ### Tabela generation_error_logs
+
 - Indeks na kolumnie user_id do przyspieszenia zapytań filtrowanych po użytkowniku.
 - Indeks na kolumnie error_code do analizy typów błędów.
 - Indeks na kolumnie created_at do sortowania i analizy historii błędów.

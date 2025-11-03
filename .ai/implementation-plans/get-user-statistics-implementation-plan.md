@@ -1,24 +1,29 @@
 # API Endpoint Implementation Plan: Get User Statistics
 
 ## 1. Przegląd punktu końcowego
+
 Endpoint GET /api/users/me/statistics umożliwia pobranie kompleksowych statystyk dla uwierzytelnionego użytkownika, obejmujących fiszki i sesje generowania AI.
 
 ## 2. Szczegóły żądania
+
 - **Metoda HTTP:** GET
 - **Struktura URL:** `/api/users/me/statistics`
-- **Parametry:** 
+- **Parametry:**
   - **Wymagane:** Brak
   - **Opcjonalne:** Brak
-- **Nagłówki:** 
+- **Nagłówki:**
   - `Authorization: Bearer {token}` (w developmencie: używamy DEFAULT_USER_ID)
 
 ## 3. Wykorzystywane typy
+
 - **UserStatisticsDTO:** Reprezentuje statystyki użytkownika (zdefiniowany w `src/types.ts`)
 - **FlashcardType:** Enum dla typów fiszek
 - Brak modeli Command
 
 ## 4. Szczegóły odpowiedzi
+
 - **200 OK:**
+
 ```json
 {
   "flashcards": {
@@ -38,10 +43,12 @@ Endpoint GET /api/users/me/statistics umożliwia pobranie kompleksowych statysty
   }
 }
 ```
+
 - **401 Unauthorized:** Brak lub nieprawidłowy token
 - **500 Internal Server Error:** Błąd serwera
 
 ## 5. Przepływ danych
+
 1. Klient wysyła żądanie GET do `/api/users/me/statistics`
 2. Serwer weryfikuje token i identyfikuje użytkownika (w developmencie: DEFAULT_USER_ID)
 3. Logika delegowana do `statisticsService.getUserStatistics(userId)`
@@ -55,23 +62,27 @@ Endpoint GET /api/users/me/statistics umożliwia pobranie kompleksowych statysty
 6. Zwraca obiekt `UserStatisticsDTO` z kodem 200
 
 ## 6. Względy bezpieczeństwa
+
 - **Uwierzytelnienie:** Wymagane sprawdzenie tokena w nagłówku `Authorization` (w produkcji)
 - **Autoryzacja:** Statystyki tylko dla uwierzytelnionego użytkownika (filtracja po user_id)
 - **RLS:** W produkcji Row Level Security zapewni dodatkową warstwę bezpieczeństwa
 
 ## 7. Obsługa błędów
+
 - **401 Unauthorized:** Brak lub nieprawidłowy token (w produkcji)
 - **500 Internal Server Error:** Błąd bazy danych lub logiki biznesowej
 
 Jeśli użytkownik nie ma żadnych danych, zwracane są zera we wszystkich polach (200).
 
 ## 8. Rozważania dotyczące wydajności
+
 - **Agregacje:** Wykorzystanie funkcji agregujących SQL (COUNT, SUM, GROUP BY)
 - **Indeksy:** Wykorzystanie indeksów na `user_id` i `type`
 - **Caching:** Rozważyć cache'owanie statystyk (np. 5 minut) dla często odpytujących użytkowników
 - **Liczba zapytań:** 2 zapytania (flashcards, generations) - można zoptymalizować używając CTE lub window functions
 
 ## 9. Etapy wdrożenia
+
 1. **Utworzenie pliku endpointa:**
    - Utworzyć plik w `src/pages/api/users/me/statistics.ts`
 2. **Autoryzacja:**
@@ -91,6 +102,5 @@ Jeśli użytkownik nie ma żadnych danych, zwracane są zera we wszystkich polac
 7. **Obsługa błędów:**
    - Try-catch z odpowiednimi kodami statusu
    - Logowanie błędów
-9. **Dokumentacja:**
+8. **Dokumentacja:**
    - Zaktualizować DEV-NOTES.md
-

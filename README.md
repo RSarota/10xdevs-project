@@ -34,6 +34,7 @@ A modern web application for creating and managing educational flashcards with A
 ## Tech Stack
 
 ### Frontend
+
 - **Astro 5** - Fast, modern web framework with minimal JavaScript
 - **React 19** - Interactive components where needed
 - **TypeScript 5** - Static typing and enhanced IDE support
@@ -41,6 +42,7 @@ A modern web application for creating and managing educational flashcards with A
 - **Shadcn/ui** - Accessible React component library
 
 ### Backend
+
 - **Supabase** - Complete backend-as-a-service solution
   - PostgreSQL database
   - Built-in user authentication
@@ -48,10 +50,12 @@ A modern web application for creating and managing educational flashcards with A
   - Open-source with self-hosting options
 
 ### AI Integration
+
 - **Azure OpenAI Service** - Generative model inference and embeddings
 - **Azure API Management** - Public API exposure with validation, rate limiting, and analytics
 
 ### Infrastructure
+
 - **GitHub Actions** - CI/CD pipelines
 - **DigitalOcean** - Application hosting via Docker containers
 - **Docker** - Containerized deployment
@@ -67,12 +71,14 @@ A modern web application for creating and managing educational flashcards with A
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/RSarota/10xdevs-project.git
    cd 10xdevs-project
    ```
 
 2. **Set up Node.js version**
+
    ```bash
    nvm use
    # or if you don't have nvm:
@@ -80,11 +86,13 @@ A modern web application for creating and managing educational flashcards with A
    ```
 
 3. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 4. **Set up environment variables**
+
    ```bash
    # Copy the example environment file
    cp .env.example .env.local
@@ -92,6 +100,7 @@ A modern web application for creating and managing educational flashcards with A
    ```
 
 5. **Start the development server**
+
    ```bash
    npm run dev
    ```
@@ -110,19 +119,20 @@ You'll need to configure the following environment variables:
 
 ## Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start development server with hot reload |
-| `npm run build` | Build the application for production |
-| `npm run preview` | Preview the production build locally |
-| `npm run astro` | Run Astro CLI commands |
-| `npm run lint` | Run ESLint to check code quality |
-| `npm run lint:fix` | Automatically fix ESLint issues |
-| `npm run format` | Format code with Prettier |
+| Script             | Description                              |
+| ------------------ | ---------------------------------------- |
+| `npm run dev`      | Start development server with hot reload |
+| `npm run build`    | Build the application for production     |
+| `npm run preview`  | Preview the production build locally     |
+| `npm run astro`    | Run Astro CLI commands                   |
+| `npm run lint`     | Run ESLint to check code quality         |
+| `npm run lint:fix` | Automatically fix ESLint issues          |
+| `npm run format`   | Format code with Prettier                |
 
 ### Development Workflow
 
 The project includes pre-commit hooks via Husky and lint-staged for code quality:
+
 - TypeScript/React files are automatically linted and fixed
 - JSON, CSS, and Markdown files are formatted with Prettier
 
@@ -131,6 +141,7 @@ The project includes pre-commit hooks via Husky and lint-staged for code quality
 ### Included in MVP
 
 ✅ **Core Functionality**
+
 - User registration and authentication with email verification
 - AI-powered flashcard generation from text input
 - Manual flashcard creation with forms

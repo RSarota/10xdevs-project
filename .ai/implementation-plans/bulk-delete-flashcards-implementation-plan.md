@@ -1,18 +1,21 @@
 # API Endpoint Implementation Plan: Bulk Delete Flashcards
 
 ## 1. Przegląd punktu końcowego
+
 Endpoint POST /api/flashcards/bulk-delete umożliwia usunięcie wielu fiszek jednocześnie. Operacja jest zoptymalizowana pod kątem wydajności i zapewnia atomowość.
 
 ## 2. Szczegóły żądania
+
 - **Metoda HTTP:** POST
 - **Struktura URL:** `/api/flashcards/bulk-delete`
-- **Parametry:** 
+- **Parametry:**
   - **Wymagane:** Brak parametrów URL
   - **Opcjonalne:** Brak
-- **Nagłówki:** 
+- **Nagłówki:**
   - `Authorization: Bearer {token}` (w developmencie: używamy DEFAULT_USER_ID)
   - `Content-Type: application/json`
 - **Request Body:**
+
 ```json
 {
   "flashcard_ids": ["number[]"]
@@ -20,21 +23,26 @@ Endpoint POST /api/flashcards/bulk-delete umożliwia usunięcie wielu fiszek jed
 ```
 
 ## 3. Wykorzystywane typy
+
 - **BulkDeleteFlashcardsCommand:** Model Command dla bulk delete (zdefiniowany w `src/types.ts`)
 
 ## 4. Szczegóły odpowiedzi
+
 - **200 OK:**
+
 ```json
 {
   "message": "Flashcards deleted successfully",
   "deleted_count": "number"
 }
 ```
+
 - **400 Bad Request:** Błędy walidacji (pusta tablica, nieprawidłowe ID)
 - **401 Unauthorized:** Brak lub nieprawidłowy token
 - **500 Internal Server Error:** Błąd serwera
 
 ## 5. Przepływ danych
+
 1. Klient wysyła żądanie POST do `/api/flashcards/bulk-delete` z tablicą ID fiszek
 2. Serwer weryfikuje token i identyfikuje użytkownika (w developmencie: DEFAULT_USER_ID)
 3. Request body jest walidowany przy użyciu Zod zgodnie z `BulkDeleteFlashcardsCommand`
@@ -48,6 +56,7 @@ Endpoint POST /api/flashcards/bulk-delete umożliwia usunięcie wielu fiszek jed
 7. Zwraca liczbę usuniętych rekordów z kodem 200
 
 ## 6. Względy bezpieczeństwa
+
 - **Uwierzytelnienie:** Wymagane sprawdzenie tokena w nagłówku `Authorization` (w produkcji)
 - **Autoryzacja:** Weryfikacja ownership poprzez warunek `user_id` w DELETE - nie pozwala na usunięcie fiszek innych użytkowników
 - **Walidacja danych wejściowych:**
@@ -59,6 +68,7 @@ Endpoint POST /api/flashcards/bulk-delete umożliwia usunięcie wielu fiszek jed
 - **Atomowość:** Cała operacja powinna być atomowa (wszystkie lub żadne)
 
 ## 7. Obsługa błędów
+
 - **400 Bad Request:**
   - Pusta tablica `flashcard_ids`
   - Tablica zawiera nieprawidłowe wartości (tekst, liczby ujemne, 0)
@@ -70,6 +80,7 @@ Endpoint POST /api/flashcards/bulk-delete umożliwia usunięcie wielu fiszek jed
 **Uwaga:** Nie zwracamy 404, jeśli niektóre ID nie istnieją - zwracamy rzeczywistą liczbę usuniętych rekordów. To pozwala klientowi wiedzieć, ile fiszek faktycznie usunięto.
 
 ## 8. Rozważania dotyczące wydajności
+
 - **Pojedyncze zapytanie:** Jedno zapytanie DELETE z IN zamiast N oddzielnych DELETE
 - **Indeksy:** Wykorzystanie PRIMARY KEY na `id` i indeksu na `user_id`
 - **Limit rozmiaru:** Wprowadzenie limitu (np. 100 ID) zapobiega przeciążeniu bazy
@@ -78,6 +89,7 @@ Endpoint POST /api/flashcards/bulk-delete umożliwia usunięcie wielu fiszek jed
 - **Statystyki:** Podobnie jak w single delete, nie aktualizujemy statystyk `generations`
 
 ## 9. Etapy wdrożenia
+
 1. **Utworzenie pliku endpointa:**
    - Utworzyć plik w `src/pages/api/flashcards/bulk-delete.ts`
 2. **Utworzenie schematu walidacji Zod:**
@@ -112,4 +124,3 @@ Endpoint POST /api/flashcards/bulk-delete umożliwia usunięcie wielu fiszek jed
 8. **Dokumentacja:**
    - Zaktualizować DEV-NOTES.md
    - Dodać komentarz o limicie i zachowaniu z nieistniejącymi ID
-

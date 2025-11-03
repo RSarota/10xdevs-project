@@ -1,36 +1,43 @@
 # API Endpoint Implementation Plan: Delete Flashcard
 
 ## 1. Przegląd punktu końcowego
+
 Endpoint DELETE /api/flashcards/{id} umożliwia usunięcie pojedynczej fiszki. Operacja wymaga potwierdzenia ownership i jest nieodwracalna.
 
 ## 2. Szczegóły żądania
+
 - **Metoda HTTP:** DELETE
 - **Struktura URL:** `/api/flashcards/{id}`
-- **Parametry:** 
-  - **Wymagane:** 
+- **Parametry:**
+  - **Wymagane:**
     - `id` (path parameter) – identyfikator fiszki (number)
   - **Opcjonalne:** Brak
-- **Nagłówki:** 
+- **Nagłówki:**
   - `Authorization: Bearer {token}` (w developmencie: używamy DEFAULT_USER_ID)
 
 ## 3. Wykorzystywane typy
+
 - **FlashcardDTO:** Tylko do weryfikacji istnienia i ownership (opcjonalnie)
 - Brak modeli Command
 
 ## 4. Szczegóły odpowiedzi
+
 - **200 OK:**
+
 ```json
 {
   "message": "Flashcard deleted successfully",
   "id": "number"
 }
 ```
+
 - **400 Bad Request:** Nieprawidłowy format `id`
 - **401 Unauthorized:** Brak lub nieprawidłowy token
 - **404 Not Found:** Fiszka nie istnieje lub nie należy do użytkownika
 - **500 Internal Server Error:** Błąd serwera
 
 ## 5. Przepływ danych
+
 1. Klient wysyła żądanie DELETE do `/api/flashcards/{id}`
 2. Serwer weryfikuje token i identyfikuje użytkownika (w developmencie: DEFAULT_USER_ID)
 3. Parametr `id` jest walidowany przy użyciu Zod (musi być liczbą dodatnią)
@@ -43,6 +50,7 @@ Endpoint DELETE /api/flashcards/{id} umożliwia usunięcie pojedynczej fiszki. O
 7. Zwraca potwierdzenie usunięcia z kodem 200
 
 ## 6. Względy bezpieczeństwa
+
 - **Uwierzytelnienie:** Wymagane sprawdzenie tokena w nagłówku `Authorization` (w produkcji)
 - **Autoryzacja:** Weryfikacja ownership poprzez warunek `user_id` w DELETE
 - **Nieodwracalność:** Operacja DELETE jest permanentna - należy upewnić się, że frontend wymaga potwierdzenia
@@ -50,20 +58,23 @@ Endpoint DELETE /api/flashcards/{id} umożliwia usunięcie pojedynczej fiszki. O
 - **Soft delete (opcjonalnie):** W przyszłości można rozważyć soft delete (pole deleted_at) zamiast hard delete
 
 ## 7. Obsługa błędów
+
 - **400 Bad Request:**
   - Nieprawidłowy format `id` (tekst, liczba ujemna, 0)
-- **404 Not Found:** 
+- **404 Not Found:**
   - Fiszka o podanym `id` nie istnieje
   - Fiszka nie należy do użytkownika (nie ujawniamy różnicy ze względów bezpieczeństwa)
 - **401 Unauthorized:** Brak lub nieprawidłowy token (w produkcji)
 - **500 Internal Server Error:** Błąd bazy danych
 
 ## 8. Rozważania dotyczące wydajności
+
 - **Pojedyncze zapytanie:** Jedna operacja DELETE z warunkiem złożonym
 - **Indeksy:** Wykorzystanie PRIMARY KEY na `id` i indeksu na `user_id`
 - **Kasowanie kaskadowe:** Sprawdzić, czy są relacje wymagające CASCADE (nie ma w obecnym schemacie)
 
 ## 9. Etapy wdrożenia
+
 1. **Rozszerzenie pliku endpointa:**
    - Rozszerzyć plik `src/pages/api/flashcards/[id].ts` o metodę DELETE
 2. **Walidacja parametru:**
@@ -82,7 +93,6 @@ Endpoint DELETE /api/flashcards/{id} umożliwia usunięcie pojedynczej fiszki. O
    - Zwracanie user-friendly error messages
 6. **Rozważenie wpływu na statystyki:**
    - Pozostawić statystyki bez zmian (reprezentują historyczny snapshot)
-8. **Dokumentacja:**
+7. **Dokumentacja:**
    - Zaktualizować DEV-NOTES.md
    - Dodać komentarz w kodzie o decyzji dot. statystyk
-

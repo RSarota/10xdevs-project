@@ -1,8 +1,9 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import type { FlashcardDTO } from "../../types";
-import { getFlashcards } from "../../lib/services/flashcards.service";
+import type { FlashcardDTO, BulkCreateFlashcardsResponse } from "../../types";
+import { getFlashcards, createOne, createMany } from "../../lib/services/flashcards.service";
 import { DEFAULT_USER_ID } from "../../db/supabase.client";
+import { CreateFlashcardSchema, isBulkInput } from "../../lib/schemas/flashcard.schema";
 
 // Schemat walidacji dla parametrów zapytania
 const queryParamsSchema = z.object({
@@ -112,6 +113,142 @@ export const GET: APIRoute = async ({ request, locals }) => {
       JSON.stringify({
         error: "Internal Server Error",
         message: "Wystąpił błąd podczas przetwarzania żądania",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+};
+
+/**
+ * POST /api/flashcards
+ * Tworzy jedną lub wiele fiszek (single lub bulk).
+ *
+ * Request body:
+ * - Wariant A (single): { front, back, source, generation_id? }
+ * - Wariant B (bulk): { flashcards: [{ front, back, source, generation_id? }] }
+ *
+ * Zwraca:
+ * - 201 Created: FlashcardDTO (single) lub BulkCreateFlashcardsResponse (bulk)
+ * - 400 Bad Request: błędy walidacji
+ * - 404 Not Found: generation_id nie istnieje lub nie należy do użytkownika
+ * - 500 Internal Server Error: błąd serwera
+ *
+ * TODO: Tymczasowo używamy DEFAULT_USER_ID dla developmentu.
+ * W przyszłości zostanie wdrożona pełna autoryzacja z tokenem Bearer.
+ */
+export const POST: APIRoute = async ({ request, locals }) => {
+  try {
+    // ============================================
+    // DEVELOPMENT MODE: Używamy DEFAULT_USER_ID
+    // TODO: Wdrożyć pełną autoryzację (Bearer token)
+    // ============================================
+    const userId = DEFAULT_USER_ID;
+
+    // 1. Parsowanie i walidacja request body
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return new Response(
+        JSON.stringify({
+          error: "Bad Request",
+          message: "Nieprawidłowy format JSON",
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // 2. Walidacja przy użyciu Zod schema
+    const validationResult = CreateFlashcardSchema.safeParse(body);
+
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({
+          error: "Bad Request",
+          message: "Nieprawidłowe dane wejściowe",
+          details: validationResult.error.issues,
+        }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const validated = validationResult.data;
+
+    // 3. Routing: wykrycie czy single czy bulk
+    if (isBulkInput(validated)) {
+      // ========== BULK PATH ==========
+      const result = await createMany(locals.supabase, userId, validated.flashcards);
+
+      const response: BulkCreateFlashcardsResponse = {
+        count: result.flashcards.length,
+        flashcards: result.flashcards,
+      };
+
+      return new Response(JSON.stringify(response), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      });
+    } else {
+      // ========== SINGLE PATH ==========
+      const flashcard = await createOne(locals.supabase, userId, validated);
+
+      return new Response(JSON.stringify(flashcard), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  } catch (error) {
+    console.error("Error in POST /api/flashcards:", error);
+
+    // Obsługa specyficznych błędów biznesowych
+    if (error instanceof Error) {
+      // 404: Generation ID nie istnieje lub nie należy do użytkownika
+      if (error.message.includes("Generation ID") || error.message.includes("generation_id")) {
+        return new Response(
+          JSON.stringify({
+            error: "Not Found",
+            message: error.message,
+          }),
+          {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+
+      // 400: Inne błędy walidacji biznesowej
+      if (
+        error.message.includes("walidacji") ||
+        error.message.includes("validation") ||
+        error.message.includes("invalid")
+      ) {
+        return new Response(
+          JSON.stringify({
+            error: "Bad Request",
+            message: error.message,
+          }),
+          {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+    }
+
+    // 500: Ogólny błąd serwera
+    return new Response(
+      JSON.stringify({
+        error: "Internal Server Error",
+        message: "Wystąpił błąd podczas tworzenia fiszki/fiszek",
       }),
       {
         status: 500,

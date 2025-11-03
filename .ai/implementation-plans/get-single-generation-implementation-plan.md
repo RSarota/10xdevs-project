@@ -1,24 +1,29 @@
 # API Endpoint Implementation Plan: Get Single Generation
 
 ## 1. Przegląd punktu końcowego
+
 Endpoint GET /api/generations/{id} umożliwia pobranie szczegółów pojedynczej sesji generowania wraz z listą zaakceptowanych fiszek powiązanych z tą sesją.
 
 ## 2. Szczegóły żądania
+
 - **Metoda HTTP:** GET
 - **Struktura URL:** `/api/generations/{id}`
-- **Parametry:** 
-  - **Wymagane:** 
+- **Parametry:**
+  - **Wymagane:**
     - `id` (path parameter) – identyfikator sesji generowania (number)
   - **Opcjonalne:** Brak
-- **Nagłówki:** 
+- **Nagłówki:**
   - `Authorization: Bearer {token}` (w developmencie: używamy DEFAULT_USER_ID)
 
 ## 3. Wykorzystywane typy
+
 - **GenerationDTO:** Reprezentuje rekord z tabeli `generations` (zdefiniowany w `src/types.ts`)
 - **FlashcardDTO:** Reprezentuje fiszki powiązane z generacją (uproszczona forma w odpowiedzi)
 
 ## 4. Szczegóły odpowiedzi
+
 - **200 OK:**
+
 ```json
 {
   "id": "number",
@@ -42,12 +47,14 @@ Endpoint GET /api/generations/{id} umożliwia pobranie szczegółów pojedynczej
   ]
 }
 ```
+
 - **400 Bad Request:** Nieprawidłowy format `id`
 - **401 Unauthorized:** Brak lub nieprawidłowy token
 - **404 Not Found:** Generation nie istnieje lub nie należy do użytkownika
 - **500 Internal Server Error:** Błąd serwera
 
 ## 5. Przepływ danych
+
 1. Klient wysyła żądanie GET do `/api/generations/{id}`
 2. Serwer weryfikuje token i identyfikuje użytkownika (w developmencie: DEFAULT_USER_ID)
 3. Parametr `id` jest walidowany przy użyciu Zod (pozytywna liczba całkowita)
@@ -60,6 +67,7 @@ Endpoint GET /api/generations/{id} umożliwia pobranie szczegółów pojedynczej
 7. Zwraca kompletny obiekt z kodem 200
 
 ## 6. Względy bezpieczeństwa
+
 - **Uwierzytelnienie:** Wymagane sprawdzenie tokena w nagłówku `Authorization` (w produkcji)
 - **Autoryzacja:** Weryfikacja, że generation należy do uwierzytelnionego użytkownika
 - **Walidacja:** Sprawdzenie, że `id` jest poprawną liczbą dodatnią
@@ -67,15 +75,17 @@ Endpoint GET /api/generations/{id} umożliwia pobranie szczegółów pojedynczej
 - **Data exposure:** Nie ujawniamy `user_id` fiszek w odpowiedzi (można usunąć z uproszczonej formy)
 
 ## 7. Obsługa błędów
+
 - **400 Bad Request:**
   - Nieprawidłowy format `id` (tekst zamiast liczby, liczba ujemna)
-- **404 Not Found:** 
+- **404 Not Found:**
   - Generation o podanym `id` nie istnieje
   - Generation nie należy do użytkownika
 - **401 Unauthorized:** Brak lub nieprawidłowy token (w produkcji)
 - **500 Internal Server Error:** Błąd w serwerze lub w logice biznesowej
 
 ## 8. Rozważania dotyczące wydajności
+
 - **Dwa zapytania:** Jedno dla generation, jedno dla flashcards
 - **Opcjonalnie JOIN:** Można użyć LEFT JOIN, ale to może być mniej efektywne jeśli jest wiele fiszek
 - **Indeksy:** Wykorzystanie PRIMARY KEY na `id`, indeksu na `user_id` i `generation_id`
@@ -83,6 +93,7 @@ Endpoint GET /api/generations/{id} umożliwia pobranie szczegółów pojedynczej
 - **Sortowanie:** Fiszki sortowane po `created_at` ASC (chronologicznie)
 
 ## 9. Etapy wdrożenia
+
 1. **Utworzenie pliku endpointa:**
    - Utworzyć plik w `src/pages/api/generations/[id].ts`
 2. **Walidacja i autoryzacja:**
@@ -100,10 +111,9 @@ Endpoint GET /api/generations/{id} umożliwia pobranie szczegółów pojedynczej
    - Implementacja try-catch z odpowiednimi kodami statusu
    - Logowanie błędów
    - Zwracanie user-friendly error messages
-7. **Opcjonalna optymalizacja:**
+6. **Opcjonalna optymalizacja:**
    - Rozważyć użycie window functions lub subquery w jednym zapytaniu
    - Przykład: `SELECT g.*, jsonb_agg(f.*) as flashcards FROM generations g LEFT JOIN flashcards f ON f.generation_id = g.id WHERE g.id = ? AND g.user_id = ? GROUP BY g.id`
-8. **Dokumentacja:**
+7. **Dokumentacja:**
    - Zaktualizować DEV-NOTES.md
    - Dodać komentarz o sortowaniu fiszek
-

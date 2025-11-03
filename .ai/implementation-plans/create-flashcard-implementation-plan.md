@@ -1,19 +1,22 @@
 # API Endpoint Implementation Plan: Create Flashcard (Single or Bulk)
 
 ## 1. Przegląd punktu końcowego
+
 Endpoint POST /api/flashcards umożliwia utworzenie jednej lub wielu fiszek (ręcznych lub wygenerowanych przez AI). Endpoint automatycznie wykrywa czy jest to operacja pojedyncza czy masowa, waliduje dane wejściowe i aktualizuje statystyki generacji, jeśli fiszki pochodzą z AI.
 
 ## 2. Szczegóły żądania
+
 - **Metoda HTTP:** POST
 - **Struktura URL:** `/api/flashcards`
-- **Parametry:** 
+- **Parametry:**
   - **Wymagane:** Brak parametrów URL
   - **Opcjonalne:** Brak
-- **Nagłówki:** 
+- **Nagłówki:**
   - `Authorization: Bearer {token}` (w developmencie: używamy DEFAULT_USER_ID)
   - `Content-Type: application/json`
 
 ### Wariant A: Pojedyncza fiszka
+
 ```json
 {
   "front": "string (required, max 200 chars)",
@@ -24,6 +27,7 @@ Endpoint POST /api/flashcards umożliwia utworzenie jednej lub wielu fiszek (rę
 ```
 
 ### Wariant B: Wiele fiszek (bulk)
+
 ```json
 {
   "flashcards": [
@@ -36,9 +40,11 @@ Endpoint POST /api/flashcards umożliwia utworzenie jednej lub wielu fiszek (rę
   ]
 }
 ```
+
 **Uwaga:** Maksymalnie 100 fiszek w jednym żądaniu bulk.
 
 ## 3. Wykorzystywane typy
+
 - **CreateFlashcardCommand:** Model Command dla tworzenia fiszki (zdefiniowany w `src/types.ts`)
 - **FlashcardDTO:** Reprezentuje rekord z tabeli `flashcards`
 - **FlashcardSource:** Typ określający pochodzenie fiszki (alias dla FlashcardType)
@@ -47,6 +53,7 @@ Endpoint POST /api/flashcards umożliwia utworzenie jednej lub wielu fiszek (rę
 ## 4. Szczegóły odpowiedzi
 
 ### Pojedyncza fiszka - 201 Created:
+
 ```json
 {
   "id": "number",
@@ -61,6 +68,7 @@ Endpoint POST /api/flashcards umożliwia utworzenie jednej lub wielu fiszek (rę
 ```
 
 ### Wiele fiszek (bulk) - 201 Created:
+
 ```json
 {
   "count": "number",
@@ -78,15 +86,18 @@ Endpoint POST /api/flashcards umożliwia utworzenie jednej lub wielu fiszek (rę
   ]
 }
 ```
+
 **Uwaga:** Kolejność zwróconych fiszek odpowiada kolejności w żądaniu.
 
 ### Kody błędów:
+
 - **400 Bad Request:** Błędy walidacji (niepoprawne dane, pusta tablica, przekroczony limit 100 fiszek)
 - **401 Unauthorized:** Brak lub nieprawidłowy token
 - **404 Not Found:** Generation ID nie istnieje lub nie należy do użytkownika
 - **500 Internal Server Error:** Błąd serwera
 
 ## 5. Przepływ danych
+
 1. Klient wysyła żądanie POST z fiszką/fiszkami
 2. Serwer weryfikuje token i identyfikuje użytkownika (w developmencie: DEFAULT_USER_ID)
 3. **Wykrycie typu operacji:**
@@ -100,6 +111,7 @@ Endpoint POST /api/flashcards umożliwia utworzenie jednej lub wielu fiszek (rę
    - W trybie bulk: maksymalnie 100 fiszek
 
 ### Dla operacji SINGLE:
+
 6. Logika delegowana do `flashcardsService.createOne(userId, command)`
 7. **Dla fiszek AI:**
    - Weryfikacja czy generation_id istnieje i należy do użytkownika
@@ -110,6 +122,7 @@ Endpoint POST /api/flashcards umożliwia utworzenie jednej lub wielu fiszek (rę
 9. Zwrócenie utworzonej fiszki (201)
 
 ### Dla operacji BULK:
+
 6. Logika delegowana do `flashcardsService.createMany(userId, commands)`
 7. **W transakcji bazy danych:**
    - Walidacja wszystkich generation_id (jeśli AI)
@@ -119,6 +132,7 @@ Endpoint POST /api/flashcards umożliwia utworzenie jednej lub wielu fiszek (rę
 8. Zwrócenie tablicy utworzonych fiszek w tej samej kolejności (201)
 
 ## 6. Względy bezpieczeństwa
+
 - **Uwierzytelnienie:** Wymagane sprawdzenie tokena w nagłówku `Authorization` (w produkcji)
 - **Autoryzacja:** Weryfikacja, że generation_id (jeśli podany) należy do uwierzytelnionego użytkownika
 - **Walidacja danych wejściowych:**
@@ -129,6 +143,7 @@ Endpoint POST /api/flashcards umożliwia utworzenie jednej lub wielu fiszek (rę
 - **SQL Injection:** Wykorzystanie prepared statements przez Supabase SDK
 
 ## 7. Obsługa błędów
+
 - **400 Bad Request:**
   - Brak wymaganych pól (front, back, source)
   - `source` nie jest jednym z dozwolonych wartości
@@ -138,16 +153,17 @@ Endpoint POST /api/flashcards umożliwia utworzenie jednej lub wielu fiszek (rę
   - Pole front lub back zawiera tylko białe znaki
   - **Bulk:** Pusta tablica `flashcards`
   - **Bulk:** Więcej niż 100 fiszek w jednym żądaniu
-- **404 Not Found:** 
+- **404 Not Found:**
   - `generation_id` nie istnieje
   - `generation_id` nie należy do użytkownika
 - **401 Unauthorized:** Brak lub nieprawidłowy token (w produkcji)
-- **500 Internal Server Error:** 
+- **500 Internal Server Error:**
   - Błąd bazy danych
   - Błąd transakcji (bulk)
   - Błąd logiki biznesowej
 
 ## 8. Rozważania dotyczące wydajności
+
 - **Transakcje:** Użycie transakcji bazy danych dla operacji z fiszkami AI (insert + update statistics) aby zapewnić spójność i atomowość
 - **Bulk INSERT:** W trybie bulk jedno zapytanie INSERT dla wielu fiszek zamiast N oddzielnych zapytań
 - **Bulk UPDATE:** Grupowanie aktualizacji statystyk per generation_id
@@ -159,41 +175,41 @@ Endpoint POST /api/flashcards umożliwia utworzenie jednej lub wielu fiszek (rę
 ## 9. Etapy wdrożenia
 
 ### Krok 1: Walidacja Zod
+
 ```typescript
 // src/lib/schemas/flashcard.schema.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 // Base schema dla pojedynczej fiszki
-const FlashcardInputSchema = z.object({
-  front: z.string().min(1).max(200).trim(),
-  back: z.string().min(1).max(500).trim(),
-  source: z.enum(['manual', 'ai-full', 'ai-edited']),
-  generation_id: z.number().int().positive().optional()
-})
-  .refine(data => {
-    if (data.source === 'manual') return !data.generation_id;
+const FlashcardInputSchema = z
+  .object({
+    front: z.string().min(1).max(200).trim(),
+    back: z.string().min(1).max(500).trim(),
+    source: z.enum(["manual", "ai-full", "ai-edited"]),
+    generation_id: z.number().int().positive().optional(),
+  })
+  .refine((data) => {
+    if (data.source === "manual") return !data.generation_id;
     return !!data.generation_id;
   }, "Manual flashcards cannot have generation_id, AI flashcards require it");
 
 // Schema dla bulk
 const BulkFlashcardsSchema = z.object({
-  flashcards: z.array(FlashcardInputSchema).min(1).max(100)
+  flashcards: z.array(FlashcardInputSchema).min(1).max(100),
 });
 
 // Union schema
-export const CreateFlashcardSchema = z.union([
-  FlashcardInputSchema,
-  BulkFlashcardsSchema
-]);
+export const CreateFlashcardSchema = z.union([FlashcardInputSchema, BulkFlashcardsSchema]);
 ```
 
 ### Krok 2: Routing w endpoint
+
 ```typescript
 // src/pages/api/flashcards.ts - POST handler
 const body = await request.json();
 const validated = CreateFlashcardSchema.parse(body);
 
-if ('flashcards' in validated) {
+if ("flashcards" in validated) {
   // Bulk path
   return await flashcardsService.createMany(userId, validated.flashcards);
 } else {
@@ -203,7 +219,9 @@ if ('flashcards' in validated) {
 ```
 
 ### Krok 3: Implementacja Service Layer
+
 **Single:**
+
 - Metoda `createOne(userId, command)` w `flashcardsService`
 - Walidacja generation_id (helper: `validateGenerationOwnership`)
 - INSERT fiszki
@@ -211,6 +229,7 @@ if ('flashcards' in validated) {
 - Zwrócenie `FlashcardDTO`
 
 **Bulk:**
+
 - Metoda `createMany(userId, commands)` w `flashcardsService`
 - W transakcji:
   - Walidacja wszystkich generation_id
@@ -220,7 +239,9 @@ if ('flashcards' in validated) {
 - Zwrócenie tablicy `FlashcardDTO[]` w tej samej kolejności
 
 ### Krok 4: Testowanie
+
 **Single:**
+
 - ✅ Fiszka manual (201)
 - ✅ Fiszka manual z generation_id (400)
 - ✅ Fiszka AI bez generation_id (400)
@@ -230,6 +251,7 @@ if ('flashcards' in validated) {
 - ✅ Weryfikacja inkrementacji statystyk dla ai-full i ai-edited
 
 **Bulk:**
+
 - ✅ Bulk manual flashcards (201)
 - ✅ Bulk AI flashcards (201, weryfikacja statystyk)
 - ✅ Bulk mix manual + AI (201)
@@ -239,6 +261,5 @@ if ('flashcards' in validated) {
 - ✅ Kolejność zachowana w response
 
 ### Krok 5: Dokumentacja
+
 - Zaktualizować DEV-NOTES.md (usunąć bulk-accept endpoint)
-
-

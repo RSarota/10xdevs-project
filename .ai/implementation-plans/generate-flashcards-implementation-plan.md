@@ -1,18 +1,21 @@
 # API Endpoint Implementation Plan: Generate Flashcards
 
 ## 1. Przegląd punktu końcowego
+
 Endpoint POST /api/generations umożliwia wygenerowanie propozycji fiszek z tekstu źródłowego przy użyciu AI. Endpoint tworzy rekord w tabeli `generations`, wywołuje Azure OpenAI API przez Azure API Management, i zwraca propozycje (nie zapisuje ich jeszcze jako fiszki).
 
 ## 2. Szczegóły żądania
+
 - **Metoda HTTP:** POST
 - **Struktura URL:** `/api/generations`
-- **Parametry:** 
+- **Parametry:**
   - **Wymagane:** Brak parametrów URL
   - **Opcjonalne:** Brak
-- **Nagłówki:** 
+- **Nagłówki:**
   - `Authorization: Bearer {token}` (w developmencie: używamy DEFAULT_USER_ID)
   - `Content-Type: application/json`
 - **Request Body:**
+
 ```json
 {
   "source_text": "string (required, min 1000 chars, max 10000 chars)"
@@ -20,12 +23,15 @@ Endpoint POST /api/generations umożliwia wygenerowanie propozycji fiszek z teks
 ```
 
 ## 3. Wykorzystywane typy
+
 - **GenerateFlashcardsCommand:** Model Command dla generowania fiszek (zdefiniowany w `src/types.ts`)
 - **GenerationDTO:** Reprezentuje rekord z tabeli `generations`
 - **GenerationErrorDTO:** Dla logowania błędów w tabeli `generation_error_logs`
 
 ## 4. Szczegóły odpowiedzi
+
 - **201 Created:**
+
 ```json
 {
   "generation_id": "number",
@@ -41,7 +47,9 @@ Endpoint POST /api/generations umożliwia wygenerowanie propozycji fiszek z teks
   "created_at": "timestamp"
 }
 ```
+
 **Uwaga:** Propozycje są zwracane w kolejności wygenerowanej przez AI. Klient może śledzić je lokalnie (np. po indeksie w tablicy).
+
 - **400 Bad Request:** Tekst źródłowy poza zakresem 1000-10000 znaków
 - **401 Unauthorized:** Brak lub nieprawidłowy token
 - **429 Too Many Requests:** Przekroczony rate limit
@@ -49,6 +57,7 @@ Endpoint POST /api/generations umożliwia wygenerowanie propozycji fiszek z teks
 - **500 Internal Server Error:** Błąd serwera
 
 ## 5. Przepływ danych
+
 1. Klient wysyła żądanie POST z `source_text`
 2. Serwer weryfikuje token i identyfikuje użytkownika (w developmencie: DEFAULT_USER_ID)
 3. Request body jest walidowany przy użyciu Zod zgodnie z `GenerateFlashcardsCommand`
@@ -77,12 +86,13 @@ Endpoint POST /api/generations umożliwia wygenerowanie propozycji fiszek z teks
    - Zwrócenie odpowiedniego kodu błędu (429, 503, 500)
 
 ## 6. Względy bezpieczeństwa
+
 - **Uwierzytelnienie:** Wymagane sprawdzenie tokena w nagłówku `Authorization` (w produkcji)
 - **Walidacja danych wejściowych:**
   - Ścisła walidacja długości tekstu (1000-10000 znaków)
   - Sanitizacja tekstu źródłowego przed wysłaniem do AI
   - Zapobieganie prompt injection
-- **Rate Limiting:** 
+- **Rate Limiting:**
   - Azure API Management zapewnia rate limiting
   - Opcjonalnie: dodatkowy rate limiting na poziomie aplikacji (np. max 10 generacji/godzinę per user)
 - **API Key Security:**
@@ -91,13 +101,14 @@ Endpoint POST /api/generations umożliwia wygenerowanie propozycji fiszek z teks
 - **Error Messages:** Nie ujawniać szczegółów błędów AI API klientowi
 
 ## 7. Obsługa błędów
+
 - **400 Bad Request:**
   - `source_text` poniżej 1000 znaków
   - `source_text` powyżej 10000 znaków
   - `source_text` składa się tylko z białych znaków
   - Brak pola `source_text`
 - **401 Unauthorized:** Brak lub nieprawidłowy token (w produkcji)
-- **429 Too Many Requests:** 
+- **429 Too Many Requests:**
   - Przekroczony rate limit Azure API Management
   - Przekroczony rate limit aplikacji (jeśli zaimplementowany)
 - **503 Service Unavailable:**
@@ -109,12 +120,14 @@ Endpoint POST /api/generations umożliwia wygenerowanie propozycji fiszek z teks
   - Inne nieoczekiwane błędy
 
 **Logowanie błędów:**
+
 - Wszystkie błędy związane z AI API logowane do `generation_error_logs`:
   - `error_code`: np. "API_TIMEOUT", "INVALID_RESPONSE", "RATE_LIMIT_EXCEEDED"
   - `error_message`: szczegółowy komunikat
   - `source_text_hash`, `source_text_length`
 
 ## 8. Rozważania dotyczące wydajności
+
 - **Timeout:** Ustawienie odpowiedniego timeoutu (30s) dla wywołania AI API
 - **Async Processing:** Operacja jest synchroniczna, ale można rozważyć async/background processing w przyszłości
 - **Caching (opcjonalnie):** Cache wyników dla identycznych `source_text_hash` (oszczędność kosztów AI)
@@ -122,6 +135,7 @@ Endpoint POST /api/generations umożliwia wygenerowanie propozycji fiszek z teks
 - **Retry Logic:** Opcjonalne retry z exponential backoff dla przejściowych błędów (503)
 
 ## 9. Etapy wdrożenia
+
 1. **Utworzenie pliku endpointa:**
    - Utworzyć plik w `src/pages/api/generations.ts` (obsłuży GET i POST)
 2. **Utworzenie schematu walidacji Zod:**
@@ -153,8 +167,7 @@ Endpoint POST /api/generations umożliwia wygenerowanie propozycji fiszek z teks
    - Try-catch wokół wywołania AI
    - Logowanie wszystkich błędów
    - Mapowanie błędów AI na odpowiednie kody statusu HTTP
-10. **Dokumentacja:**
-    - Zaktualizować DEV-NOTES.md
-    - Dodać komentarze o konfiguracji Azure API
-    - Dokumentować format odpowiedzi AI API
-
+9. **Dokumentacja:**
+   - Zaktualizować DEV-NOTES.md
+   - Dodać komentarze o konfiguracji Azure API
+   - Dokumentować format odpowiedzi AI API

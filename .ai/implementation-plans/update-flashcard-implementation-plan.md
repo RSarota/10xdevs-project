@@ -1,19 +1,22 @@
 # API Endpoint Implementation Plan: Update Flashcard
 
 ## 1. Przegląd punktu końcowego
+
 Endpoint PATCH /api/flashcards/{id} umożliwia częściową aktualizację istniejącej fiszki. Użytkownik może zaktualizować pole `front` i/lub `back`. Pole `updated_at` jest automatycznie aktualizowane.
 
 ## 2. Szczegóły żądania
+
 - **Metoda HTTP:** PATCH
 - **Struktura URL:** `/api/flashcards/{id}`
-- **Parametry:** 
-  - **Wymagane:** 
+- **Parametry:**
+  - **Wymagane:**
     - `id` (path parameter) – identyfikator fiszki (number)
   - **Opcjonalne:** Brak
-- **Nagłówki:** 
+- **Nagłówki:**
   - `Authorization: Bearer {token}` (w developmencie: używamy DEFAULT_USER_ID)
   - `Content-Type: application/json`
 - **Request Body:**
+
 ```json
 {
   "front": "string (optional, max 200 chars for manual, TEXT for AI)",
@@ -22,11 +25,14 @@ Endpoint PATCH /api/flashcards/{id} umożliwia częściową aktualizację istnie
 ```
 
 ## 3. Wykorzystywane typy
+
 - **UpdateFlashcardCommand:** Model Command dla aktualizacji fiszki (zdefiniowany w `src/types.ts`)
 - **FlashcardDTO:** Reprezentuje rekord z tabeli `flashcards`
 
 ## 4. Szczegóły odpowiedzi
+
 - **200 OK:**
+
 ```json
 {
   "id": "number",
@@ -39,12 +45,14 @@ Endpoint PATCH /api/flashcards/{id} umożliwia częściową aktualizację istnie
   "updated_at": "timestamp"
 }
 ```
+
 - **400 Bad Request:** Błędy walidacji (limity znaków, brak pól do aktualizacji)
 - **401 Unauthorized:** Brak lub nieprawidłowy token
 - **404 Not Found:** Fiszka nie istnieje lub nie należy do użytkownika
 - **500 Internal Server Error:** Błąd serwera
 
 ## 5. Przepływ danych
+
 1. Klient wysyła żądanie PATCH do `/api/flashcards/{id}` z danymi do aktualizacji
 2. Serwer weryfikuje token i identyfikuje użytkownika (w developmencie: DEFAULT_USER_ID)
 3. Parametr `id` jest walidowany przy użyciu Zod (musi być liczbą dodatnią)
@@ -60,6 +68,7 @@ Endpoint PATCH /api/flashcards/{id} umożliwia częściową aktualizację istnie
 8. Zwraca zaktualizowaną fiszkę z kodem 200
 
 ## 6. Względy bezpieczeństwa
+
 - **Uwierzytelnienie:** Wymagane sprawdzenie tokena w nagłówku `Authorization` (w produkcji)
 - **Autoryzacja:** Weryfikacja, że fiszka należy do uwierzytelnionego użytkownika
 - **Walidacja danych wejściowych:**
@@ -70,6 +79,7 @@ Endpoint PATCH /api/flashcards/{id} umożliwia częściową aktualizację istnie
 - **Niezmienność metadanych:** Nie pozwalamy na zmianę type, generation_id, user_id
 
 ## 7. Obsługa błędów
+
 - **400 Bad Request:**
   - Nieprawidłowy format `id` (tekst, liczba ujemna)
   - Brak pól do aktualizacji (ani front, ani back)
@@ -77,19 +87,21 @@ Endpoint PATCH /api/flashcards/{id} umożliwia częściową aktualizację istnie
   - Przekroczenie limitów znaków:
     - Manual flashcards: front > 200 lub back > 500 znaków
     - AI flashcards: zależnie od założeń (TEXT bez limitu lub określony limit)
-- **404 Not Found:** 
+- **404 Not Found:**
   - Fiszka o podanym `id` nie istnieje
   - Fiszka nie należy do użytkownika
 - **401 Unauthorized:** Brak lub nieprawidłowy token (w produkcji)
 - **500 Internal Server Error:** Błąd bazy danych lub logiki biznesowej
 
 ## 8. Rozważania dotyczące wydajności
+
 - **Optymalizacja zapytań:** Jedno zapytanie SELECT (weryfikacja ownership i pobranie typu), jedno UPDATE
 - **Indeksy:** Wykorzystanie PRIMARY KEY na `id` i indeksu na `user_id`
 - **Walidacja w pamięci:** Najpierw walidacja w pamięci, potem zapytania do bazy
 - **Updated_at:** Automatyczna aktualizacja przez trigger bazodanowy lub explicit SET updated_at = NOW()
 
 ## 9. Etapy wdrożenia
+
 1. **Utworzenie pliku endpointa:**
    - Utworzyć plik w `src/pages/api/flashcards/[id].ts` (rozszerzenie istniejącego pliku z GET)
 2. **Utworzenie schematu walidacji Zod:**
@@ -101,7 +113,7 @@ Endpoint PATCH /api/flashcards/{id} umożliwia częściową aktualizację istnie
    - Dodać metodę `updateFlashcard(userId: string, flashcardId: number, command: UpdateFlashcardCommand)` w `flashcardsService`
    - Metoda zwraca `Promise<FlashcardDTO>`
 4. **Implementacja sprawdzenia ownership i typu:**
-   - Pobrać istniejącą fiszkę: SELECT * FROM flashcards WHERE id = ? AND user_id = ?
+   - Pobrać istniejącą fiszkę: SELECT \* FROM flashcards WHERE id = ? AND user_id = ?
    - Jeśli nie znaleziono, zwrócić 404
    - Sprawdzić typ fiszki i zastosować odpowiednie limity znaków
 5. **Wykonanie UPDATE:**
@@ -111,6 +123,5 @@ Endpoint PATCH /api/flashcards/{id} umożliwia częściową aktualizację istnie
    - Implementacja try-catch z odpowiednimi kodami statusu
    - Logowanie błędów
    - Zwracanie user-friendly error messages
-8. **Dokumentacja:**
+7. **Dokumentacja:**
    - Zaktualizować DEV-NOTES.md
-

@@ -25,6 +25,7 @@
 ### 2.2 Flashcard Management
 
 #### Get All Flashcards
+
 - **Method:** `GET`
 - **Path:** `/api/flashcards`
 - **Description:** Retrieve all flashcards for authenticated user
@@ -37,6 +38,7 @@
   - `sort_by` (optional, default: `created_at`): Sort field (`created_at`, `updated_at`)
   - `sort_order` (optional, default: `desc`): Sort order (`asc`, `desc`)
 - **Success Response (200):**
+
 ```json
 {
   "data": [
@@ -59,16 +61,19 @@
   }
 }
 ```
+
 - **Error Responses:**
   - `401 Unauthorized`: Invalid or missing token
   - `400 Bad Request`: Invalid query parameters
 
 #### Get Single Flashcard
+
 - **Method:** `GET`
 - **Path:** `/api/flashcards/{id}`
 - **Description:** Retrieve a specific flashcard
 - **Headers:** `Authorization: Bearer {token}`
 - **Success Response (200):**
+
 ```json
 {
   "id": "number",
@@ -81,17 +86,20 @@
   "updated_at": "timestamp"
 }
 ```
+
 - **Error Responses:**
   - `401 Unauthorized`: Invalid token
   - `404 Not Found`: Flashcard not found or doesn't belong to user
 
 #### Create Flashcard (Single or Bulk)
+
 - **Method:** `POST`
 - **Path:** `/api/flashcards`
 - **Description:** Create one or more flashcards (manual or AI-generated)
 - **Headers:** `Authorization: Bearer {token}`
 
 **Single Flashcard Request:**
+
 ```json
 {
   "front": "string (required, max 200 chars)",
@@ -102,6 +110,7 @@
 ```
 
 **Bulk Flashcards Request:**
+
 ```json
 {
   "flashcards": [
@@ -114,9 +123,11 @@
   ]
 }
 ```
+
 **Note:** Maximum 100 flashcards per bulk request.
 
 - **Success Response Single (201):**
+
 ```json
 {
   "id": "number",
@@ -131,6 +142,7 @@
 ```
 
 - **Success Response Bulk (201):**
+
 ```json
 {
   "count": "number",
@@ -158,6 +170,7 @@
   - `404 Not Found`: Generation ID not found
 
 **Business Logic:**
+
 - Endpoint automatically detects operation type (single vs bulk)
 - `source` field determines the flashcard type:
   - `source: 'manual'` → `type: 'manual'`, `generation_id` must be null
@@ -170,18 +183,22 @@
 - Validation ensures `generation_id` belongs to authenticated user
 
 #### Update Flashcard
+
 - **Method:** `PATCH`
 - **Path:** `/api/flashcards/{id}`
 - **Description:** Update an existing flashcard
 - **Headers:** `Authorization: Bearer {token}`
 - **Request Body:**
+
 ```json
 {
   "front": "string (optional, max 200 chars for manual, TEXT for AI)",
   "back": "string (optional, max 500 chars for manual, TEXT for AI)"
 }
 ```
+
 - **Success Response (200):**
+
 ```json
 {
   "id": "number",
@@ -194,39 +211,47 @@
   "updated_at": "timestamp"
 }
 ```
+
 - **Error Responses:**
   - `401 Unauthorized`: Invalid token
   - `404 Not Found`: Flashcard not found
   - `400 Bad Request`: Validation error
 
 #### Delete Flashcard
+
 - **Method:** `DELETE`
 - **Path:** `/api/flashcards/{id}`
 - **Description:** Delete a flashcard (requires confirmation)
 - **Headers:** `Authorization: Bearer {token}`
 - **Success Response (200):**
+
 ```json
 {
   "message": "Flashcard deleted successfully",
   "id": "number"
 }
 ```
+
 - **Error Responses:**
   - `401 Unauthorized`: Invalid token
   - `404 Not Found`: Flashcard not found
 
 #### Bulk Delete Flashcards
+
 - **Method:** `POST`
 - **Path:** `/api/flashcards/bulk-delete`
 - **Description:** Delete multiple flashcards at once
 - **Headers:** `Authorization: Bearer {token}`
 - **Request Body:**
+
 ```json
 {
   "flashcard_ids": ["number[]"]
 }
 ```
+
 - **Success Response (200):**
+
 ```json
 {
   "message": "Flashcards deleted successfully",
@@ -237,17 +262,21 @@
 ### 2.3 AI Generation
 
 #### Generate Flashcards
+
 - **Method:** `POST`
 - **Path:** `/api/generations`
 - **Description:** Generate flashcard proposals from source text using AI
 - **Headers:** `Authorization: Bearer {token}`
 - **Request Body:**
+
 ```json
 {
   "source_text": "string (required, min 1000 chars, max 10000 chars)"
 }
 ```
+
 - **Success Response (201):**
+
 ```json
 {
   "generation_id": "number",
@@ -264,6 +293,7 @@
   "created_at": "timestamp"
 }
 ```
+
 - **Error Responses:**
   - `401 Unauthorized`: Invalid token
   - `400 Bad Request`: Source text length outside allowed range (1000-10000 chars)
@@ -271,6 +301,7 @@
   - `503 Service Unavailable`: AI service temporarily unavailable
 
 #### Get Generation History
+
 - **Method:** `GET`
 - **Path:** `/api/generations`
 - **Description:** Get user's generation history with statistics
@@ -280,6 +311,7 @@
   - `limit` (optional, default: 20, max: 50)
   - `sort_order` (optional, default: `desc`)
 - **Success Response (200):**
+
 ```json
 {
   "data": [
@@ -306,11 +338,13 @@
 ```
 
 #### Get Single Generation
+
 - **Method:** `GET`
 - **Path:** `/api/generations/{id}`
 - **Description:** Get details of a specific generation session
 - **Headers:** `Authorization: Bearer {token}`
 - **Success Response (200):**
+
 ```json
 {
   "id": "number",
@@ -334,6 +368,7 @@
   ]
 }
 ```
+
 - **Error Responses:**
   - `401 Unauthorized`: Invalid token
   - `404 Not Found`: Generation not found
@@ -341,6 +376,7 @@
 ### 2.5 Error Logs & Monitoring
 
 #### Get Generation Error Logs
+
 - **Method:** `GET`
 - **Path:** `/api/generation-errors`
 - **Description:** Get error logs from failed generation attempts (admin/debugging)
@@ -350,6 +386,7 @@
   - `limit` (optional, default: 20)
   - `error_code` (optional): Filter by error code
 - **Success Response (200):**
+
 ```json
 {
   "data": [
@@ -375,11 +412,13 @@
 ### 2.6 Statistics & Analytics
 
 #### Get User Statistics
+
 - **Method:** `GET`
 - **Path:** `/api/users/me/statistics`
 - **Description:** Get comprehensive statistics for the authenticated user
 - **Headers:** `Authorization: Bearer {token}`
 - **Success Response (200):**
+
 ```json
 {
   "flashcards": {
@@ -403,6 +442,7 @@
 ## 3. Authentication & Authorization
 
 ### Authentication Mechanism
+
 The API uses **JWT (JSON Web Token)** based authentication provided by Supabase Auth.
 
 #### Implementation Details:
@@ -445,11 +485,11 @@ The API uses **JWT (JSON Web Token)** based authentication provided by Supabase 
 ### 4.1 Validation Rules
 
 #### Flashcards Resource
+
 - **Front field:**
   - Required for creation
   - Maximum 200 characters (all flashcards - manual and AI-generated)
   - Cannot be empty or whitespace only
-  
 - **Back field:**
   - Required for creation
   - Maximum 500 characters (all flashcards - manual and AI-generated)
@@ -472,6 +512,7 @@ The API uses **JWT (JSON Web Token)** based authentication provided by Supabase 
   - Validated against `generations` table
 
 #### Generations Resource
+
 - **Source text:**
   - Required
   - Minimum: 1000 characters
@@ -484,11 +525,11 @@ The API uses **JWT (JSON Web Token)** based authentication provided by Supabase 
   - Optional: Cache results for identical inputs
 
 #### User Registration
+
 - **Email:**
   - Required
   - Must be valid email format
   - Must be unique (enforced by Supabase)
-  
 - **Password:**
   - Required
   - Minimum 8 characters
@@ -497,6 +538,7 @@ The API uses **JWT (JSON Web Token)** based authentication provided by Supabase 
 ### 4.2 Business Logic Implementation
 
 #### AI Generation Flow
+
 1. **Request Validation:**
    - Validate source text length (1000-10000 chars)
    - Calculate source_text_hash (SHA-256)
@@ -528,12 +570,13 @@ The API uses **JWT (JSON Web Token)** based authentication provided by Supabase 
    - Bulk operations use database transaction for atomicity
 
 #### Statistics Calculation
+
 1. **Generation Statistics:**
    - Total sessions: COUNT of generations
    - Total generated: SUM of generated_count
    - Total accepted: SUM of (accepted_unedited_count + accepted_edited_count)
-   - Acceptance rate: (total_accepted / total_generated) * 100
-   - Edit rate: (SUM of accepted_edited_count / total_accepted) * 100
+   - Acceptance rate: (total_accepted / total_generated) \* 100
+   - Edit rate: (SUM of accepted_edited_count / total_accepted) \* 100
 
 2. **Study Statistics:**
    - Total reviews: COUNT of all review submissions
