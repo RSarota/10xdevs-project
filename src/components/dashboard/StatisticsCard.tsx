@@ -1,4 +1,4 @@
-import { Card, CardContent, Stack, Title3, LargeTitle, Footnote } from "@/components/apple-hig";
+import { Card, CardContent, Stack, LargeTitle, Footnote } from "@/components/apple-hig";
 import type { ReactNode } from "react";
 
 export interface StatisticsCardProps {

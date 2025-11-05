@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "../../db/supabase.client";
 import type { GenerationDTO } from "../../types";
-import { generateFlashcards, type FlashcardProposal } from "./ai.service";
+import { generateFlashcards, type FlashcardProposal } from "./openai.service";
 import { calculateHash } from "../utils/hash";
 
 /**

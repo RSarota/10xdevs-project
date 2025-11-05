@@ -2,7 +2,7 @@ import type { APIRoute } from "astro";
 import { DEFAULT_USER_ID } from "../../db/supabase.client";
 import { GenerateFlashcardsSchema, GetGenerationsQuerySchema } from "../../lib/schemas/generation.schema";
 import { createGeneration, logGenerationError, getGenerations } from "../../lib/services/generations.service";
-import { AIServiceError } from "../../lib/services/ai.service";
+import { AIServiceError } from "../../lib/services/openai.service";
 import { calculateHash } from "../../lib/utils/hash";
 
 export const prerender = false;

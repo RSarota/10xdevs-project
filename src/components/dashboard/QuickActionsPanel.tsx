@@ -3,6 +3,11 @@ import { QuickActionButton } from "./QuickActionButton";
 import { Sparkles, Plus, BookOpen, PlayCircle } from "lucide-react";
 import type { ReactNode } from "react";
 
+// Navigation helper function defined outside component
+const navigateTo = (path: string) => {
+  window.location.href = path;
+};
+
 export interface QuickAction {
   label: string;
   path: string;
@@ -15,7 +20,7 @@ export interface QuickActionsPanelProps {
 
 export function QuickActionsPanel({ actions }: QuickActionsPanelProps) {
   const handleNavigate = (path: string) => {
-    window.location.href = path;
+    navigateTo(path);
   };
 
   return (

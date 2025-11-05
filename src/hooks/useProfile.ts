@@ -67,66 +67,58 @@ export function useProfile(): UseProfileReturn {
   };
 
   const updateProfile = async (data: ProfileFormData): Promise<void> => {
-    try {
-      const body: any = {};
+    const body: { email?: string; password?: string } = {};
 
-      if (data.email !== profile?.email) {
-        body.email = data.email;
-      }
-
-      if (data.password && data.password.trim().length > 0) {
-        body.password = data.password;
-      }
-
-      const response = await fetch("/api/users/me", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          window.location.href = "/login";
-          return;
-        }
-        if (response.status === 400) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Nieprawidłowe dane");
-        }
-        throw new Error("Nie udało się zaktualizować profilu");
-      }
-
-      // Refresh profile after update
-      await fetchProfile();
-    } catch (err) {
-      throw err;
+    if (data.email !== profile?.email) {
+      body.email = data.email;
     }
+
+    if (data.password && data.password.trim().length > 0) {
+      body.password = data.password;
+    }
+
+    const response = await fetch("/api/users/me", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        window.location.href = "/login";
+        return;
+      }
+      if (response.status === 400) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Nieprawidłowe dane");
+      }
+      throw new Error("Nie udało się zaktualizować profilu");
+    }
+
+    // Refresh profile after update
+    await fetchProfile();
   };
 
   const deleteAccount = async (): Promise<void> => {
-    try {
-      const response = await fetch("/api/users/me", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+    const response = await fetch("/api/users/me", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          window.location.href = "/login";
-          return;
-        }
-        throw new Error("Nie udało się usunąć konta");
+    if (!response.ok) {
+      if (response.status === 401) {
+        window.location.href = "/login";
+        return;
       }
-
-      // Redirect to login after account deletion
-      window.location.href = "/login";
-    } catch (err) {
-      throw err;
+      throw new Error("Nie udało się usunąć konta");
     }
+
+    // Redirect to login after account deletion
+    window.location.href = "/login";
   };
 
   useEffect(() => {

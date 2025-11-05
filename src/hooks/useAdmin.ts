@@ -101,58 +101,50 @@ export function useAdmin(): UseAdminReturn {
   };
 
   const deleteUser = async (id: string): Promise<void> => {
-    try {
-      const response = await fetch(`/api/users/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+    const response = await fetch(`/api/users/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          window.location.href = "/login";
-          return;
-        }
-        if (response.status === 403) {
-          throw new Error("Brak uprawnień");
-        }
-        throw new Error("Nie udało się usunąć użytkownika");
+    if (!response.ok) {
+      if (response.status === 401) {
+        window.location.href = "/login";
+        return;
       }
-
-      // Refresh users list
-      await fetchUsers();
-    } catch (err) {
-      throw err;
+      if (response.status === 403) {
+        throw new Error("Brak uprawnień");
+      }
+      throw new Error("Nie udało się usunąć użytkownika");
     }
+
+    // Refresh users list
+    await fetchUsers();
   };
 
   const changeUserRole = async (id: string, role: string): Promise<void> => {
-    try {
-      const response = await fetch(`/api/users/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ role }),
-      });
+    const response = await fetch(`/api/users/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ role }),
+    });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          window.location.href = "/login";
-          return;
-        }
-        if (response.status === 403) {
-          throw new Error("Brak uprawnień");
-        }
-        throw new Error("Nie udało się zmienić roli użytkownika");
+    if (!response.ok) {
+      if (response.status === 401) {
+        window.location.href = "/login";
+        return;
       }
-
-      // Refresh users list
-      await fetchUsers();
-    } catch (err) {
-      throw err;
+      if (response.status === 403) {
+        throw new Error("Brak uprawnień");
+      }
+      throw new Error("Nie udało się zmienić roli użytkownika");
     }
+
+    // Refresh users list
+    await fetchUsers();
   };
 
   useEffect(() => {

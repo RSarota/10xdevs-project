@@ -15,8 +15,9 @@ Backend - Supabase jako kompleksowe rozwiązanie backendowe:
 
 AI - Komunikacja z modelami przez usługę Azure OpenAI Service
 
-- Azure OpenAI Service: wykonywanie inferencji modeli generatywnych i embeddings.
-- Azure API Management: wystawienie publicznego API, walidacja klucza API (x-api-key), rate limiting, quotas i analytics.
+- Azure OpenAI Service – wykorzystanie modelu o3-mini do generowania treści edukacyjnych (np. fiszek) na podstawie danych wejściowych od użytkownika. Model obsługuje funkcję function calling, co pozwala na uzyskiwanie odpowiedzi w ustrukturyzowanym formacie JSON zgodnym ze zdefiniowanym schematem ({ front: string, back: string }).
+- Schemat odpowiedzi – każda odpowiedź zawiera listę obiektów z polami front (maks. 200 znaków) i back (maks. 500 znaków), co umożliwia łatwą integrację z interfejsem użytkownika.
+- Azure API Management – wystawienie publicznego API, które pośredniczy w komunikacji z modelem. Obsługuje walidację klucza API (x-api-key), ograniczenia liczby zapytań (rate limiting), limity użytkowania (quotas) oraz analitykę.
 
 CI/CD i Hosting:
 

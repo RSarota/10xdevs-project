@@ -11,7 +11,7 @@ export function FilterSortControls({ filters, onChange }: FilterSortProps) {
   const handleTypeChange = (value: string) => {
     onChange({
       ...filters,
-      type: value === "all" ? undefined : (value as any),
+      type: value === "all" ? undefined : (value as FlashcardsFilters["type"]),
       page: 1, // Reset to first page
     });
   };

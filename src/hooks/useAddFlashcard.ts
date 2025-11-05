@@ -42,8 +42,6 @@ export function useAddFlashcard(): UseAddFlashcardReturn {
         const errorData = await response.json();
         throw new Error(errorData.message || "Nie udało się dodać fiszki");
       }
-    } catch (err) {
-      throw err;
     } finally {
       setLoading(false);
     }

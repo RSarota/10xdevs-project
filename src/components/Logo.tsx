@@ -6,7 +6,7 @@ interface LogoProps {
   variant?: "default" | "white" | "gradient";
 }
 
-export function Logo({ size = 32, className = "", variant = "default" }: LogoProps) {
+export function Logo({ size = 32, className = "" }: LogoProps) {
   return (
     <svg
       width={size}

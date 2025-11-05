@@ -14,7 +14,7 @@ export default function ProfilePage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const handleUpdateProfile = async (data: any) => {
+  const handleUpdateProfile = async (data: { email: string; password?: string; confirmPassword?: string }) => {
     try {
       setUpdating(true);
       await updateProfile(data);

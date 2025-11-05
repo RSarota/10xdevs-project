@@ -4,6 +4,15 @@ import { Logo } from "./Logo";
 import { ThemeToggle } from "./ThemeToggle";
 import { LayoutDashboard, Sparkles, Plus, BookOpen, User, ShieldAlert, LogOut } from "lucide-react";
 
+// Navigation helper functions defined outside component
+const navigateTo = (path: string) => {
+  window.location.href = path;
+};
+
+const logout = () => {
+  window.location.href = "/login";
+};
+
 interface NavItem {
   id: string;
   label: string;
@@ -68,12 +77,12 @@ export default function AppNavigation({ currentPath = "/dashboard", isAdmin = fa
   }, [currentPath]);
 
   const handleNavigate = (path: string) => {
-    window.location.href = path;
+    navigateTo(path);
   };
 
   const handleLogout = () => {
     // TODO: Implement logout logic
-    window.location.href = "/login";
+    logout();
   };
 
   const allNavItems = isAdmin ? [...NAV_ITEMS, ...ADMIN_NAV_ITEMS] : NAV_ITEMS;

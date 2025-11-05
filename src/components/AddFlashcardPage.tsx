@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { useAddFlashcard } from "@/hooks/useAddFlashcard";
 import { AddFlashcardForm } from "./add-flashcard/AddFlashcardForm";
@@ -6,6 +6,11 @@ import { CheckCircle2, BookOpen } from "lucide-react";
 
 // Apple HIG Components
 import { Stack, Banner, Container, EmptyState } from "./apple-hig";
+
+// Navigation helper function defined outside component
+const navigateToFlashcards = () => {
+  window.location.href = "/my-flashcards";
+};
 
 export default function AddFlashcardPage() {
   const { loading, submit } = useAddFlashcard();
@@ -45,7 +50,7 @@ export default function AddFlashcardPage() {
                 icon={<CheckCircle2 className="w-5 h-5" />}
                 action={{
                   label: "Zobacz moje fiszki",
-                  onClick: () => (window.location.href = "/my-flashcards"),
+                  onClick: navigateToFlashcards,
                 }}
               />
             )}
