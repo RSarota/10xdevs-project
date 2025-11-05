@@ -1,82 +1,511 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* ============================================
+   TAILWIND V4 DARK MODE CONFIGURATION
+   Class-based: applies when .dark is on <html> or ancestors
+   ============================================ */
+@variant dark (.dark &);
+
+/* ============================================
+   APPLE-STYLE SCROLLBARS
+   ============================================ */
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: hsl(var(--apple-fill) / 0.3);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--apple-fill) / 0.5);
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: hsl(var(--apple-fill) / 0.6);
+  background-clip: padding-box;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--apple-fill) / 0.3) transparent;
+}
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  /* ============================================
+     FLUENT UI 2 DESIGN TOKENS
+     Following Microsoft Fluent Design System
+     ============================================ */
+  
+  /* Border Radius - Fluent standard is 4px */
+  --radius: 0.25rem;
+  
+  /* ============================================
+     NEUTRAL PALETTE (Fluent Gray Scale)
+     WCAG AA compliant contrast ratios
+     ============================================ */
+  --neutral-0: 0 0% 100%;           /* Pure white */
+  --neutral-4: 0 0% 98%;            /* Subtle backgrounds */
+  --neutral-8: 0 0% 96%;            /* Card backgrounds */
+  --neutral-12: 0 0% 94%;           /* Hover states */
+  --neutral-16: 0 0% 91%;           /* Borders, dividers */
+  --neutral-24: 0 0% 88%;           /* Disabled backgrounds */
+  --neutral-40: 0 0% 73%;           /* Secondary text */
+  --neutral-60: 0 0% 56%;           /* Tertiary text */
+  --neutral-80: 0 0% 38%;           /* Strong text on light */
+  --neutral-100: 0 0% 20%;          /* Primary text */
+  --neutral-130: 0 0% 13%;          /* Headings, emphasis */
+  --neutral-160: 0 0% 5%;           /* Darkest text */
+  
+  /* ============================================
+     BRAND COLORS (Microsoft Blue inspired)
+     Enhanced contrast for maximum visibility
+     ============================================ */
+  --brand-10: 206 100% 97%;
+  --brand-20: 206 96% 94%;
+  --brand-40: 206 94% 85%;
+  --brand-60: 206 92% 72%;
+  --brand-80: 206 100% 42%;         /* Primary brand - much darker for strong contrast */
+  --brand-100: 206 100% 38%;        /* Pure brand */
+  --brand-120: 206 100% 34%;
+  --brand-140: 206 100% 30%;
+  --brand-160: 206 100% 26%;
+  
+  /* ============================================
+     SEMANTIC COLORS (Light Theme)
+     Direct HSL values for Tailwind v4 compatibility
+     ============================================ */
+  --background: 0 0% 100%;          /* neutral-0 */
+  --foreground: 0 0% 13%;           /* neutral-130 */
+  --card: 0 0% 100%;                /* neutral-0 */
+  --card-foreground: 0 0% 13%;      /* neutral-130 */
+  --popover: 0 0% 100%;             /* neutral-0 */
+  --popover-foreground: 0 0% 13%;   /* neutral-130 */
+  --primary: 206 100% 42%;          /* brand-80 - strong contrast on white */
+  --primary-foreground: 0 0% 100%;  /* neutral-0 */
+  --secondary: 0 0% 96%;            /* neutral-8 */
+  --secondary-foreground: 0 0% 13%; /* neutral-130 */
+  --muted: 0 0% 94%;                /* neutral-12 */
+  --muted-foreground: 0 0% 38%;     /* neutral-80 */
+  --accent: 206 96% 94%;            /* brand-20 */
+  --accent-foreground: 206 100% 34%; /* brand-140 */
+  --destructive: 0 86% 59%;         /* Red with WCAG AA */
+  --destructive-foreground: 0 0% 100%;
+  --success: 145 65% 42%;           /* Green WCAG AA */
+  --success-foreground: 0 0% 100%;
+  --warning: 38 92% 50%;            /* Orange WCAG AA */
+  --warning-foreground: 0 0% 13%;
+  --border: 0 0% 91%;               /* neutral-16 */
+  --input: 0 0% 91%;                /* neutral-16 */
+  --ring: 206 100% 42%;             /* brand-80 */
+  
+  /* ============================================
+     ELEVATION SYSTEM (Fluent Shadows)
+     ============================================ */
+  --shadow-2: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.14);
+  --shadow-4: 0 0 2px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.14);
+  --shadow-8: 0 0 2px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.14);
+  --shadow-16: 0 0 2px rgba(0, 0, 0, 0.12), 0 16px 32px rgba(0, 0, 0, 0.14);
+  --shadow-28: 0 0 8px rgba(0, 0, 0, 0.12), 0 28px 48px rgba(0, 0, 0, 0.18);
+  --shadow-64: 0 0 8px rgba(0, 0, 0, 0.12), 0 64px 128px rgba(0, 0, 0, 0.24);
+  
+  /* ============================================
+     TYPOGRAPHY SCALE (Fluent)
+     ============================================ */
+  --font-size-100: 0.625rem;        /* 10px - Caption */
+  --font-size-200: 0.75rem;         /* 12px - Caption */
+  --font-size-300: 0.875rem;        /* 14px - Body */
+  --font-size-400: 1rem;            /* 16px - Body Large */
+  --font-size-500: 1.125rem;        /* 18px - Subtitle 2 */
+  --font-size-600: 1.25rem;         /* 20px - Subtitle 1 */
+  --font-size-700: 1.5rem;          /* 24px - Title 3 */
+  --font-size-800: 1.75rem;         /* 28px - Title 2 */
+  --font-size-900: 2rem;            /* 32px - Title 1 */
+  --font-size-1000: 2.5rem;         /* 40px - Display */
+  
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  --line-height-100: 1;
+  --line-height-200: 1.25;
+  --line-height-300: 1.5;
+  --line-height-400: 1.75;
+  
+  /* ============================================
+     SPACING SYSTEM (4px base)
+     ============================================ */
+  --spacing-none: 0;
+  --spacing-xxs: 0.125rem;          /* 2px */
+  --spacing-xs: 0.25rem;            /* 4px */
+  --spacing-s: 0.5rem;              /* 8px */
+  --spacing-sNudge: 0.625rem;       /* 10px */
+  --spacing-m: 0.75rem;             /* 12px */
+  --spacing-mNudge: 0.875rem;       /* 14px */
+  --spacing-l: 1rem;                /* 16px */
+  --spacing-xl: 1.25rem;            /* 20px */
+  --spacing-xxl: 1.5rem;            /* 24px */
+  --spacing-xxxl: 2rem;             /* 32px */
+  
+  /* ============================================
+     MOTION TOKENS (Fluent)
+     ============================================ */
+  --duration-ultra-fast: 50ms;
+  --duration-faster: 100ms;
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 400ms;
+  --duration-ultra-slow: 500ms;
+  
+  --curve-accelerate: cubic-bezier(0.9, 0.1, 1, 0.2);
+  --curve-decelerate: cubic-bezier(0.1, 0.9, 0.2, 1);
+  --curve-easy-ease: cubic-bezier(0.8, 0, 0.2, 1);
+  --curve-linear: linear;
+  
+  /* ============================================
+     ACCESSIBILITY - FOCUS INDICATORS
+     WCAG 2.1 Level AA compliant
+     ============================================ */
+  --focus-stroke-outer: 2px;
+  --focus-stroke-inner: 1px;
+  --focus-stroke-outer-color: 0 0% 100%;   /* neutral-0 */
+  --focus-stroke-inner-color: 206 100% 42%; /* brand-80 */
+  
+  /* ============================================
+     CHARTS (keeping existing values)
+     ============================================ */
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  
+  /* ============================================
+     SIDEBAR (Fluent Navigation)
+     ============================================ */
+  --sidebar: 0 0% 98%;              /* neutral-4 */
+  --sidebar-foreground: 0 0% 13%;   /* neutral-130 */
+  --sidebar-primary: 206 100% 42%;  /* brand-80 */
+  --sidebar-primary-foreground: 0 0% 100%; /* neutral-0 */
+  --sidebar-accent: 0 0% 96%;       /* neutral-8 */
+  --sidebar-accent-foreground: 0 0% 13%; /* neutral-130 */
+  --sidebar-border: 0 0% 91%;       /* neutral-16 */
+  --sidebar-ring: 206 100% 42%;     /* brand-80 */
+
+  /* ============================================
+     APPLE HIG DESIGN TOKENS
+     Based on Apple Human Interface Guidelines
+     ============================================ */
+  
+  /* Apple System Colors (Light Mode) */
+  --apple-blue: 212 100% 48%;          /* System Blue */
+  --apple-blue-light: 212 100% 92%;
+  --apple-blue-dark: 212 100% 38%;
+  --apple-green: 142 78% 39%;          /* System Green */
+  --apple-indigo: 242 87% 58%;         /* System Indigo */
+  --apple-orange: 27 100% 55%;         /* System Orange */
+  --apple-pink: 345 83% 62%;           /* System Pink */
+  --apple-purple: 274 75% 64%;         /* System Purple */
+  --apple-red: 4 90% 58%;              /* System Red */
+  --apple-teal: 191 85% 40%;           /* System Teal */
+  --apple-yellow: 48 100% 50%;         /* System Yellow */
+  
+  /* Apple System Grays */
+  --apple-gray: 0 0% 56%;              /* System Gray */
+  --apple-gray-2: 240 2% 93%;          /* System Gray 2 */
+  --apple-gray-3: 240 2% 88%;          /* System Gray 3 */
+  --apple-gray-4: 240 2% 82%;          /* System Gray 4 */
+  --apple-gray-5: 240 3% 75%;          /* System Gray 5 */
+  --apple-gray-6: 240 4% 46%;          /* System Gray 6 */
+  
+  /* Apple Label Colors */
+  --apple-label: 0 0% 0%;              /* Primary label */
+  --apple-label-secondary: 0 0% 23.5%; /* Secondary label - 60% opacity */
+  --apple-label-tertiary: 0 0% 23.5%;  /* Tertiary label - 30% opacity */
+  --apple-label-quaternary: 0 0% 23.5%; /* Quaternary label - 18% opacity */
+  
+  /* Apple Fill Colors */
+  --apple-fill: 0 0% 47.1%;            /* Primary fill - 20% opacity */
+  --apple-fill-secondary: 0 0% 47.1%;  /* Secondary fill - 16% opacity */
+  --apple-fill-tertiary: 0 0% 46.3%;   /* Tertiary fill - 12% opacity */
+  --apple-fill-quaternary: 0 0% 45.5%; /* Quaternary fill - 8% opacity */
+  
+  /* Apple Background Colors */
+  --apple-bg-primary: 0 0% 100%;       /* Primary background */
+  --apple-bg-secondary: 0 0% 98%;      /* Secondary background */
+  --apple-bg-tertiary: 0 0% 100%;      /* Tertiary background */
+  
+  /* Apple Grouped Background */
+  --apple-grouped-bg: 0 0% 95%;        /* Grouped background */
+  --apple-grouped-bg-secondary: 0 0% 100%; /* Grouped secondary */
+  --apple-grouped-bg-tertiary: 0 0% 98%; /* Grouped tertiary */
+  
+  /* Apple Separator Colors */
+  --apple-separator: 0 0% 23.5%;       /* 24% opacity */
+  --apple-separator-opaque: 0 0% 78%;  /* Opaque separator */
+  
+  /* Apple Corner Radius (San Francisco rounding) */
+  --apple-radius-small: 0.375rem;      /* 6px - Small elements */
+  --apple-radius-medium: 0.625rem;     /* 10px - Default buttons */
+  --apple-radius-large: 0.875rem;      /* 14px - Cards, large buttons */
+  --apple-radius-xlarge: 1.25rem;      /* 20px - Sheets, modals */
+  
+  /* Apple Typography Scale (SF Pro Text & Display) */
+  --apple-font-large-title: 2.125rem;  /* 34px - Large Title */
+  --apple-font-title-1: 1.75rem;       /* 28px - Title 1 */
+  --apple-font-title-2: 1.375rem;      /* 22px - Title 2 */
+  --apple-font-title-3: 1.25rem;       /* 20px - Title 3 */
+  --apple-font-headline: 1.0625rem;    /* 17px - Headline (semibold) */
+  --apple-font-body: 1.0625rem;        /* 17px - Body (regular) */
+  --apple-font-callout: 1rem;          /* 16px - Callout */
+  --apple-font-subheadline: 0.9375rem; /* 15px - Subheadline */
+  --apple-font-footnote: 0.8125rem;    /* 13px - Footnote */
+  --apple-font-caption-1: 0.75rem;     /* 12px - Caption 1 */
+  --apple-font-caption-2: 0.6875rem;   /* 11px - Caption 2 */
+  
+  /* Apple Font Weights (SF Pro) */
+  --apple-weight-ultralight: 100;
+  --apple-weight-thin: 200;
+  --apple-weight-light: 300;
+  --apple-weight-regular: 400;
+  --apple-weight-medium: 500;
+  --apple-weight-semibold: 600;
+  --apple-weight-bold: 700;
+  --apple-weight-heavy: 800;
+  --apple-weight-black: 900;
+  
+  /* Apple Line Heights */
+  --apple-line-height-tight: 1.15;
+  --apple-line-height-normal: 1.2;
+  --apple-line-height-relaxed: 1.4;
+  
+  /* Apple Spacing (8pt grid system) */
+  --apple-space-1: 0.125rem;           /* 2px */
+  --apple-space-2: 0.25rem;            /* 4px */
+  --apple-space-3: 0.5rem;             /* 8px */
+  --apple-space-4: 0.75rem;            /* 12px */
+  --apple-space-5: 1rem;               /* 16px */
+  --apple-space-6: 1.25rem;            /* 20px */
+  --apple-space-7: 1.5rem;             /* 24px */
+  --apple-space-8: 2rem;               /* 32px */
+  --apple-space-9: 2.5rem;             /* 40px */
+  --apple-space-10: 3rem;              /* 48px */
+  
+  /* Apple Elevation (Shadows) */
+  --apple-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --apple-shadow-md: 0 2px 8px 0 rgba(0, 0, 0, 0.08), 0 1px 3px 0 rgba(0, 0, 0, 0.06);
+  --apple-shadow-lg: 0 4px 16px 0 rgba(0, 0, 0, 0.1), 0 2px 6px 0 rgba(0, 0, 0, 0.08);
+  --apple-shadow-xl: 0 8px 32px 0 rgba(0, 0, 0, 0.12), 0 4px 12px 0 rgba(0, 0, 0, 0.1);
+  
+  /* Apple Motion (Spring animations) */
+  --apple-spring-duration: 350ms;
+  --apple-spring-easing: cubic-bezier(0.2, 0.9, 0.3, 1.0);
+  --apple-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --apple-ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);
+  
+  /* Apple Touch Target (Minimum 44x44pt) */
+  --apple-touch-target: 2.75rem;       /* 44px */
+  
+  /* Apple Vibrancy & Blur */
+  --apple-blur-amount: 20px;
+  --apple-vibrancy-opacity: 0.8;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* ============================================
+     FLUENT UI 2 DARK THEME
+     WCAG AA compliant with enhanced visibility
+     ============================================ */
+  
+  /* ============================================
+     DARK NEUTRAL PALETTE (Inverted)
+     ============================================ */
+  --neutral-0: 0 0% 0%;             /* Pure black */
+  --neutral-4: 0 0% 6%;             /* Deeper background */
+  --neutral-8: 0 0% 10%;            /* Card backgrounds */
+  --neutral-12: 0 0% 14%;           /* Hover states */
+  --neutral-16: 0 0% 18%;           /* Borders, dividers */
+  --neutral-24: 0 0% 24%;           /* Disabled backgrounds */
+  --neutral-40: 0 0% 40%;           /* Secondary text */
+  --neutral-60: 0 0% 60%;           /* Tertiary text */
+  --neutral-80: 0 0% 78%;           /* Strong text on dark */
+  --neutral-100: 0 0% 88%;          /* Primary text */
+  --neutral-130: 0 0% 95%;          /* Headings, emphasis */
+  --neutral-160: 0 0% 100%;         /* Pure white text */
+  
+  /* ============================================
+     DARK BRAND COLORS (Lighter variants for dark backgrounds)
+     Enhanced for maximum visibility
+     ============================================ */
+  --brand-10: 206 100% 15%;
+  --brand-20: 206 96% 20%;
+  --brand-40: 206 94% 35%;
+  --brand-60: 206 92% 52%;
+  --brand-80: 206 100% 70%;         /* Primary brand - bright for dark bg */
+  --brand-100: 206 100% 75%;        /* Pure brand */
+  --brand-120: 206 100% 80%;
+  --brand-140: 206 100% 85%;
+  --brand-160: 206 100% 90%;
+  
+  /* ============================================
+     SEMANTIC COLORS (Dark Theme)
+     Direct HSL values for Tailwind v4 compatibility
+     ============================================ */
+  --background: 0 0% 6%;            /* neutral-4 */
+  --foreground: 0 0% 95%;           /* neutral-130 */
+  --card: 0 0% 10%;                 /* neutral-8 */
+  --card-foreground: 0 0% 95%;      /* neutral-130 */
+  --popover: 0 0% 10%;              /* neutral-8 */
+  --popover-foreground: 0 0% 95%;   /* neutral-130 */
+  --primary: 206 100% 70%;          /* brand-80 - bright for strong visibility on dark */
+  --primary-foreground: 0 0% 0%;    /* neutral-0 */
+  --secondary: 0 0% 18%;            /* neutral-16 */
+  --secondary-foreground: 0 0% 95%; /* neutral-130 */
+  --muted: 0 0% 18%;                /* neutral-16 */
+  --muted-foreground: 0 0% 78%;     /* neutral-80 */
+  --accent: 206 96% 20%;            /* brand-20 */
+  --accent-foreground: 206 100% 85%; /* brand-140 */
+  --destructive: 0 86% 65%;         /* Lighter red for dark bg */
+  --destructive-foreground: 0 0% 0%;
+  --success: 145 65% 55%;           /* Lighter green */
+  --success-foreground: 0 0% 0%;
+  --warning: 38 92% 60%;            /* Lighter orange */
+  --warning-foreground: 0 0% 0%;
+  --border: 0 0% 18%;               /* neutral-16 */
+  --input: 0 0% 18%;                /* neutral-16 */
+  --ring: 206 100% 70%;             /* brand-80 */
+  
+  /* ============================================
+     DARK ELEVATION SYSTEM (Enhanced shadows)
+     ============================================ */
+  --shadow-2: 0 0 2px rgba(0, 0, 0, 0.24), 0 2px 4px rgba(0, 0, 0, 0.28);
+  --shadow-4: 0 0 2px rgba(0, 0, 0, 0.24), 0 4px 8px rgba(0, 0, 0, 0.28);
+  --shadow-8: 0 0 2px rgba(0, 0, 0, 0.24), 0 8px 16px rgba(0, 0, 0, 0.28);
+  --shadow-16: 0 0 2px rgba(0, 0, 0, 0.24), 0 16px 32px rgba(0, 0, 0, 0.28);
+  --shadow-28: 0 0 8px rgba(0, 0, 0, 0.24), 0 28px 48px rgba(0, 0, 0, 0.36);
+  --shadow-64: 0 0 8px rgba(0, 0, 0, 0.24), 0 64px 128px rgba(0, 0, 0, 0.48);
+  
+  /* ============================================
+     DARK FOCUS INDICATORS
+     ============================================ */
+  --focus-stroke-outer-color: 0 0% 18%;    /* neutral-16 */
+  --focus-stroke-inner-color: 206 100% 70%; /* brand-80 */
+  
+  /* ============================================
+     DARK CHARTS
+     ============================================ */
+  --chart-1: oklch(0.588 0.243 264.376);
+  --chart-2: oklch(0.796 0.17 162.48);
+  --chart-3: oklch(0.869 0.188 70.08);
+  --chart-4: oklch(0.727 0.265 303.9);
+  --chart-5: oklch(0.745 0.246 16.439);
+  
+  /* ============================================
+     DARK SIDEBAR
+     ============================================ */
+  --sidebar: 0 0% 10%;              /* neutral-8 */
+  --sidebar-foreground: 0 0% 95%;   /* neutral-130 */
+  --sidebar-primary: 206 100% 70%;  /* brand-80 */
+  --sidebar-primary-foreground: 0 0% 0%; /* neutral-0 */
+  --sidebar-accent: 0 0% 18%;       /* neutral-16 */
+  --sidebar-accent-foreground: 0 0% 95%; /* neutral-130 */
+  --sidebar-border: 0 0% 18%;       /* neutral-16 */
+  --sidebar-ring: 206 100% 70%;     /* brand-80 */
+
+  /* ============================================
+     APPLE HIG DARK MODE
+     ============================================ */
+  
+  /* Apple System Colors (Dark Mode) - More muted for better dark mode experience */
+  --apple-blue: 212 85% 58%;           /* System Blue - softer, less intense */
+  --apple-blue-light: 212 45% 30%;
+  --apple-blue-dark: 212 90% 65%;
+  --apple-green: 142 70% 52%;          /* System Green - softer */
+  --apple-indigo: 242 80% 68%;         /* System Indigo - softer */
+  --apple-orange: 27 95% 62%;          /* System Orange - softer */
+  --apple-pink: 345 78% 68%;           /* System Pink - softer */
+  --apple-purple: 274 70% 70%;         /* System Purple - softer */
+  --apple-red: 4 85% 65%;              /* System Red - softer */
+  --apple-teal: 191 78% 52%;           /* System Teal - softer */
+  --apple-yellow: 48 95% 58%;          /* System Yellow - softer */
+  
+  /* Apple System Grays (Dark Mode) */
+  --apple-gray: 0 0% 58%;              /* System Gray */
+  --apple-gray-2: 240 2% 18%;          /* System Gray 2 */
+  --apple-gray-3: 240 2% 23%;          /* System Gray 3 */
+  --apple-gray-4: 240 2% 28%;          /* System Gray 4 */
+  --apple-gray-5: 240 3% 32%;          /* System Gray 5 */
+  --apple-gray-6: 240 4% 60%;          /* System Gray 6 */
+  
+  /* Apple Label Colors (Dark Mode) */
+  --apple-label: 0 0% 100%;            /* Primary label */
+  --apple-label-secondary: 0 0% 92%;   /* Secondary label */
+  --apple-label-tertiary: 0 0% 84%;    /* Tertiary label */
+  --apple-label-quaternary: 0 0% 76%;  /* Quaternary label */
+  
+  /* Apple Fill Colors (Dark Mode) */
+  --apple-fill: 0 0% 47.1%;            /* Primary fill */
+  --apple-fill-secondary: 0 0% 47.1%;  /* Secondary fill */
+  --apple-fill-tertiary: 0 0% 46.3%;   /* Tertiary fill */
+  --apple-fill-quaternary: 0 0% 45.5%; /* Quaternary fill */
+  
+  /* Apple Background Colors (Dark Mode) */
+  --apple-bg-primary: 0 0% 0%;         /* Primary background */
+  --apple-bg-secondary: 0 0% 7%;       /* Secondary background */
+  --apple-bg-tertiary: 0 0% 11%;       /* Tertiary background */
+  
+  /* Apple Grouped Background (Dark Mode) */
+  --apple-grouped-bg: 0 0% 0%;         /* Grouped background */
+  --apple-grouped-bg-secondary: 0 0% 7%; /* Grouped secondary */
+  --apple-grouped-bg-tertiary: 0 0% 11%; /* Grouped tertiary */
+  
+  /* Apple Separator Colors (Dark Mode) */
+  --apple-separator: 0 0% 33%;         /* Separator */
+  --apple-separator-opaque: 0 0% 22%;  /* Opaque separator */
+  
+  /* Apple Shadows (Dark Mode - more prominent) */
+  --apple-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --apple-shadow-md: 0 2px 8px 0 rgba(0, 0, 0, 0.4), 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+  --apple-shadow-lg: 0 4px 16px 0 rgba(0, 0, 0, 0.5), 0 2px 6px 0 rgba(0, 0, 0, 0.4);
+  --apple-shadow-xl: 0 8px 32px 0 rgba(0, 0, 0, 0.6), 0 4px 12px 0 rgba(0, 0, 0, 0.5);
 }
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  /* ============================================
+     FLUENT RADIUS SCALE
+     ============================================ */
+  --radius-none: 0;
+  --radius-small: 0.125rem;         /* 2px */
+  --radius-medium: var(--radius);   /* 4px - Fluent standard */
+  --radius-large: 0.5rem;           /* 8px */
+  --radius-xlarge: 0.75rem;         /* 12px */
+  --radius-circular: 9999px;        /* Full circle */
+  
+  /* Legacy radius support (for backwards compatibility) */
+  --radius-sm: 0.125rem;
+  --radius-md: var(--radius);
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  
+  /* ============================================
+     SEMANTIC COLOR MAPPINGS (Tailwind v4 format)
+     Using direct HSL space-separated values
+     ============================================ */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -92,14 +521,27 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  
+  /* ============================================
+     CHART COLORS (OKLCH format - native support)
+     ============================================ */
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  
+  /* ============================================
+     SIDEBAR COLORS
+     ============================================ */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -108,13 +550,178 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  
+  /* ============================================
+     FLUENT NEUTRAL PALETTE (Tailwind utilities)
+     Usage: bg-neutral-8, text-neutral-130, border-neutral-16
+     ============================================ */
+  --color-neutral-0: var(--neutral-0);
+  --color-neutral-4: var(--neutral-4);
+  --color-neutral-8: var(--neutral-8);
+  --color-neutral-12: var(--neutral-12);
+  --color-neutral-16: var(--neutral-16);
+  --color-neutral-24: var(--neutral-24);
+  --color-neutral-40: var(--neutral-40);
+  --color-neutral-60: var(--neutral-60);
+  --color-neutral-80: var(--neutral-80);
+  --color-neutral-100: var(--neutral-100);
+  --color-neutral-130: var(--neutral-130);
+  --color-neutral-160: var(--neutral-160);
+  
+  /* ============================================
+     FLUENT BRAND PALETTE (Tailwind utilities)
+     Usage: bg-brand-80, text-brand-140, border-brand-60
+     ============================================ */
+  --color-brand-10: var(--brand-10);
+  --color-brand-20: var(--brand-20);
+  --color-brand-40: var(--brand-40);
+  --color-brand-60: var(--brand-60);
+  --color-brand-80: var(--brand-80);
+  --color-brand-100: var(--brand-100);
+  --color-brand-120: var(--brand-120);
+  --color-brand-140: var(--brand-140);
+  --color-brand-160: var(--brand-160);
+  
+  /* ============================================
+     FLUENT SHADOWS (Tailwind utilities)
+     Usage: shadow-2, shadow-4, shadow-8, shadow-16, shadow-28, shadow-64
+     ============================================ */
+  --box-shadow-2: var(--shadow-2);
+  --box-shadow-4: var(--shadow-4);
+  --box-shadow-8: var(--shadow-8);
+  --box-shadow-16: var(--shadow-16);
+  --box-shadow-28: var(--shadow-28);
+  --box-shadow-64: var(--shadow-64);
 }
 
 @layer base {
+  /* ============================================
+     FLUENT UI 2 BASE STYLES
+     ============================================ */
+  
   * {
-    @apply border-border outline-ring/50;
+    border-color: hsl(var(--border));
   }
+  
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-size: var(--font-size-300);
+    line-height: var(--line-height-300);
+    font-weight: var(--font-weight-regular);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* ============================================
+     ACCESSIBILITY - FOCUS STATES (WCAG 2.1 AA)
+     Enhanced focus indicators for keyboard navigation
+     ============================================ */
+  
+  *:focus {
+    outline: none;
+  }
+  
+  *:focus-visible {
+    outline: var(--focus-stroke-outer) solid hsl(var(--focus-stroke-inner-color));
+    outline-offset: 2px;
+    border-radius: var(--radius-small);
+    transition: outline var(--duration-fast) var(--curve-easy-ease);
+  }
+  
+  /* Enhanced focus for interactive elements */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [role="button"]:focus-visible,
+  [tabindex]:not([tabindex="-1"]):focus-visible {
+    outline: var(--focus-stroke-outer) solid hsl(var(--focus-stroke-inner-color));
+    outline-offset: 2px;
+    box-shadow: 0 0 0 var(--focus-stroke-inner) hsl(var(--focus-stroke-outer-color)),
+                0 0 0 calc(var(--focus-stroke-inner) + var(--focus-stroke-outer)) hsl(var(--focus-stroke-inner-color));
+  }
+  
+  /* ============================================
+     TYPOGRAPHY UTILITIES
+     ============================================ */
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-200);
+  }
+  
+  h1 {
+    font-size: var(--font-size-900);
+  }
+  
+  h2 {
+    font-size: var(--font-size-800);
+  }
+  
+  h3 {
+    font-size: var(--font-size-700);
+  }
+  
+  h4 {
+    font-size: var(--font-size-600);
+  }
+  
+  h5 {
+    font-size: var(--font-size-500);
+  }
+  
+  h6 {
+    font-size: var(--font-size-400);
+  }
+  
+  /* ============================================
+     REDUCED MOTION (WCAG 2.1)
+     Respect user's motion preferences
+     ============================================ */
+  
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  
+  /* ============================================
+     HIGH CONTRAST MODE (Windows)
+     Enhanced visibility for high contrast themes
+     ============================================ */
+  
+  @media (prefers-contrast: high) {
+    * {
+      border-width: 2px;
+    }
+    
+    button,
+    a,
+    input,
+    textarea,
+    select {
+      outline-width: 3px;
+    }
+  }
+  
+  /* ============================================
+     SELECTION STYLES
+     ============================================ */
+  
+  ::selection {
+    background-color: hsl(var(--primary) / 0.2);
+    color: hsl(var(--foreground));
+  }
+  
+  ::-moz-selection {
+    background-color: hsl(var(--primary) / 0.2);
+    color: hsl(var(--foreground));
   }
 }

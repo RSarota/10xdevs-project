@@ -1,0 +1,24 @@
+---
+import Layout from "./Layout.astro";
+import AppNavigation from "../components/AppNavigation";
+
+interface Props {
+  title: string;
+  currentPath?: string;
+  isAdmin?: boolean;
+}
+
+const { title, currentPath = "/dashboard", isAdmin = false } = Astro.props;
+---
+
+<Layout title={title}>
+  <div class="min-h-screen flex bg-[hsl(var(--apple-grouped-bg))]">
+    <!-- Sidebar Navigation (Desktop) -->
+    <AppNavigation currentPath={currentPath} isAdmin={isAdmin} client:load />
+
+    <!-- Main Content Area -->
+    <main class="flex-1 lg:ml-[280px] pb-[80px] lg:pb-0">
+      <slot />
+    </main>
+  </div>
+</Layout>

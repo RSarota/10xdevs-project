@@ -1,0 +1,19 @@
+<svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="favicon-gradient-v7" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#007AFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5856D6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Karty rozchodzące się - uproszczone dla favicon -->
+  <rect x="10" y="4" width="16" height="12" rx="1.5" fill="#007AFF" opacity="0.3" transform="rotate(-12 18 10)" />
+  <rect x="10" y="32" width="16" height="12" rx="1.5" fill="#007AFF" opacity="0.3" transform="rotate(12 18 38)" />
+  
+  <!-- Główna karta centralna -->
+  <rect x="8" y="10" width="20" height="16" rx="3" fill="url(#favicon-gradient-v7)" />
+  
+  <!-- "10x" text -->
+  <text x="18" y="19" font-size="10" font-weight="700" fill="white" text-anchor="middle" dominant-baseline="middle" font-family="system-ui, -apple-system, sans-serif">10x</text>
+</svg>
+

@@ -56,11 +56,20 @@ const reactConfig = tseslint.config({
   },
 });
 
+// Server-side code - allow console for logging
+const serverConfig = tseslint.config({
+  files: ["src/pages/api/**/*.{js,ts}", "src/lib/services/**/*.{js,ts}", "src/middleware/**/*.{js,ts}"],
+  rules: {
+    "no-console": "off",
+  },
+});
+
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   baseConfig,
   jsxA11yConfig,
   reactConfig,
+  serverConfig,
   eslintPluginAstro.configs["flat/recommended"],
   eslintPluginPrettier
 );

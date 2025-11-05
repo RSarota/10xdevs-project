@@ -1,8 +1,10 @@
 ---
-import Welcome from "../components/Welcome.astro";
 import Layout from "../layouts/Layout.astro";
+import LandingPage from "../components/LandingPage";
+
+export const prerender = false;
 ---
 
-<Layout>
-  <Welcome />
+<Layout title="10xCards - Ucz się mądrzej z pomocą sztucznej inteligencji">
+  <LandingPage client:load />
 </Layout>

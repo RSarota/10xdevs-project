@@ -1,0 +1,10 @@
+---
+import AppLayout from "../layouts/AppLayout.astro";
+import AdminPage from "../components/AdminPage";
+
+export const prerender = false;
+---
+
+<AppLayout title="Panel Administratora - 10xCards" currentPath="/admin" isAdmin={true}>
+  <AdminPage client:load />
+</AppLayout>

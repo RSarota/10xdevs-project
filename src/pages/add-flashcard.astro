@@ -1,0 +1,10 @@
+---
+import AppLayout from "../layouts/AppLayout.astro";
+import AddFlashcardPage from "../components/AddFlashcardPage";
+
+export const prerender = false;
+---
+
+<AppLayout title="Dodaj fiszkę - 10xCards" currentPath="/add-flashcard">
+  <AddFlashcardPage client:load />
+</AppLayout>

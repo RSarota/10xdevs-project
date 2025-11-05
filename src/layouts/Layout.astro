@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { Toaster } from "../components/ui/sonner";
 
 interface Props {
   title?: string;
@@ -13,12 +14,30 @@ const { title = "10x Astro Starter" } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
+    <meta
+      name="description"
+      content="10xCards - Ucz się mądrzej z pomocą sztucznej inteligencji. Generuj fiszki automatycznie z dowolnego tekstu."
+    />
     <title>{title}</title>
+    <script
+      is:inline
+      set:html={`
+      (function() {
+        const stored = localStorage.getItem("theme");
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const theme = stored || (prefersDark ? "dark" : "light");
+        document.documentElement.classList.remove("light", "dark");
+        document.documentElement.classList.add(theme);
+      })();
+    `}
+    />
   </head>
   <body>
     <slot />
+    <Toaster client:load />
   </body>
 </html>
 
@@ -28,5 +47,11 @@ const { title = "10x Astro Starter" } = Astro.props;
     margin: 0;
     width: 100%;
     height: 100%;
+  }
+
+  /* Force background colors to apply correctly */
+  html {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 </style>

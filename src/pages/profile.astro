@@ -1,0 +1,10 @@
+---
+import AppLayout from "../layouts/AppLayout.astro";
+import ProfilePage from "../components/ProfilePage";
+
+export const prerender = false;
+---
+
+<AppLayout title="Profil - 10xCards" currentPath="/profile">
+  <ProfilePage client:load />
+</AppLayout>

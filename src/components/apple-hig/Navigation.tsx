@@ -1,0 +1,329 @@
+import React from "react";
+
+/**
+ * Tab Bar Item
+ */
+export interface TabBarItemProps {
+  icon: React.ReactNode;
+  label: string;
+  badge?: string | number;
+  active?: boolean;
+  onClick?: () => void;
+  disabled?: boolean;
+}
+
+export const TabBarItem: React.FC<TabBarItemProps> = ({
+  icon,
+  label,
+  badge,
+  active = false,
+  onClick,
+  disabled = false,
+}) => {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`
+        flex-1 flex flex-col items-center justify-center gap-1
+        min-h-[var(--apple-touch-target)]
+        py-[var(--apple-space-2)]
+        transition-all duration-200
+        ${active ? "text-[hsl(var(--apple-blue))]" : "text-[hsl(var(--apple-label-secondary))]"}
+        ${disabled ? "opacity-40 cursor-not-allowed" : "active:scale-95"}
+        ${!active && !disabled ? "hover:text-[hsl(var(--apple-label))]" : ""}
+      `
+        .trim()
+        .replace(/\s+/g, " ")}
+      role="tab"
+      aria-selected={active}
+    >
+      <div className="relative">
+        <div className={`w-6 h-6 ${active ? "scale-110" : "scale-100"} transition-transform`}>{icon}</div>
+        {badge && (
+          <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 flex items-center justify-center text-[10px] font-[var(--apple-weight-semibold)] text-white bg-[hsl(var(--apple-red))] rounded-full">
+            {badge}
+          </span>
+        )}
+      </div>
+      <span
+        className={`text-[10px] font-[var(--apple-weight-medium)] transition-all ${active ? "scale-100" : "scale-95"}`}
+      >
+        {label}
+      </span>
+    </button>
+  );
+};
+
+TabBarItem.displayName = "AppleTabBarItem";
+
+/**
+ * Tab Bar - iOS-style bottom navigation
+ * Maximum 5 items recommended
+ */
+export interface TabBarProps {
+  children: React.ReactNode;
+  blur?: boolean;
+  className?: string;
+}
+
+export const TabBar: React.FC<TabBarProps> = ({ children, blur = true, className = "" }) => {
+  return (
+    <nav
+      className={`
+        fixed bottom-0 left-0 right-0
+        flex items-center
+        ${blur ? "bg-[hsl(var(--apple-grouped-bg-secondary))]/80 backdrop-blur-[var(--apple-blur-amount)]" : "bg-[hsl(var(--apple-grouped-bg-secondary))]"}
+        border-t border-[hsl(var(--apple-separator-opaque))]
+        safe-area-inset-bottom
+        z-40
+        ${className}
+      `
+        .trim()
+        .replace(/\s+/g, " ")}
+    >
+      {children}
+    </nav>
+  );
+};
+
+TabBar.displayName = "AppleTabBar";
+
+/**
+ * Navigation Bar - Top navigation with title and actions
+ */
+export interface NavigationBarProps {
+  title?: string;
+  subtitle?: string;
+  leftAction?: React.ReactNode;
+  rightAction?: React.ReactNode;
+  blur?: boolean;
+  shadow?: boolean;
+  large?: boolean;
+  className?: string;
+}
+
+export const NavigationBar: React.FC<NavigationBarProps> = ({
+  title,
+  subtitle,
+  leftAction,
+  rightAction,
+  blur = true,
+  shadow = true,
+  large = false,
+  className = "",
+}) => {
+  return (
+    <header
+      className={`
+        sticky top-0 left-0 right-0
+        ${blur ? "bg-[hsl(var(--apple-grouped-bg-secondary))]/80 backdrop-blur-[var(--apple-blur-amount)]" : "bg-[hsl(var(--apple-grouped-bg-secondary))]"}
+        border-b border-[hsl(var(--apple-separator-opaque))]
+        ${shadow ? "shadow-[var(--apple-shadow-sm)]" : ""}
+        z-40
+        transition-all duration-300
+        ${className}
+      `
+        .trim()
+        .replace(/\s+/g, " ")}
+    >
+      <div
+        className={`flex items-center justify-between px-[var(--apple-space-5)] ${large ? "py-[var(--apple-space-6)]" : "py-[var(--apple-space-4)]"}`}
+      >
+        {/* Left action */}
+        <div className="flex-shrink-0 min-w-[60px]">{leftAction}</div>
+
+        {/* Title */}
+        <div className="flex-1 flex flex-col items-center text-center min-w-0 px-[var(--apple-space-4)]">
+          {title && (
+            <h1
+              className={`
+              ${large ? "text-[var(--apple-font-large-title)]" : "text-[var(--apple-font-headline)]"}
+              font-[var(--apple-weight-bold)]
+              text-[hsl(var(--apple-label))]
+              truncate max-w-full
+            `
+                .trim()
+                .replace(/\s+/g, " ")}
+            >
+              {title}
+            </h1>
+          )}
+          {subtitle && (
+            <p className="text-[var(--apple-font-footnote)] text-[hsl(var(--apple-label-secondary))] truncate max-w-full">
+              {subtitle}
+            </p>
+          )}
+        </div>
+
+        {/* Right action */}
+        <div className="flex-shrink-0 min-w-[60px] flex justify-end">{rightAction}</div>
+      </div>
+    </header>
+  );
+};
+
+NavigationBar.displayName = "AppleNavigationBar";
+
+/**
+ * Navigation Back Button
+ */
+export interface BackButtonProps {
+  label?: string;
+  onClick: () => void;
+  className?: string;
+}
+
+export const BackButton: React.FC<BackButtonProps> = ({ label = "Wstecz", onClick, className = "" }) => {
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        flex items-center gap-1
+        text-[var(--apple-font-body)]
+        text-[hsl(var(--apple-blue))]
+        hover:opacity-70
+        active:opacity-50
+        transition-opacity
+        -ml-2
+        ${className}
+      `
+        .trim()
+        .replace(/\s+/g, " ")}
+    >
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+      </svg>
+      <span>{label}</span>
+    </button>
+  );
+};
+
+BackButton.displayName = "AppleBackButton";
+
+/**
+ * Sidebar Navigation - macOS/iPadOS style
+ */
+export interface SidebarItemProps {
+  icon?: React.ReactNode;
+  label: string;
+  badge?: string | number;
+  active?: boolean;
+  onClick?: () => void;
+  children?: React.ReactNode;
+  collapsible?: boolean;
+  defaultOpen?: boolean;
+}
+
+export const SidebarItem: React.FC<SidebarItemProps> = ({
+  icon,
+  label,
+  badge,
+  active = false,
+  onClick,
+  children,
+  collapsible = false,
+  defaultOpen = false,
+}) => {
+  const [isOpen, setIsOpen] = React.useState(defaultOpen);
+
+  const handleClick = () => {
+    if (collapsible) {
+      setIsOpen(!isOpen);
+    }
+    onClick?.();
+  };
+
+  return (
+    <div>
+      <button
+        onClick={handleClick}
+        className={`
+          w-full flex items-center gap-[var(--apple-space-3)]
+          px-[var(--apple-space-4)] py-[var(--apple-space-3)]
+          rounded-[var(--apple-radius-medium)]
+          text-[var(--apple-font-body)]
+          transition-all duration-200
+          ${
+            active
+              ? "bg-[hsl(var(--apple-fill))]/20 text-[hsl(var(--apple-label))] font-[var(--apple-weight-semibold)]"
+              : "text-[hsl(var(--apple-label-secondary))] hover:bg-[hsl(var(--apple-fill))]/10 hover:text-[hsl(var(--apple-label))]"
+          }
+        `
+          .trim()
+          .replace(/\s+/g, " ")}
+      >
+        {icon && <div className="flex-shrink-0 w-5 h-5">{icon}</div>}
+        <span className="flex-1 text-left truncate">{label}</span>
+        {badge && (
+          <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 flex items-center justify-center text-[11px] font-[var(--apple-weight-semibold)] text-[hsl(var(--apple-label-secondary))] bg-[hsl(var(--apple-fill))]/20 rounded-full">
+            {badge}
+          </span>
+        )}
+        {collapsible && (
+          <svg
+            className={`flex-shrink-0 w-4 h-4 transition-transform ${isOpen ? "rotate-90" : ""}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        )}
+      </button>
+
+      {collapsible && isOpen && children && (
+        <div className="ml-[var(--apple-space-7)] mt-[var(--apple-space-2)] space-y-[var(--apple-space-1)]">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+};
+
+SidebarItem.displayName = "AppleSidebarItem";
+
+/**
+ * Sidebar Container
+ */
+export interface SidebarProps {
+  children: React.ReactNode;
+  header?: React.ReactNode;
+  footer?: React.ReactNode;
+  className?: string;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ children, header, footer, className = "" }) => {
+  return (
+    <aside
+      className={`
+        flex flex-col
+        w-64
+        h-full
+        bg-[hsl(var(--apple-grouped-bg-secondary))]
+        border-r border-[hsl(var(--apple-separator-opaque))]
+        ${className}
+      `
+        .trim()
+        .replace(/\s+/g, " ")}
+    >
+      {header && (
+        <div className="flex-shrink-0 px-[var(--apple-space-5)] py-[var(--apple-space-5)] border-b border-[hsl(var(--apple-separator-opaque))]">
+          {header}
+        </div>
+      )}
+
+      <nav className="flex-1 overflow-y-auto px-[var(--apple-space-4)] py-[var(--apple-space-4)] space-y-[var(--apple-space-1)]">
+        {children}
+      </nav>
+
+      {footer && (
+        <div className="flex-shrink-0 px-[var(--apple-space-5)] py-[var(--apple-space-4)] border-t border-[hsl(var(--apple-separator-opaque))]">
+          {footer}
+        </div>
+      )}
+    </aside>
+  );
+};
+
+Sidebar.displayName = "AppleSidebar";

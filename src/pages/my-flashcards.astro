@@ -1,0 +1,10 @@
+---
+import AppLayout from "../layouts/AppLayout.astro";
+import MyFlashcardsPage from "../components/MyFlashcardsPage";
+
+export const prerender = false;
+---
+
+<AppLayout title="Moje fiszki - 10xCards" currentPath="/my-flashcards">
+  <MyFlashcardsPage client:load />
+</AppLayout>
