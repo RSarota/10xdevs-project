@@ -1,0 +1,51 @@
+---
+import Layout from "./Layout.astro";
+import { Logo } from "../components/Logo";
+import { ThemeToggle } from "../components/ThemeToggle";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<Layout title={title}>
+  <div class="min-h-screen flex flex-col bg-[hsl(var(--apple-grouped-bg))]">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 backdrop-blur-xl bg-[hsl(var(--apple-grouped-bg))]/80 border-b border-[hsl(var(--apple-separator-opaque))] shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <!-- Logo -->
+          <a href="/" class="flex items-center gap-2 group">
+            <Logo size={32} variant="default" client:load />
+            <span class="text-[var(--apple-font-headline)] font-[var(--apple-weight-semibold)] text-[hsl(var(--apple-label))] group-hover:text-[hsl(var(--apple-blue))] transition-colors">
+              10xCards
+            </span>
+          </a>
+
+          <!-- Theme Toggle -->
+          <ThemeToggle client:load />
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex items-center justify-center px-4 py-8 sm:py-12">
+      <div class="w-full max-w-md">
+        <slot />
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-6 px-4">
+      <div class="max-w-7xl mx-auto text-center">
+        <p class="text-[var(--apple-font-footnote)] text-[hsl(var(--apple-label-tertiary))]">
+          © 2025 10xCards. Wszystkie prawa zastrzeżone.
+        </p>
+      </div>
+    </footer>
+  </div>
+</Layout>
+
+

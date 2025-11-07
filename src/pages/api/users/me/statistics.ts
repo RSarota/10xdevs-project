@@ -1,5 +1,4 @@
 import type { APIRoute } from "astro";
-import { DEFAULT_USER_ID } from "../../../../db/supabase.client";
 import { getUserStatistics } from "../../../../lib/services/statistics.service";
 
 export const prerender = false;
@@ -19,16 +18,25 @@ export const prerender = false;
  * Zwraca:
  * - 200 OK: Statystyki użytkownika
  * - 500 Internal Server Error: błąd serwera
- *
- * TODO: Tymczasowo używamy DEFAULT_USER_ID dla developmentu.
  */
 export const GET: APIRoute = async ({ locals }) => {
   try {
-    // ============================================
-    // DEVELOPMENT MODE: Używamy DEFAULT_USER_ID
-    // TODO: Wdrożyć pełną autoryzację (Bearer token)
-    // ============================================
-    const userId = DEFAULT_USER_ID;
+    // Check authentication
+    const { user } = locals;
+    if (!user) {
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "Brak uwierzytelnienia",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const userId = user.id;
 
     // Delegowanie logiki do serwisu
     const statistics = await getUserStatistics(locals.supabase, userId);

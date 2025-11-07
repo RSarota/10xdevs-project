@@ -1,5 +1,4 @@
 import type { APIRoute } from "astro";
-import { DEFAULT_USER_ID } from "../../db/supabase.client";
 import { GetGenerationErrorsQuerySchema } from "../../lib/schemas/generation-error.schema";
 import { getErrors } from "../../lib/services/generation-errors.service";
 
@@ -19,16 +18,25 @@ export const prerender = false;
  * - 200 OK: Lista błędów z metadanymi paginacji
  * - 400 Bad Request: błędy walidacji parametrów
  * - 500 Internal Server Error: błąd serwera
- *
- * TODO: Tymczasowo używamy DEFAULT_USER_ID dla developmentu.
  */
 export const GET: APIRoute = async ({ request, locals }) => {
   try {
-    // ============================================
-    // DEVELOPMENT MODE: Używamy DEFAULT_USER_ID
-    // TODO: Wdrożyć pełną autoryzację (Bearer token)
-    // ============================================
-    const userId = DEFAULT_USER_ID;
+    // Check authentication
+    const { user } = locals;
+    if (!user) {
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "Brak uwierzytelnienia",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const userId = user.id;
 
     // 1. Walidacja parametrów zapytania
     const url = new URL(request.url);

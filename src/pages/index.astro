@@ -3,6 +3,22 @@ import Layout from "../layouts/Layout.astro";
 import LandingPage from "../components/LandingPage";
 
 export const prerender = false;
+
+// Handle email confirmation redirect
+// Supabase redirects here with ?code=... or ?token_hash=... parameter
+const code = Astro.url.searchParams.get("code");
+const token_hash = Astro.url.searchParams.get("token_hash");
+const type = Astro.url.searchParams.get("type");
+
+if (code || token_hash) {
+  // Redirect to confirm endpoint with all parameters
+  const params = new URLSearchParams();
+  if (code) params.set("code", code);
+  if (token_hash) params.set("token_hash", token_hash);
+  if (type) params.set("type", type);
+
+  return Astro.redirect(`/auth/confirm?${params.toString()}`);
+}
 ---
 
 <Layout title="10xCards - Ucz się mądrzej z pomocą sztucznej inteligencji">

@@ -44,7 +44,7 @@ export function useAdmin(): UseAdminReturn {
 
       if (!response.ok) {
         if (response.status === 401) {
-          window.location.href = "/login";
+          window.location.href = "/auth/login";
           return;
         }
         if (response.status === 403) {
@@ -80,7 +80,7 @@ export function useAdmin(): UseAdminReturn {
 
       if (!response.ok) {
         if (response.status === 401) {
-          window.location.href = "/login";
+          window.location.href = "/auth/login";
           return;
         }
         if (response.status === 403) {
@@ -110,7 +110,7 @@ export function useAdmin(): UseAdminReturn {
 
     if (!response.ok) {
       if (response.status === 401) {
-        window.location.href = "/login";
+        window.location.href = "/auth/login";
         return;
       }
       if (response.status === 403) {
@@ -134,7 +134,7 @@ export function useAdmin(): UseAdminReturn {
 
     if (!response.ok) {
       if (response.status === 401) {
-        window.location.href = "/login";
+        window.location.href = "/auth/login";
         return;
       }
       if (response.status === 403) {

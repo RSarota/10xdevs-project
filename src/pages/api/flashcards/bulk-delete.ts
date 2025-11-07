@@ -1,7 +1,6 @@
 import type { APIRoute } from "astro";
 import { BulkDeleteFlashcardsSchema } from "../../../lib/schemas/flashcard.schema";
 import { bulkDeleteFlashcards } from "../../../lib/services/flashcards.service";
-import { DEFAULT_USER_ID } from "../../../db/supabase.client";
 
 export const prerender = false;
 
@@ -12,7 +11,22 @@ export const prerender = false;
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
-    const userId = DEFAULT_USER_ID;
+    // Check authentication
+    const { user } = locals;
+    if (!user) {
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "Brak uwierzytelnienia",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const userId = user.id;
 
     // Parsowanie body
     let body: unknown;

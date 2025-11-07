@@ -1,6 +1,5 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { DEFAULT_USER_ID } from "../../../db/supabase.client";
 import { getGenerationById } from "../../../lib/services/generations.service";
 
 export const prerender = false;
@@ -19,16 +18,25 @@ const IdParamSchema = z.number().int().positive();
  * - 400 Bad Request: nieprawidłowy format id
  * - 404 Not Found: generacja nie istnieje lub nie należy do użytkownika
  * - 500 Internal Server Error: błąd serwera
- *
- * TODO: Tymczasowo używamy DEFAULT_USER_ID dla developmentu.
  */
 export const GET: APIRoute = async ({ params, locals }) => {
   try {
-    // ============================================
-    // DEVELOPMENT MODE: Używamy DEFAULT_USER_ID
-    // TODO: Wdrożyć pełną autoryzację (Bearer token)
-    // ============================================
-    const userId = DEFAULT_USER_ID;
+    // Check authentication
+    const { user } = locals;
+    if (!user) {
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "Brak uwierzytelnienia",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const userId = user.id;
 
     // 1. Walidacja parametru id
     const idParam = parseInt(params.id || "", 10);

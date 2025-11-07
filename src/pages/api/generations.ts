@@ -1,5 +1,4 @@
 import type { APIRoute } from "astro";
-import { DEFAULT_USER_ID } from "../../db/supabase.client";
 import { GenerateFlashcardsSchema, GetGenerationsQuerySchema } from "../../lib/schemas/generation.schema";
 import { createGeneration, logGenerationError, getGenerations } from "../../lib/services/generations.service";
 import { AIServiceError } from "../../lib/services/openai.service";
@@ -21,16 +20,25 @@ export const prerender = false;
  * - 200 OK: Lista generacji z metadanymi paginacji
  * - 400 Bad Request: błędy walidacji parametrów
  * - 500 Internal Server Error: błąd serwera
- *
- * TODO: Tymczasowo używamy DEFAULT_USER_ID dla developmentu.
  */
 export const GET: APIRoute = async ({ request, locals }) => {
   try {
-    // ============================================
-    // DEVELOPMENT MODE: Używamy DEFAULT_USER_ID
-    // TODO: Wdrożyć pełną autoryzację (Bearer token)
-    // ============================================
-    const userId = DEFAULT_USER_ID;
+    // Check authentication
+    const { user } = locals;
+    if (!user) {
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "Brak uwierzytelnienia",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const userId = user.id;
 
     // 1. Walidacja parametrów zapytania
     const url = new URL(request.url);
@@ -95,20 +103,28 @@ export const GET: APIRoute = async ({ request, locals }) => {
  * - 429 Too Many Requests: przekroczony rate limit
  * - 503 Service Unavailable: AI service niedostępny
  * - 500 Internal Server Error: błąd serwera
- *
- * TODO: Tymczasowo używamy DEFAULT_USER_ID dla developmentu.
- * W przyszłości zostanie wdrożona pełna autoryzacja z tokenem Bearer.
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   let sourceTextHash: string | undefined;
   let sourceTextLength: number | undefined;
 
   try {
-    // ============================================
-    // DEVELOPMENT MODE: Używamy DEFAULT_USER_ID
-    // TODO: Wdrożyć pełną autoryzację (Bearer token)
-    // ============================================
-    const userId = DEFAULT_USER_ID;
+    // Check authentication
+    const { user } = locals;
+    if (!user) {
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "Brak uwierzytelnienia",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const userId = user.id;
 
     // 1. Parsowanie request body
     let body: unknown;
@@ -164,10 +180,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Obsługa błędów AI Service
     if (error instanceof AIServiceError) {
       // Logowanie błędu do bazy danych
-      if (sourceTextHash && sourceTextLength) {
+      if (sourceTextHash && sourceTextLength && locals.user) {
         await logGenerationError(
           locals.supabase,
-          DEFAULT_USER_ID,
+          locals.user.id,
           sourceTextHash,
           sourceTextLength,
           error.code,
@@ -189,11 +205,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     // Logowanie innych błędów
-    if (sourceTextHash && sourceTextLength) {
+    if (sourceTextHash && sourceTextLength && locals.user) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       await logGenerationError(
         locals.supabase,
-        DEFAULT_USER_ID,
+        locals.user.id,
         sourceTextHash,
         sourceTextLength,
         "INTERNAL_ERROR",

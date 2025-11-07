@@ -2,7 +2,6 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import type { FlashcardDTO, BulkCreateFlashcardsResponse } from "../../types";
 import { getFlashcards, createOne, createMany } from "../../lib/services/flashcards.service";
-import { DEFAULT_USER_ID } from "../../db/supabase.client";
 import { CreateFlashcardSchema, isBulkInput } from "../../lib/schemas/flashcard.schema";
 
 // Schemat walidacji dla parametrów zapytania
@@ -47,17 +46,25 @@ export const prerender = false;
  * GET /api/flashcards
  * Pobiera wszystkie fiszki przypisane do uwierzytelnionego użytkownika.
  * Obsługuje filtrowanie, paginację i sortowanie.
- *
- * TODO: Tymczasowo używamy DEFAULT_USER_ID dla developmentu.
- * W przyszłości zostanie wdrożona pełna autoryzacja z tokenem Bearer.
  */
 export const GET: APIRoute = async ({ request, locals }) => {
   try {
-    // ============================================
-    // DEVELOPMENT MODE: Używamy DEFAULT_USER_ID
-    // TODO: Wdrożyć pełną autoryzację (Bearer token)
-    // ============================================
-    const userId = DEFAULT_USER_ID;
+    // Check authentication
+    const { user } = locals;
+    if (!user) {
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "Brak uwierzytelnienia",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const userId = user.id;
 
     // 2. Walidacja parametrów zapytania
     const url = new URL(request.url);
@@ -135,17 +142,25 @@ export const GET: APIRoute = async ({ request, locals }) => {
  * - 400 Bad Request: błędy walidacji
  * - 404 Not Found: generation_id nie istnieje lub nie należy do użytkownika
  * - 500 Internal Server Error: błąd serwera
- *
- * TODO: Tymczasowo używamy DEFAULT_USER_ID dla developmentu.
- * W przyszłości zostanie wdrożona pełna autoryzacja z tokenem Bearer.
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
-    // ============================================
-    // DEVELOPMENT MODE: Używamy DEFAULT_USER_ID
-    // TODO: Wdrożyć pełną autoryzację (Bearer token)
-    // ============================================
-    const userId = DEFAULT_USER_ID;
+    // Check authentication
+    const { user } = locals;
+    if (!user) {
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "Brak uwierzytelnienia",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const userId = user.id;
 
     // 1. Parsowanie i walidacja request body
     let body: unknown;

@@ -1,0 +1,34 @@
+---
+import AuthLayout from "../../layouts/AuthLayout.astro";
+import { RegisterForm } from "../../components/auth/RegisterForm";
+import { Card, CardContent, Stack, Title1, Body } from "../../components/apple-hig";
+import { UserPlus } from "lucide-react";
+
+export const prerender = false;
+---
+
+<AuthLayout title="Rejestracja - 10xCards">
+  <Stack direction="vertical" spacing="lg">
+    <!-- Header -->
+    <div class="text-center">
+      <Stack direction="vertical" spacing="sm" align="center">
+        <div class="w-14 h-14 flex items-center justify-center rounded-[var(--apple-radius-large)] bg-[hsl(var(--apple-green))]/10">
+          <UserPlus className="w-7 h-7 text-[hsl(var(--apple-green))]" />
+        </div>
+        <Title1 className="text-[hsl(var(--apple-label))] text-3xl sm:text-4xl">Utwórz konto</Title1>
+        <Body className="text-[hsl(var(--apple-label-secondary))]">
+          Dołącz do tysięcy studentów, którzy uczą się mądrzej z 10xCards.
+        </Body>
+      </Stack>
+    </div>
+
+    <!-- Register Form Card -->
+    <Card elevation="md" padding="xl" variant="grouped">
+      <CardContent>
+        <RegisterForm client:load />
+      </CardContent>
+    </Card>
+  </Stack>
+</AuthLayout>
+
+

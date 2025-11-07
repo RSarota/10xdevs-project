@@ -35,7 +35,7 @@ export function useDashboard(): UseDashboardReturn {
       if (!response.ok) {
         if (response.status === 401) {
           // Redirect to login if unauthorized
-          window.location.href = "/login";
+          window.location.href = "/auth/login";
           return;
         }
         throw new Error("Nie udało się załadować statystyk");

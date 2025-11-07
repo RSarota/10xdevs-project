@@ -10,7 +10,7 @@ const navigateTo = (path: string) => {
 };
 
 const logout = () => {
-  window.location.href = "/login";
+  window.location.href = "/auth/login";
 };
 
 interface NavItem {

@@ -67,7 +67,7 @@ export function useFlashcards(): UseFlashcardsReturn {
 
       if (!response.ok) {
         if (response.status === 401) {
-          window.location.href = "/login";
+          window.location.href = "/auth/login";
           return;
         }
         throw new Error("Nie udało się pobrać fiszek");
@@ -93,7 +93,7 @@ export function useFlashcards(): UseFlashcardsReturn {
 
     if (!response.ok) {
       if (response.status === 401) {
-        window.location.href = "/login";
+        window.location.href = "/auth/login";
         return;
       }
       if (response.status === 404) {
@@ -117,7 +117,7 @@ export function useFlashcards(): UseFlashcardsReturn {
 
     if (!response.ok) {
       if (response.status === 401) {
-        window.location.href = "/login";
+        window.location.href = "/auth/login";
         return;
       }
       if (response.status === 404) {

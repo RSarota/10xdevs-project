@@ -6,6 +6,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   size?: "small" | "medium" | "large";
   fullWidth?: boolean;
   isLoading?: boolean;
+  iconOnly?: boolean; // For icon-only buttons (removes padding, makes square)
 }
 
 /**
@@ -30,6 +31,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       size = "medium",
       fullWidth = false,
       isLoading = false,
+      iconOnly = false,
       className = "",
       children,
       disabled,
@@ -50,12 +52,18 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     `;
 
     // Size variants - respecting 44pt touch target
-    const sizeClasses = {
-      small: "text-[var(--apple-font-footnote)] px-[var(--apple-space-4)] h-9 min-w-[2.25rem]",
-      medium:
-        "text-[var(--apple-font-body)] px-[var(--apple-space-5)] min-h-[var(--apple-touch-target)] min-w-[var(--apple-touch-target)]",
-      large: "text-[var(--apple-font-headline)] px-[var(--apple-space-6)] min-h-[3.25rem] min-w-[3.25rem]",
-    };
+    const sizeClasses = iconOnly
+      ? {
+          small: "text-[var(--apple-font-footnote)] p-2 h-9 w-9",
+          medium: "text-[var(--apple-font-body)] p-2 min-h-[var(--apple-touch-target)] min-w-[var(--apple-touch-target)]",
+          large: "text-[var(--apple-font-headline)] p-3 min-h-[3.25rem] min-w-[3.25rem]",
+        }
+      : {
+          small: "text-[var(--apple-font-footnote)] px-[var(--apple-space-4)] h-9 min-w-[2.25rem]",
+          medium:
+            "text-[var(--apple-font-body)] px-[var(--apple-space-5)] min-h-[var(--apple-touch-target)] min-w-[var(--apple-touch-target)]",
+          large: "text-[var(--apple-font-headline)] px-[var(--apple-space-6)] min-h-[3.25rem] min-w-[3.25rem]",
+        };
 
     // Color mappings for each variant
     const colorClasses = {

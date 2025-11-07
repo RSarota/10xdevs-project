@@ -106,7 +106,7 @@ A modern web application for creating and managing educational flashcards with A
    ```
 
 6. **Open your browser**
-   Navigate to `http://localhost:4321` to see the application running.
+   Navigate to `http://localhost:3000` to see the application running.
 
 ### Environment Configuration
 

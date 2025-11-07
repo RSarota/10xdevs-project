@@ -48,7 +48,7 @@ export function useProfile(): UseProfileReturn {
 
       if (!response.ok) {
         if (response.status === 401) {
-          window.location.href = "/login";
+          window.location.href = "/auth/login";
           return;
         }
         throw new Error("Nie udało się pobrać profilu");
@@ -87,7 +87,7 @@ export function useProfile(): UseProfileReturn {
 
     if (!response.ok) {
       if (response.status === 401) {
-        window.location.href = "/login";
+        window.location.href = "/auth/login";
         return;
       }
       if (response.status === 400) {
@@ -111,14 +111,14 @@ export function useProfile(): UseProfileReturn {
 
     if (!response.ok) {
       if (response.status === 401) {
-        window.location.href = "/login";
+        window.location.href = "/auth/login";
         return;
       }
       throw new Error("Nie udało się usunąć konta");
     }
 
     // Redirect to login after account deletion
-    window.location.href = "/login";
+    window.location.href = "/auth/login";
   };
 
   useEffect(() => {

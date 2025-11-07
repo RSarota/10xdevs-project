@@ -3,6 +3,12 @@ import AppLayout from "../layouts/AppLayout.astro";
 import AdminPage from "../components/AdminPage";
 
 export const prerender = false;
+
+// Additional security check (middleware already protects, but explicit is better)
+const { user } = Astro.locals;
+if (!user) {
+  return Astro.redirect("/auth/login");
+}
 ---
 
 <AppLayout title="Panel Administratora - 10xCards" currentPath="/admin" isAdmin={true}>
