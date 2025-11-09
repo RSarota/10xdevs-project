@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 
 interface LogoProps {
   size?: number;
@@ -6,7 +6,28 @@ interface LogoProps {
   variant?: "default" | "white" | "gradient";
 }
 
-export function Logo({ size = 32, className = "" }: LogoProps) {
+export function Logo({ size = 32, className = "", variant = "default" }: LogoProps) {
+  const gradientId = useId();
+  const uniqueGradientId = `logo-gradient-${gradientId.replace(/:/g, "-")}`;
+
+  // Determine fill color based on variant
+  const getMainCardFill = () => {
+    if (variant === "white") {
+      return "white";
+    }
+    if (variant === "gradient") {
+      return `url(#${uniqueGradientId})`;
+    }
+    return `url(#${uniqueGradientId})`; // default uses gradient
+  };
+
+  const getTextFill = () => {
+    if (variant === "white") {
+      return "#007AFF"; // Blue text on white background
+    }
+    return "white"; // White text on gradient/colored background
+  };
+
   return (
     <svg
       width={size}
@@ -18,7 +39,7 @@ export function Logo({ size = 32, className = "" }: LogoProps) {
       aria-label="10xCards Logo"
     >
       <defs>
-        <linearGradient id="logo-gradient-v7" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id={uniqueGradientId} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" style={{ stopColor: "#007AFF", stopOpacity: 1 }} />
           <stop offset="100%" style={{ stopColor: "#5856D6", stopOpacity: 1 }} />
         </linearGradient>
@@ -31,7 +52,7 @@ export function Logo({ size = 32, className = "" }: LogoProps) {
       <rect x="22" y="16" width="20" height="14" rx="2" fill="#007AFF" opacity="0.4" transform="rotate(25 32 23)" />
 
       {/* Główna karta centralna */}
-      <rect x="12" y="14" width="24" height="20" rx="4" fill="url(#logo-gradient-v7)" />
+      <rect x="12" y="14" width="24" height="20" rx="4" fill={getMainCardFill()} />
 
       {/* Tekst "10x" */}
       <text
@@ -39,7 +60,7 @@ export function Logo({ size = 32, className = "" }: LogoProps) {
         y="25"
         fontSize="13"
         fontWeight="700"
-        fill="white"
+        fill={getTextFill()}
         textAnchor="middle"
         dominantBaseline="middle"
         fontFamily="system-ui, -apple-system, sans-serif"

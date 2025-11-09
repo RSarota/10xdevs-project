@@ -19,6 +19,7 @@ Widok pozwala użytkownikowi na przegląd i edycję danych konta oraz przegląd 
 ## 4. Szczegóły komponentów
 
 ### ProfilePage
+
 - Opis: Kontener widoku, ładuje dane profilu i historię, zarządza stanem oraz wywołuje akcje aktualizacji i usunięcia konta.
 - Główne elementy: nagłówek, `ProfileForm`, `HistoryList`, przycisk usunięcia konta.
 - Zdarzenia:
@@ -31,6 +32,7 @@ Widok pozwala użytkownikowi na przegląd i edycję danych konta oraz przegląd 
 - Propsy: brak (root page).
 
 ### ProfileForm
+
 - Opis: Formularz edycji adresu e-mail i zmiany hasła.
 - Główne elementy: `<input type="email">` dla e-mail, `<input type="password">` dla hasła, `<input>` dla potwierdzenia hasła, `<button>` „Zapisz zmiany”.
 - Zdarzenia:
@@ -46,6 +48,7 @@ Widok pozwala użytkownikowi na przegląd i edycję danych konta oraz przegląd 
 - Propsy: `onSubmit`.
 
 ### HistoryList
+
 - Opis: Lista z historią sesji generacji i nauki.
 - Główne elementy: mapowanie `HistoryItem`.
 - Zdarzenia: brak.
@@ -55,6 +58,7 @@ Widok pozwala użytkownikowi na przegląd i edycję danych konta oraz przegląd 
 - Propsy: `items`.
 
 ### HistoryItem
+
 - Opis: Pojedynczy wpis historii z datą, typem i wynikami.
 - Główne elementy: data, opis, liczba fiszek, ocena przyswojenia.
 - Zdarzenia: brak.
@@ -64,6 +68,7 @@ Widok pozwala użytkownikowi na przegląd i edycję danych konta oraz przegląd 
 - Propsy: `item`.
 
 ### ToastNotification
+
 - Opis: Komponent do wyświetlania komunikatów o błędach i sukcesach.
 - Główne elementy: toast z Shadcn/ui.
 - Zdarzenia: automatyczne zamknięcie.
@@ -86,7 +91,7 @@ interface ProfileFormProps {
 
 interface HistoryItemViewModel {
   id: string;
-  type: 'generation' | 'session';
+  type: "generation" | "session";
   date: string;
   count: number;
   score?: number;
@@ -94,12 +99,15 @@ interface HistoryItemViewModel {
 ```
 
 Istniejące typy:
+
 - `UserProfileDTO` – dane konta (email, name) pobrane z API lub Supabase.
 
 ## 6. Zarządzanie stanem
 
 ### Custom hook: `useProfile()`
+
 Zwraca:
+
 ```typescript
 {
   profile: UserProfileDTO | null;
@@ -112,6 +120,7 @@ Zwraca:
 ```
 
 Logika:
+
 - Pobiera profil i historię przy inicjalizacji
 - Zarządza stanami loading i error
 - Realizuje update i delete z API

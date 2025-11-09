@@ -60,7 +60,7 @@ export function FlashcardItem({ flashcard, onEdit, onDelete }: FlashcardItemProp
       elevation="md"
       padding="md"
       variant="grouped"
-      className="cursor-pointer"
+      className="cursor-pointer w-full"
       onClick={() => setIsFlipped(!isFlipped)}
     >
       <CardContent>

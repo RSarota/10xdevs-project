@@ -4,13 +4,25 @@ import { FlashcardsForm } from "./generate-flashcards/FlashcardsForm";
 import { FlashcardsLoader } from "./generate-flashcards/FlashcardsLoader";
 import { ProposalsList } from "./generate-flashcards/ProposalsList";
 import { ProposalEditorModal } from "./generate-flashcards/ProposalEditorModal";
-import { StepIndicator } from "./generate-flashcards/StepIndicator";
 import type { GenerateFlashcardsCommand, BulkCreateFlashcardsCommand } from "@/types";
-import { Save, CheckCircle2, RotateCcw, FileText } from "lucide-react";
+import { Save, RotateCcw, FileText } from "lucide-react";
 import { pluralizeWithCount } from "@/lib/polish-plurals";
 
 // Apple HIG Components
-import { Button, Card, Stack, Title2, Title3, Callout, Footnote, Banner, EmptyState, Badge } from "./apple-hig";
+import {
+  Button,
+  Card,
+  Stack,
+  Title2,
+  Title3,
+  Body,
+  Callout,
+  Banner,
+  EmptyState,
+  Badge,
+  Container,
+  Divider,
+} from "./apple-hig";
 
 // ProposalViewModel - reprezentacja propozycji w UI
 export interface ProposalViewModel {
@@ -28,6 +40,7 @@ export default function GenerateFlashcardsPage() {
   const [generationId, setGenerationId] = useState<number | null>(null);
   const [editingProposal, setEditingProposal] = useState<ProposalViewModel | null>(null);
   const [savedFlashcards, setSavedFlashcards] = useState(false);
+  const [formKey, setFormKey] = useState(0);
 
   const handleGenerate = async (text: string) => {
     setLoading(true);
@@ -151,10 +164,12 @@ export default function GenerateFlashcardsPage() {
 
       const data = await response.json();
 
-      setSavedFlashcards(true);
-      toast.success(`Pomyślnie zapisano ${data.count} fiszek!`, {
+      toast.success(`Pomyślnie zapisano ${pluralizeWithCount(data.count, "fiszkę", "fiszki", "fiszek")}!`, {
         description: "Twoje fiszki zostały dodane do kolekcji",
       });
+
+      // Reset widoku po zapisaniu
+      handleStartOver();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Wystąpił nieoczekiwany błąd";
       toast.error("Błąd podczas zapisywania", {
@@ -170,87 +185,69 @@ export default function GenerateFlashcardsPage() {
     setSavedFlashcards(false);
     setGenerationId(null);
     setError(null);
+    setFormKey((prev) => prev + 1); // Reset form by changing key
   };
 
   return (
-    <div className="min-h-screen lg:h-screen flex flex-col bg-[hsl(var(--apple-grouped-bg))]">
+    <div className="min-h-screen flex flex-col bg-[hsl(var(--apple-grouped-bg))]">
       {/* Main Content Container */}
-      <div className="flex-1 lg:overflow-hidden">
-        <div className="h-full max-w-[1600px] mx-auto px-[var(--apple-space-4)] sm:px-[var(--apple-space-5)] py-[var(--apple-space-6)] sm:py-[var(--apple-space-10)]">
-          {/* Step Indicator - Always visible */}
-          <div className="mb-[var(--apple-space-6)] sm:mb-[var(--apple-space-8)]">
-            <div className="max-w-4xl mx-auto">
-              <StepIndicator hasProposals={hasProposals} hasAccepted={hasAccepted} />
-            </div>
-          </div>
+      <div className="flex-1 overflow-y-auto">
+        <Container size="xl" className="py-[var(--apple-space-8)]">
+          <Stack direction="vertical" spacing="xl">
+            {/* Header */}
+            <Stack direction="vertical" spacing="sm">
+              <Title2>Generowanie fiszek</Title2>
+              <Body className="text-[hsl(var(--apple-label-secondary))]">
+                Wygeneruj fiszki z tekstu źródłowego za pomocą AI
+              </Body>
+            </Stack>
 
-          {/* Two Column Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-[var(--apple-space-6)] lg:gap-[var(--apple-space-8)] lg:h-[calc(100%-var(--apple-space-8)-80px)]">
-            {/* LEFT COLUMN - Full height with scroll */}
-            <div className="flex flex-col gap-[var(--apple-space-6)] lg:h-full lg:overflow-y-auto lg:pr-[var(--apple-space-2)] lg:pb-[var(--apple-space-8)]">
-              {/* Form Card */}
-              <div className="flex-1 flex flex-col justify-center min-h-0">
-                <FlashcardsForm onSubmit={handleGenerate} loading={loading} />
+            {/* Error Banner */}
+            {error && <Banner open={!!error} message={error} type="error" dismissible onClose={() => setError(null)} />}
+
+            {/* Two Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-[var(--apple-space-6)] lg:gap-[var(--apple-space-8)]">
+              {/* LEFT COLUMN - Form */}
+              <div className="lg:sticky lg:top-[var(--apple-space-8)] lg:self-start">
+                <FlashcardsForm key={formKey} onSubmit={handleGenerate} loading={loading} disabled={loading} />
               </div>
 
-              {/* Error Banner */}
-              {error && (
-                <Banner open={!!error} message={error} type="error" dismissible onClose={() => setError(null)} />
-              )}
-
-              {/* Success Banner in left column */}
-              {savedFlashcards && (
-                <Banner
-                  open={savedFlashcards}
-                  message={`Sukces! ${
-                    acceptedProposalsCount === 1
-                      ? "Fiszka została dodana"
-                      : `${pluralizeWithCount(acceptedProposalsCount, "fiszka", "fiszki", "fiszek")} zostało dodanych`
-                  } do Twojej kolekcji.`}
-                  type="success"
-                  icon={<CheckCircle2 className="w-5 h-5" />}
-                  action={{
-                    label: "Generuj kolejne",
-                    onClick: handleStartOver,
-                  }}
-                />
-              )}
-            </div>
-
-            {/* RIGHT COLUMN - Scrollable with sticky header */}
-            <div className="space-y-[var(--apple-space-6)] lg:h-full lg:overflow-y-auto lg:pr-[var(--apple-space-2)] lg:pb-[var(--apple-space-8)] pb-[var(--apple-space-6)]">
-              {/* Stats Header - Sticky at top */}
-              {hasProposals && !loading && (
-                <div className="sticky top-0 z-20 bg-[hsl(var(--apple-grouped-bg))] pb-[var(--apple-space-6)]">
-                  <Card elevation="md" padding="lg" variant="grouped">
+              {/* RIGHT COLUMN - Proposals */}
+              <div className="space-y-[var(--apple-space-6)]">
+                {/* Stats Header */}
+                {hasProposals && !loading && (
+                  <Card
+                    elevation="lg"
+                    padding="lg"
+                    variant="grouped"
+                    className="sticky top-[var(--apple-space-8)] z-10"
+                  >
                     <Stack direction="vertical" spacing="md">
                       {/* First Row - Title and Stats */}
-                      <Stack direction="horizontal" justify="between" align="center">
+                      <Stack direction="horizontal" justify="between" align="center" wrap>
                         <Stack direction="horizontal" spacing="md" align="center">
-                          <Title2>Propozycje</Title2>
+                          <Title3>Propozycje</Title3>
                           <Badge color="blue" variant="filled" size="md">
                             {reviewedProposalsCount} / {proposals.length}
                           </Badge>
                         </Stack>
-                        <Stack direction="horizontal" spacing="sm" align="center">
-                          <Stack direction="vertical" align="end" spacing="none">
-                            <Title3 className="text-[hsl(var(--apple-green))]">{acceptedProposalsCount}</Title3>
-                            <Footnote className="text-[hsl(var(--apple-label-tertiary))]">zaakceptowano</Footnote>
-                          </Stack>
-                          {!savedFlashcards && acceptedProposalsCount === 0 && (
-                            <Button variant="plain" color="blue" size="small" onClick={handleStartOver}>
-                              <RotateCcw className="w-4 h-4" />
-                              <span className="hidden xl:inline">Od nowa</span>
-                            </Button>
-                          )}
+                        <Stack direction="vertical" align="end" spacing="none">
+                          <Title3 className="text-[hsl(var(--apple-green))]">{acceptedProposalsCount}</Title3>
+                          <Body className="text-[var(--apple-font-caption-1)] text-[hsl(var(--apple-label-tertiary))]">
+                            zaakceptowano
+                          </Body>
                         </Stack>
                       </Stack>
 
-                      {/* Second Row - Action Buttons (when there are accepted proposals) */}
+                      {/* Second Row - Action Buttons (when there are accepted proposals and not saved) */}
                       {hasAccepted && !savedFlashcards && (
                         <>
-                          <div className="h-px bg-[hsl(var(--apple-separator-opaque))]" />
-                          <Stack direction="horizontal" spacing="sm" align="center" justify="between">
+                          <Divider />
+                          <Stack
+                            direction="vertical"
+                            spacing="sm"
+                            className="sm:flex-row sm:justify-between sm:items-center"
+                          >
                             <Callout className="text-[hsl(var(--apple-label-secondary))]">
                               {acceptedProposalsCount === 1
                                 ? "1 fiszka gotowa do zapisu"
@@ -258,8 +255,8 @@ export default function GenerateFlashcardsPage() {
                                   ? `${acceptedProposalsCount} fiszki gotowe do zapisu`
                                   : `${acceptedProposalsCount} fiszek gotowych do zapisu`}
                             </Callout>
-                            <Stack direction="horizontal" spacing="sm">
-                              <Button variant="plain" color="blue" size="small" onClick={handleStartOver}>
+                            <Stack direction="horizontal" spacing="sm" className="flex-wrap">
+                              <Button variant="default" color="blue" size="medium" onClick={handleStartOver}>
                                 <RotateCcw className="w-4 h-4" />
                                 <span className="hidden sm:inline">Od nowa</span>
                               </Button>
@@ -280,39 +277,40 @@ export default function GenerateFlashcardsPage() {
                       )}
                     </Stack>
                   </Card>
-                </div>
-              )}
+                )}
 
-              {/* Loading State */}
-              {loading && (
-                <div className="py-[var(--apple-space-10)]">
-                  <FlashcardsLoader loading={loading} />
-                </div>
-              )}
+                {/* Loading State */}
+                {loading && (
+                  <div className="py-[var(--apple-space-12)]">
+                    <FlashcardsLoader loading={loading} />
+                  </div>
+                )}
 
-              {/* Empty State */}
-              {!loading && !hasProposals && (
-                <div className="py-[var(--apple-space-10)]">
-                  <EmptyState
-                    icon={<FileText className="w-16 h-16" />}
-                    title="Brak wygenerowanych fiszek"
-                    description="Wklej tekst źródłowy po lewej stronie i wygeneruj fiszki za pomocą AI"
+                {/* Empty State */}
+                {!loading && !hasProposals && (
+                  <div className="py-[var(--apple-space-12)]">
+                    <EmptyState
+                      icon={<FileText className="w-16 h-16" />}
+                      title="Brak wygenerowanych fiszek"
+                      description="Wklej tekst źródłowy po lewej stronie i wygeneruj fiszki za pomocą AI"
+                    />
+                  </div>
+                )}
+
+                {/* Proposals List */}
+                {!loading && hasProposals && (
+                  <ProposalsList
+                    proposals={proposals}
+                    onAccept={handleAccept}
+                    onEdit={handleEdit}
+                    onReject={handleReject}
+                    disabled={savedFlashcards}
                   />
-                </div>
-              )}
-
-              {/* Proposals List */}
-              {!loading && hasProposals && (
-                <ProposalsList
-                  proposals={proposals}
-                  onAccept={handleAccept}
-                  onEdit={handleEdit}
-                  onReject={handleReject}
-                />
-              )}
+                )}
+              </div>
             </div>
-          </div>
-        </div>
+          </Stack>
+        </Container>
       </div>
 
       <ProposalEditorModal

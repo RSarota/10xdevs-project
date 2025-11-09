@@ -41,6 +41,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       headers: request.headers,
     });
 
+    const originUrl = new URL(request.url);
+    const confirmUrl = new URL("/auth/confirm", originUrl.origin);
+    confirmUrl.searchParams.set("type", "signup");
+
     // Attempt to sign up
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -49,7 +53,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         data: {
           name,
         },
-        emailRedirectTo: `${new URL(request.url).origin}/auth/confirm`,
+        emailRedirectTo: confirmUrl.toString(),
       },
     });
 
@@ -96,4 +100,3 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     );
   }
 };
-

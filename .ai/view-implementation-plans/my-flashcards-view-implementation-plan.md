@@ -21,6 +21,7 @@ Widok prezentuje listę wszystkich fiszek użytkownika, umożliwia filtrowanie, 
 ## 4. Szczegóły komponentów
 
 ### MyFlashcardsPage
+
 - Opis: Kontener widoku, ładuje listę fiszek według parametrów filtrowania/paginacji, zarządza stanem i wywołuje akcje CRUD.
 - Główne elementy: `FilterSortControls`, `FlashcardsList`, kontrolki paginacji lub infinite scroll.
 - Zdarzenia: `onFilterChange`, `onSortChange`, `onPageChange`, `onDelete(id)`, `onEdit(id, data)`.
@@ -31,6 +32,7 @@ Widok prezentuje listę wszystkich fiszek użytkownika, umożliwia filtrowanie, 
 - Propsy: brak (root page).
 
 ### FilterSortControls
+
 - Opis: Formularz wyboru filtra (typ, generation_id) i sortowania (pole, kierunek).
 - Główne elementy: `<select>` dla typu (`manual`, `ai-full`, `ai-edited`, `all`), `<select>` sort_by i sort_order.
 - Zdarzenia: `onChange(filters)`.
@@ -39,6 +41,7 @@ Widok prezentuje listę wszystkich fiszek użytkownika, umożliwia filtrowanie, 
 - Propsy: `filters: FlashcardsFilters`, `onChange`.
 
 ### FlashcardsList
+
 - Opis: Lista renderująca elementy `FlashcardItem`.
 - Główne elementy: `<ul>` / `<div>` kontener, mapowanie `items.map`.
 - Zdarzenia: przekazanie callbacków `onEdit`, `onDelete` do `FlashcardItem`.
@@ -46,6 +49,7 @@ Widok prezentuje listę wszystkich fiszek użytkownika, umożliwia filtrowanie, 
 - Typy: `FlashcardsListProps { items: FlashcardDTO[]; onEdit: (id: number) => void; onDelete: (id: number) => void }`.
 
 ### FlashcardItem
+
 - Opis: Pojedyncza karta fiszki z frontem i tyłem oraz przyciskami edycji i usunięcia.
 - Główne elementy: tekst front/back, przyciski `Edit`, `Delete`.
 - Zdarzenia: `onEdit()`, `onDelete()`.
@@ -54,6 +58,7 @@ Widok prezentuje listę wszystkich fiszek użytkownika, umożliwia filtrowanie, 
 - Propsy: `flashcard`, `onEdit`, `onDelete`.
 
 ### PaginationControls / InfiniteScroll
+
 - Opis: Kontrolka wyboru strony lub automatyczne ładowanie kolejnych fiszek.
 - Główne elementy: przyciski `Poprzednia`, `Następna` lub trigger scroll.
 - Zdarzenia: `onPageChange(page: number)`.
@@ -62,6 +67,7 @@ Widok prezentuje listę wszystkich fiszek użytkownika, umożliwia filtrowanie, 
 - Propsy: `page`, `totalPages`, `onChange`.
 
 ### ConfirmationModal
+
 - Opis: Modal potwierdzający usunięcie fiszki.
 - Główne elementy: tekst potwierdzenia, przyciski `Tak`, `Nie`.
 - Zdarzenia: `onConfirm()`, `onCancel()`.
@@ -70,6 +76,7 @@ Widok prezentuje listę wszystkich fiszek użytkownika, umożliwia filtrowanie, 
 - Propsy: `isOpen`, `message`, `onConfirm`, `onCancel`.
 
 ### ToastNotification
+
 - Opis: Komponent do wyświetlania toastów o sukcesie/błędzie.
 - Główne elementy: komunikat, typ (`success`/`error`).
 - Zdarzenia: automatyczne zamknięcie.
@@ -80,18 +87,20 @@ Widok prezentuje listę wszystkich fiszek użytkownika, umożliwia filtrowanie, 
 ## 5. Typy
 
 ### Nowe typy:
+
 ```typescript
 interface FlashcardsFilters {
   type?: FlashcardType;
   generation_id?: number;
   page: number;
   limit: number;
-  sort_by: 'created_at' | 'updated_at';
-  sort_order: 'asc' | 'desc';
+  sort_by: "created_at" | "updated_at";
+  sort_order: "asc" | "desc";
 }
 ```
 
 ### Istniejące typy z `src/types.ts`:
+
 - `FlashcardDTO`
 - `CreateFlashcardCommand`
 - `BulkDeleteFlashcardsCommand`
@@ -100,7 +109,9 @@ interface FlashcardsFilters {
 ## 6. Zarządzanie stanem
 
 ### Custom hook: `useFlashcards()`
+
 Zwraca:
+
 ```typescript
 {
   items: FlashcardDTO[];

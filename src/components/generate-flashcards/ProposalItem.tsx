@@ -7,9 +7,10 @@ interface ProposalItemProps {
   onAccept: (id: string) => void;
   onEdit: (id: string) => void;
   onReject: (id: string) => void;
+  disabled?: boolean;
 }
 
-export function ProposalItem({ proposal, onAccept, onEdit, onReject }: ProposalItemProps) {
+export function ProposalItem({ proposal, onAccept, onEdit, onReject, disabled = false }: ProposalItemProps) {
   const isAccepted = proposal.status === "accepted";
   const isEdited = proposal.status === "edited";
   const isRejected = proposal.status === "rejected";
@@ -85,76 +86,78 @@ export function ProposalItem({ proposal, onAccept, onEdit, onReject }: ProposalI
       </div>
 
       {/* Action buttons - footer */}
-      <div className="border-t border-[hsl(var(--apple-separator-opaque))] bg-[hsl(var(--apple-fill))]/5 p-[var(--apple-space-4)] flex justify-end gap-[var(--apple-space-2)]">
-        {isRejected ? (
-          <Button
-            variant="default"
-            color="green"
-            size="small"
-            onClick={() => onAccept(proposal.temporary_id)}
-            aria-label="Przywróć"
-          >
-            <RotateCcw className="w-4 h-4" />
-            <span>Przywróć</span>
-          </Button>
-        ) : isPending ? (
-          <>
+      {!disabled && (
+        <div className="border-t border-[hsl(var(--apple-separator-opaque))] bg-[hsl(var(--apple-fill))]/5 p-[var(--apple-space-4)] flex justify-end gap-[var(--apple-space-2)]">
+          {isRejected ? (
             <Button
               variant="default"
-              color="red"
-              size="small"
-              onClick={() => onReject(proposal.temporary_id)}
-              aria-label="Odrzuć"
-            >
-              <X className="w-4 h-4" />
-              <span className="hidden sm:inline">Odrzuć</span>
-            </Button>
-            <Button
-              variant="default"
-              color="blue"
-              size="small"
-              onClick={() => onEdit(proposal.temporary_id)}
-              aria-label="Edytuj"
-            >
-              <Pencil className="w-4 h-4" />
-              <span className="hidden sm:inline">Edytuj</span>
-            </Button>
-            <Button
-              variant="filled"
               color="green"
               size="small"
               onClick={() => onAccept(proposal.temporary_id)}
-              aria-label="Zaakceptuj"
+              aria-label="Przywróć"
             >
-              <Check className="w-4 h-4" />
-              <span className="hidden sm:inline">Zaakceptuj</span>
+              <RotateCcw className="w-4 h-4" />
+              <span>Przywróć</span>
             </Button>
-          </>
-        ) : (
-          <>
-            <Button
-              variant="default"
-              color="red"
-              size="small"
-              onClick={() => onReject(proposal.temporary_id)}
-              aria-label="Odrzuć"
-            >
-              <X className="w-4 h-4" />
-              <span className="hidden sm:inline">Odrzuć</span>
-            </Button>
-            <Button
-              variant="default"
-              color="blue"
-              size="small"
-              onClick={() => onEdit(proposal.temporary_id)}
-              aria-label="Edytuj"
-            >
-              <Pencil className="w-4 h-4" />
-              <span>Edytuj</span>
-            </Button>
-          </>
-        )}
-      </div>
+          ) : isPending ? (
+            <>
+              <Button
+                variant="default"
+                color="red"
+                size="small"
+                onClick={() => onReject(proposal.temporary_id)}
+                aria-label="Odrzuć"
+              >
+                <X className="w-4 h-4" />
+                <span className="hidden sm:inline">Odrzuć</span>
+              </Button>
+              <Button
+                variant="default"
+                color="blue"
+                size="small"
+                onClick={() => onEdit(proposal.temporary_id)}
+                aria-label="Edytuj"
+              >
+                <Pencil className="w-4 h-4" />
+                <span className="hidden sm:inline">Edytuj</span>
+              </Button>
+              <Button
+                variant="filled"
+                color="green"
+                size="small"
+                onClick={() => onAccept(proposal.temporary_id)}
+                aria-label="Zaakceptuj"
+              >
+                <Check className="w-4 h-4" />
+                <span className="hidden sm:inline">Zaakceptuj</span>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="default"
+                color="red"
+                size="small"
+                onClick={() => onReject(proposal.temporary_id)}
+                aria-label="Odrzuć"
+              >
+                <X className="w-4 h-4" />
+                <span className="hidden sm:inline">Odrzuć</span>
+              </Button>
+              <Button
+                variant="default"
+                color="blue"
+                size="small"
+                onClick={() => onEdit(proposal.temporary_id)}
+                aria-label="Edytuj"
+              >
+                <Pencil className="w-4 h-4" />
+                <span>Edytuj</span>
+              </Button>
+            </>
+          )}
+        </div>
+      )}
     </Card>
   );
 }

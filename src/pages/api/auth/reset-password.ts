@@ -12,7 +12,6 @@ const resetPasswordSchema = z.object({
     .regex(/[A-Z]/, "Hasło musi zawierać przynajmniej jedną wielką literę")
     .regex(/[a-z]/, "Hasło musi zawierać przynajmniej jedną małą literę")
     .regex(/[0-9]/, "Hasło musi zawierać przynajmniej jedną cyfrę"),
-  token: z.string().min(1, "Token resetowania hasła jest wymagany"),
 });
 
 export const POST: APIRoute = async ({ request, cookies }) => {
@@ -32,7 +31,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       );
     }
 
-    const { password, token } = validationResult.data;
+    const { password } = validationResult.data;
 
     // Create Supabase server instance
     const supabase = createSupabaseServerInstance({
@@ -40,30 +39,31 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       headers: request.headers,
     });
 
-    // Verify the token and update the password
-    const { error: verifyError } = await supabase.auth.verifyOtp({
-      token_hash: token,
-      type: "recovery",
-    });
+    // Check if user is authenticated (should have session from email link)
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
-    if (verifyError) {
+    if (userError || !user) {
       return new Response(
         JSON.stringify({
-          error: "Link resetowania hasła wygasł lub jest nieprawidłowy. Spróbuj ponownie.",
+          error: "Sesja wygasła. Spróbuj ponownie zresetować hasło.",
         }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        { status: 401, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    // Update the password
-    const { error: updateError } = await supabase.auth.updateUser({
+    // Update user password
+    const { error } = await supabase.auth.updateUser({
       password,
     });
 
-    if (updateError) {
+    if (error) {
+      console.error("Password update error:", error);
       return new Response(
         JSON.stringify({
-          error: updateError.message || "Wystąpił błąd podczas zmiany hasła",
+          error: error.message || "Wystąpił błąd podczas zmiany hasła",
         }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
@@ -87,5 +87,3 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     );
   }
 };
-
-

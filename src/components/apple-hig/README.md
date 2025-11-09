@@ -14,10 +14,10 @@ Kompletna biblioteka komponentów React implementująca Apple Human Interface Gu
 
 ```tsx
 // Import całej biblioteki
-import * as AppleHIG from '@/components/apple-hig';
+import * as AppleHIG from "@/components/apple-hig";
 
 // Lub import selektywny
-import { Button, Card, Sheet } from '@/components/apple-hig';
+import { Button, Card, Sheet } from "@/components/apple-hig";
 ```
 
 ## 🎨 Komponenty
@@ -33,6 +33,7 @@ Przyciski w trzech wariantach zgodnie z Apple HIG:
 ```
 
 **Props:**
+
 - `variant`: 'filled' | 'default' | 'plain'
 - `color`: 'blue' | 'gray' | 'red' | 'green' | 'orange'
 - `size`: 'small' | 'medium' | 'large'
@@ -40,6 +41,7 @@ Przyciski w trzech wariantach zgodnie z Apple HIG:
 - `isLoading`: boolean
 
 **Cechy:**
+
 - Minimum 44x44pt touch target
 - Spring animations
 - Wyraźne stany disabled i loading
@@ -64,6 +66,7 @@ Pola input z czystym, minimalistycznym designem:
 ```
 
 **Cechy:**
+
 - Niebieski focus ring
 - Inline validation
 - Ikony i prawe elementy
@@ -87,6 +90,7 @@ Kompletny system typografii Apple:
 ```
 
 **Dostępne komponenty:**
+
 - `LargeTitle` (34px) - Hero sections
 - `Title1` (28px) - Main headings
 - `Title2` (22px) - Section headings
@@ -105,7 +109,7 @@ Karty z elevacją i zaokrągleniami charakterystycznymi dla Apple:
 
 ```tsx
 <Card elevation="md" padding="lg" hoverable>
-  <CardHeader 
+  <CardHeader
     title="Card Title"
     subtitle="Subtitle text"
     action={<Button variant="plain">Action</Button>}
@@ -350,42 +354,41 @@ Komponenty układu i struktury:
 Wszystkie komponenty używają CSS custom properties zdefiniowanych w `global.css`:
 
 ### Kolory
+
 ```css
---apple-blue: System Blue
---apple-green: System Green
---apple-red: System Red
---apple-gray: System Gray (6 odcieni)
---apple-label: Primary/Secondary/Tertiary/Quaternary
+--apple-blue: System Blue --apple-green: System Green --apple-red: System Red --apple-gray: System Gray (6 odcieni)
+  --apple-label: Primary/Secondary/Tertiary/Quaternary;
 ```
 
 ### Spacing (8pt grid)
+
 ```css
 --apple-space-1 through --apple-space-10
 ```
 
 ### Typography
+
 ```css
 --apple-font-large-title through --apple-font-caption-2
 --apple-weight-ultralight through --apple-weight-black
 ```
 
 ### Corner Radius
+
 ```css
---apple-radius-small: 6px
---apple-radius-medium: 10px
---apple-radius-large: 14px
---apple-radius-xlarge: 20px
+--apple-radius-small: 6px --apple-radius-medium: 10px --apple-radius-large: 14px --apple-radius-xlarge: 20px;
 ```
 
 ### Shadows
+
 ```css
 --apple-shadow-sm through --apple-shadow-xl
 ```
 
 ### Animations
+
 ```css
---apple-spring-duration: 350ms
---apple-spring-easing: cubic-bezier(0.2, 0.9, 0.3, 1.0)
+--apple-spring-duration: 350ms --apple-spring-easing: cubic-bezier(0.2, 0.9, 0.3, 1);
 ```
 
 ## 🌙 Dark Mode
@@ -411,6 +414,7 @@ Wszystkie komponenty są zgodne z WCAG 2.1 Level AA:
 ## 📱 Responsive Design
 
 Komponenty są w pełni responsywne i działają na:
+
 - iOS (iPhone, iPad)
 - macOS
 - Android
@@ -428,25 +432,20 @@ Komponenty są w pełni responsywne i działają na:
 ### Prosty formularz
 
 ```tsx
-import { FormGroup, FormField, Switch, Button, Stack } from '@/components/apple-hig';
+import { FormGroup, FormField, Switch, Button, Stack } from "@/components/apple-hig";
 
 function SettingsForm() {
   const [notifications, setNotifications] = useState(true);
-  
+
   return (
     <Stack direction="vertical" spacing="lg">
       <FormGroup title="Preferences">
         <FormField
           label="Enable Notifications"
-          control={
-            <Switch 
-              checked={notifications}
-              onChange={(e) => setNotifications(e.target.checked)}
-            />
-          }
+          control={<Switch checked={notifications} onChange={(e) => setNotifications(e.target.checked)} />}
         />
       </FormGroup>
-      
+
       <Button variant="filled" fullWidth>
         Save Changes
       </Button>
@@ -458,16 +457,13 @@ function SettingsForm() {
 ### Karta z akcjami
 
 ```tsx
-import { Card, CardHeader, CardContent, Button, Body, Stack } from '@/components/apple-hig';
+import { Card, CardHeader, CardContent, Button, Body, Stack } from "@/components/apple-hig";
 
 function ProductCard() {
   return (
     <Card elevation="md" hoverable>
       <CardImage src="/product.jpg" aspectRatio="video" />
-      <CardHeader 
-        title="Product Name"
-        subtitle="$99.99"
-      />
+      <CardHeader title="Product Name" subtitle="$99.99" />
       <CardContent>
         <Body>Product description goes here...</Body>
       </CardContent>
@@ -485,6 +481,7 @@ function ProductCard() {
 ## 🔧 Rozwój
 
 Biblioteka jest zbudowana z:
+
 - **React 19** - UI framework
 - **TypeScript 5** - Type safety
 - **Tailwind CSS 4** - Styling
@@ -499,4 +496,3 @@ Ten projekt został stworzony dla 10xDevs jako część kursu frontend developme
 **Autor:** 10xDevs Team  
 **Wersja:** 1.0.0  
 **Data:** 2024
-

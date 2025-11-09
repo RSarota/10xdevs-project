@@ -6,19 +6,26 @@ interface ProposalsListProps {
   onAccept: (id: string) => void;
   onEdit: (id: string) => void;
   onReject: (id: string) => void;
+  disabled?: boolean;
 }
 
-export function ProposalsList({ proposals, onAccept, onEdit, onReject }: ProposalsListProps) {
+export function ProposalsList({ proposals, onAccept, onEdit, onReject, disabled = false }: ProposalsListProps) {
   return (
-    <div className="space-y-[var(--apple-space-6)]">
-      {proposals.map((proposal) => (
-        <ProposalItem
+    <div className="space-y-[var(--apple-space-5)]">
+      {proposals.map((proposal, index) => (
+        <div
           key={proposal.temporary_id}
-          proposal={proposal}
-          onAccept={onAccept}
-          onEdit={onEdit}
-          onReject={onReject}
-        />
+          className="animate-in fade-in slide-in-from-bottom-4"
+          style={{ animationDelay: `${index * 50}ms` }}
+        >
+          <ProposalItem
+            proposal={proposal}
+            onAccept={onAccept}
+            onEdit={onEdit}
+            onReject={onReject}
+            disabled={disabled}
+          />
+        </div>
       ))}
     </div>
   );

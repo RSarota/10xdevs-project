@@ -3,8 +3,24 @@ import AuthLayout from "../../layouts/AuthLayout.astro";
 import { LoginForm } from "../../components/auth/LoginForm";
 import { Card, CardContent, Stack, Title1, Body } from "../../components/apple-hig";
 import { LogIn, CheckCircle, AlertCircle } from "lucide-react";
+import { createSupabaseServerInstance } from "../../db/supabase.client";
 
 export const prerender = false;
+
+// Check if user is already authenticated
+const supabase = createSupabaseServerInstance({
+  cookies: Astro.cookies,
+  headers: Astro.request.headers,
+});
+
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+// Redirect authenticated users to dashboard
+if (user) {
+  return Astro.redirect("/dashboard");
+}
 
 // Check for confirmation success or error messages
 const confirmed = Astro.url.searchParams.get("confirmed");
@@ -15,41 +31,45 @@ const errorMessage = Astro.url.searchParams.get("message");
 <AuthLayout title="Logowanie - 10xCards">
   <Stack direction="vertical" spacing="lg">
     <!-- Success Message -->
-    {confirmed && (
-      <div class="flex items-start gap-3 p-4 bg-[hsl(var(--apple-green))]/10 border border-[hsl(var(--apple-green))]/20 rounded-[var(--apple-radius-medium)]">
-        <CheckCircle className="w-5 h-5 text-[hsl(var(--apple-green))] flex-shrink-0 mt-0.5" />
-        <div>
-          <Body className="text-[hsl(var(--apple-green))] font-medium">Email potwierdzony!</Body>
-          <Body className="text-[hsl(var(--apple-green))] text-sm">
-            Twoje konto zostało aktywowane. Możesz się teraz zalogować.
-          </Body>
+    {
+      confirmed && (
+        <div class="flex items-start gap-3 p-4 bg-[hsl(var(--apple-green))]/10 border border-[hsl(var(--apple-green))]/20 rounded-[var(--apple-radius-medium)]">
+          <CheckCircle className="w-5 h-5 text-[hsl(var(--apple-green))] flex-shrink-0 mt-0.5" />
+          <div>
+            <Body className="text-[hsl(var(--apple-green))] font-medium">Email potwierdzony!</Body>
+            <Body className="text-[hsl(var(--apple-green))] text-sm">
+              Twoje konto zostało aktywowane. Możesz się teraz zalogować.
+            </Body>
+          </div>
         </div>
-      </div>
-    )}
+      )
+    }
 
     <!-- Error Message -->
-    {error && (
-      <div class="flex items-start gap-3 p-4 bg-[hsl(var(--apple-red))]/10 border border-[hsl(var(--apple-red))]/20 rounded-[var(--apple-radius-medium)]">
-        <AlertCircle className="w-5 h-5 text-[hsl(var(--apple-red))] flex-shrink-0 mt-0.5" />
-        <div>
-          <Body className="text-[hsl(var(--apple-red))] font-medium">
-            {error === 'no_token' && 'Brak tokenu potwierdzenia'}
-            {error === 'confirmation_failed' && 'Błąd potwierdzenia'}
-            {error === 'unexpected' && 'Wystąpił nieoczekiwany błąd'}
-          </Body>
-          {errorMessage && (
-            <Body className="text-[hsl(var(--apple-red))] text-sm mt-1">
-              {decodeURIComponent(errorMessage)}
+    {
+      error && (
+        <div class="flex items-start gap-3 p-4 bg-[hsl(var(--apple-red))]/10 border border-[hsl(var(--apple-red))]/20 rounded-[var(--apple-radius-medium)]">
+          <AlertCircle className="w-5 h-5 text-[hsl(var(--apple-red))] flex-shrink-0 mt-0.5" />
+          <div>
+            <Body className="text-[hsl(var(--apple-red))] font-medium">
+              {error === "no_token" && "Brak tokenu potwierdzenia"}
+              {error === "confirmation_failed" && "Błąd potwierdzenia"}
+              {error === "unexpected" && "Wystąpił nieoczekiwany błąd"}
             </Body>
-          )}
+            {errorMessage && (
+              <Body className="text-[hsl(var(--apple-red))] text-sm mt-1">{decodeURIComponent(errorMessage)}</Body>
+            )}
+          </div>
         </div>
-      </div>
-    )}
+      )
+    }
 
     <!-- Header -->
     <div class="text-center">
       <Stack direction="vertical" spacing="sm" align="center">
-        <div class="w-14 h-14 flex items-center justify-center rounded-[var(--apple-radius-large)] bg-[hsl(var(--apple-blue))]/10">
+        <div
+          class="w-14 h-14 flex items-center justify-center rounded-[var(--apple-radius-large)] bg-[hsl(var(--apple-blue))]/10"
+        >
           <LogIn className="w-7 h-7 text-[hsl(var(--apple-blue))]" />
         </div>
         <Title1 className="text-[hsl(var(--apple-label))] text-3xl sm:text-4xl">Zaloguj się</Title1>
@@ -67,4 +87,3 @@ const errorMessage = Astro.url.searchParams.get("message");
     </Card>
   </Stack>
 </AuthLayout>
-

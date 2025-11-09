@@ -1,6 +1,7 @@
 ---
 import Layout from "./Layout.astro";
 import AppNavigation from "../components/AppNavigation";
+import { ThemeToggle } from "../components/ThemeToggle";
 
 interface Props {
   title: string;
@@ -17,8 +18,25 @@ const { title, currentPath = "/dashboard", isAdmin = false } = Astro.props;
     <AppNavigation currentPath={currentPath} isAdmin={isAdmin} client:load />
 
     <!-- Main Content Area -->
-    <main class="flex-1 lg:ml-[280px] pb-[80px] lg:pb-0">
-      <slot />
+    <main
+      class="flex-1 lg:ml-64 pt-[60px] lg:pt-0 pb-[80px] lg:pb-0 flex flex-col transition-all duration-300"
+      style="--sidebar-width: 256px;"
+    >
+      <div class="flex-1">
+        <slot />
+      </div>
+
+      <!-- Footer -->
+      <footer class="mt-auto w-full">
+        <div class="max-w-7xl mx-auto w-full px-[var(--apple-space-5)] py-[var(--apple-space-3)]">
+          <div class="flex items-center justify-center gap-3">
+            <span class="text-[var(--apple-font-caption2)] text-[hsl(var(--apple-label-tertiary))]">
+              © 2025 10xCards
+            </span>
+            <ThemeToggle client:load />
+          </div>
+        </div>
+      </footer>
     </main>
   </div>
 </Layout>

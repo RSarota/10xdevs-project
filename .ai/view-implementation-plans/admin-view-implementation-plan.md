@@ -24,6 +24,7 @@ Widok przeznaczony dla administratora, umożliwia przeglądanie logów błędów
 ## 4. Szczegóły komponentów
 
 ### AdminPage
+
 - Opis: Kontener widoku, ładuje dane logów błędów i listę użytkowników, zarządza stanem.
 - Główne elementy: zakładki lub sekcje `ErrorLogsSection` i `UserManagementSection`.
 - Zdarzenia:
@@ -36,6 +37,7 @@ Widok przeznaczony dla administratora, umożliwia przeglądanie logów błędów
 - Propsy: brak (root page).
 
 ### ErrorLogsSection
+
 - Opis: Sekcja prezentująca logi błędów generacji.
 - Główne elementy: `ErrorLogList`, `PaginationControls`.
 - Zdarzenia:
@@ -46,6 +48,7 @@ Widok przeznaczony dla administratora, umożliwia przeglądanie logów błędów
 - Propsy: `logs`, `totalPages`, `currentPage`, `onPageChange`.
 
 ### ErrorLogList
+
 - Opis: Lista logów błędów.
 - Główne elementy: mapowanie `ErrorLogItem`.
 - Zdarzenia: brak.
@@ -55,6 +58,7 @@ Widok przeznaczony dla administratora, umożliwia przeglądanie logów błędów
 - Propsy: `logs`.
 
 ### ErrorLogItem
+
 - Opis: Pojedynczy wpis błędu (kod, wiadomość, data).
 - Główne elementy: kod błędu, `error_message`, `created_at`.
 - Zdarzenia: brak.
@@ -64,6 +68,7 @@ Widok przeznaczony dla administratora, umożliwia przeglądanie logów błędów
 - Propsy: `log`.
 
 ### UserManagementSection
+
 - Opis: Sekcja zarządzania użytkownikami.
 - Główne elementy: `UsersTable`, przycisk odświeżania.
 - Zdarzenia:
@@ -74,6 +79,7 @@ Widok przeznaczony dla administratora, umożliwia przeglądanie logów błędów
 - Propsy: `users`, `onRefresh`.
 
 ### UsersTable
+
 - Opis: Tabela z listą użytkowników.
 - Główne elementy: nagłówki kolumn (email, data rejestracji, akcje), wiersze `UserRow`.
 - Zdarzenia: brak.
@@ -83,6 +89,7 @@ Widok przeznaczony dla administratora, umożliwia przeglądanie logów błędów
 - Propsy: `users`.
 
 ### UserRow
+
 - Opis: Wiersz tabeli z danymi użytkownika i akcjami (usuń, zmień rolę).
 - Główne elementy: email, data rejestracji, przyciski akcji.
 - Zdarzenia:
@@ -93,6 +100,7 @@ Widok przeznaczony dla administratora, umożliwia przeglądanie logów błędów
 - Propsy: `user`, `onDelete`, `onRoleChange`.
 
 ### ActionsModal
+
 - Opis: Modal do potwierdzania usunięcia lub zmiany roli.
 - Główne elementy: tekst potwierdzenia, przyciski `Tak`, `Nie`.
 - Zdarzenia: `onConfirm()`, `onCancel()`.
@@ -102,6 +110,7 @@ Widok przeznaczony dla administratora, umożliwia przeglądanie logów błędów
 - Propsy: `isOpen`, `message`, `onConfirm`, `onCancel`.
 
 ### ToastNotification
+
 - Opis: Komponent do wyświetlania komunikatów.
 - Główne elementy: toast z Shadcn/ui.
 - Zdarzenia: automatyczne zamknięcie.
@@ -112,7 +121,9 @@ Widok przeznaczony dla administratora, umożliwia przeglądanie logów błędów
 ## 5. Typy
 
 ```typescript
-interface HistoryItemViewModel { /* ... */ }
+interface HistoryItemViewModel {
+  /* ... */
+}
 // Wykorzystujemy:
 // GenerationErrorDTO
 // UserDTO
@@ -127,7 +138,9 @@ interface AdminViewModel {
 ## 6. Zarządzanie stanem
 
 ### Custom hook: `useAdmin()`
+
 Zwraca:
+
 ```typescript
 {
   logs: GenerationErrorDTO[];
@@ -142,7 +155,9 @@ Zwraca:
   changeUserRole: (id: string, role: string) => Promise<void>;
 }
 ```
+
 Logika:
+
 - Obsługa paginacji logów
 - Pobieranie listy użytkowników
 - Wykonywanie akcji admina

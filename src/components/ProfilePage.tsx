@@ -2,14 +2,13 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useProfile } from "@/hooks/useProfile";
 import { ProfileForm } from "./profile/ProfileForm";
-import { HistoryList } from "./profile/HistoryList";
 import { AlertTriangle } from "lucide-react";
 
 // Apple HIG Components
-import { Stack, Banner, Container, Skeleton, Button, Divider, AlertDialog } from "./apple-hig";
+import { Stack, Banner, Container, Skeleton, Button, AlertDialog, Title2, Body, Card } from "./apple-hig";
 
 export default function ProfilePage() {
-  const { profile, history, loading, error, updateProfile, deleteAccount } = useProfile();
+  const { profile, loading, error, updateProfile, deleteAccount } = useProfile();
   const [updating, setUpdating] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -46,8 +45,14 @@ export default function ProfilePage() {
     <div className="min-h-screen flex flex-col bg-[hsl(var(--apple-grouped-bg))]">
       {/* Main Content Container */}
       <div className="flex-1 overflow-y-auto">
-        <Container size="lg" className="py-[var(--apple-space-8)]">
-          <Stack direction="vertical" spacing="lg">
+        <Container size="xl" className="py-[var(--apple-space-8)]">
+          <Stack direction="vertical" spacing="xl">
+            {/* Header */}
+            <Stack direction="vertical" spacing="sm">
+              <Title2>Profil</Title2>
+              <Body className="text-[hsl(var(--apple-label-secondary))]">Zarządzaj danymi konta</Body>
+            </Stack>
+
             {/* Error Banner */}
             {error && <Banner open={!!error} message="Nie udało się załadować profilu" type="error" dismissible />}
 
@@ -61,36 +66,33 @@ export default function ProfilePage() {
 
             {/* Profile loaded */}
             {!loading && profile && (
-              <>
-                {/* Profile Form */}
-                <ProfileForm profile={profile} onSubmit={handleUpdateProfile} loading={updating} />
+              <div className="max-w-2xl mx-auto">
+                <Stack direction="vertical" spacing="xl">
+                  {/* Profile Form */}
+                  <ProfileForm profile={profile} onSubmit={handleUpdateProfile} loading={updating} />
 
-                <Divider />
-
-                {/* History List */}
-                <HistoryList items={history} />
-
-                <Divider />
-
-                {/* Danger Zone */}
-                <Stack direction="vertical" spacing="md">
-                  <Banner
-                    open={true}
-                    message="Usunięcie konta jest nieodwracalne. Wszystkie twoje dane zostaną trwale usunięte."
-                    type="warning"
-                    icon={<AlertTriangle className="w-5 h-5" />}
-                  />
-                  <Button
-                    variant="filled"
-                    color="red"
-                    size="large"
-                    onClick={() => setShowDeleteConfirm(true)}
-                    className="w-full"
-                  >
-                    Usuń konto
-                  </Button>
+                  {/* Danger Zone */}
+                  <Card elevation="md" padding="xl" variant="grouped">
+                    <Stack direction="vertical" spacing="lg">
+                      <Banner
+                        open={true}
+                        message="Usunięcie konta jest nieodwracalne. Wszystkie twoje dane zostaną trwale usunięte."
+                        type="warning"
+                        icon={<AlertTriangle className="w-5 h-5" />}
+                      />
+                      <Button
+                        variant="filled"
+                        color="red"
+                        size="large"
+                        fullWidth
+                        onClick={() => setShowDeleteConfirm(true)}
+                      >
+                        Usuń konto
+                      </Button>
+                    </Stack>
+                  </Card>
                 </Stack>
-              </>
+              </div>
             )}
           </Stack>
         </Container>
@@ -99,32 +101,22 @@ export default function ProfilePage() {
       {/* Delete Confirmation Modal */}
       <AlertDialog
         open={showDeleteConfirm}
-        onClose={() => setShowDeleteConfirm(false)}
+        onClose={() => !deleting && setShowDeleteConfirm(false)}
         title="Usuń konto"
-        description="Czy na pewno chcesz usunąć swoje konto? Ta operacja jest nieodwracalna i wszystkie twoje dane zostaną trwale usunięte."
-        actions={
-          <Stack direction="horizontal" spacing="sm" justify="end">
-            <Button
-              variant="default"
-              color="gray"
-              size="medium"
-              onClick={() => setShowDeleteConfirm(false)}
-              disabled={deleting}
-            >
-              Anuluj
-            </Button>
-            <Button
-              variant="filled"
-              color="red"
-              size="medium"
-              onClick={handleDeleteAccount}
-              disabled={deleting}
-              isLoading={deleting}
-            >
-              {deleting ? "Usuwanie..." : "Usuń konto"}
-            </Button>
-          </Stack>
-        }
+        message="Czy na pewno chcesz usunąć swoje konto? Ta operacja jest nieodwracalna i wszystkie twoje dane zostaną trwale usunięte."
+        primaryAction={{
+          label: deleting ? "Usuwanie..." : "Usuń konto",
+          onAction: handleDeleteAccount,
+          destructive: true,
+        }}
+        cancelAction={{
+          label: "Anuluj",
+          onAction: () => {
+            if (!deleting) {
+              setShowDeleteConfirm(false);
+            }
+          },
+        }}
       />
     </div>
   );

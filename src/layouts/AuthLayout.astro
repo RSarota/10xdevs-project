@@ -13,19 +13,19 @@ const { title } = Astro.props;
 <Layout title={title}>
   <div class="min-h-screen flex flex-col bg-[hsl(var(--apple-grouped-bg))]">
     <!-- Header -->
-    <header class="sticky top-0 z-50 backdrop-blur-xl bg-[hsl(var(--apple-grouped-bg))]/80 border-b border-[hsl(var(--apple-separator-opaque))] shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          <!-- Logo -->
+    <header
+      class="sticky top-0 left-0 right-0 z-40 bg-[hsl(var(--apple-grouped-bg-secondary))]/80 backdrop-blur-[var(--apple-blur-amount)] border-b border-[hsl(var(--apple-separator-opaque))] shadow-[var(--apple-shadow-sm)]"
+    >
+      <div class="max-w-7xl mx-auto px-[var(--apple-space-5)] py-[var(--apple-space-4)]">
+        <div class="flex items-center justify-center">
           <a href="/" class="flex items-center gap-2 group">
             <Logo size={32} variant="default" client:load />
-            <span class="text-[var(--apple-font-headline)] font-[var(--apple-weight-semibold)] text-[hsl(var(--apple-label))] group-hover:text-[hsl(var(--apple-blue))] transition-colors">
+            <span
+              class="text-[var(--apple-font-headline)] font-[var(--apple-weight-semibold)] text-[hsl(var(--apple-label))] group-hover:text-[hsl(var(--apple-blue))] transition-colors"
+            >
               10xCards
             </span>
           </a>
-
-          <!-- Theme Toggle -->
-          <ThemeToggle client:load />
         </div>
       </div>
     </header>
@@ -38,14 +38,17 @@ const { title } = Astro.props;
     </main>
 
     <!-- Footer -->
-    <footer class="py-6 px-4">
-      <div class="max-w-7xl mx-auto text-center">
-        <p class="text-[var(--apple-font-footnote)] text-[hsl(var(--apple-label-tertiary))]">
-          © 2025 10xCards. Wszystkie prawa zastrzeżone.
-        </p>
+    <footer
+      class="w-full border-t border-[hsl(var(--apple-separator-opaque))] bg-[hsl(var(--apple-grouped-bg-secondary))]"
+    >
+      <div class="max-w-7xl mx-auto px-[var(--apple-space-5)] py-[var(--apple-space-3)]">
+        <div class="flex items-center justify-center gap-3">
+          <p class="text-center text-[var(--apple-font-footnote)] text-[hsl(var(--apple-label-tertiary))]">
+            © 2025 10xCards. Wszystkie prawa zastrzeżone.
+          </p>
+          <ThemeToggle client:load />
+        </div>
       </div>
     </footer>
   </div>
 </Layout>
-
-

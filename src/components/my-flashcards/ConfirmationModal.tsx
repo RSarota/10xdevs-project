@@ -1,4 +1,4 @@
-import { AlertDialog, Button, Stack } from "@/components/apple-hig";
+import { AlertDialog } from "@/components/apple-hig";
 
 export interface ConfirmationModalProps {
   isOpen: boolean;
@@ -13,17 +13,16 @@ export function ConfirmationModal({ isOpen, message, onConfirm, onCancel }: Conf
       open={isOpen}
       onClose={onCancel}
       title="Potwierdzenie"
-      description={message}
-      actions={
-        <Stack direction="horizontal" spacing="sm" justify="end">
-          <Button variant="default" color="gray" size="medium" onClick={onCancel}>
-            Nie
-          </Button>
-          <Button variant="filled" color="red" size="medium" onClick={onConfirm}>
-            Tak, usuń
-          </Button>
-        </Stack>
-      }
+      message={message}
+      primaryAction={{
+        label: "Tak, usuń",
+        onAction: onConfirm,
+        destructive: true,
+      }}
+      cancelAction={{
+        label: "Nie",
+        onAction: onCancel,
+      }}
     />
   );
 }

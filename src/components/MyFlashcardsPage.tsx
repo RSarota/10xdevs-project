@@ -58,9 +58,11 @@ export default function MyFlashcardsPage() {
   const handleConfirmDelete = async () => {
     if (deletingFlashcardId === null) return;
 
+    const flashcardId = deletingFlashcardId;
+    setDeletingFlashcardId(null);
+
     try {
-      await deleteFlashcard(deletingFlashcardId);
-      setDeletingFlashcardId(null);
+      await deleteFlashcard(flashcardId);
       toast.success("Fiszka została usunięta!");
     } catch (err) {
       toast.error("Nie udało się usunąć fiszki", {

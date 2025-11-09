@@ -6,7 +6,7 @@ import { UserManagementSection } from "./admin/UserManagementSection";
 import { ConfirmationModal } from "./my-flashcards/ConfirmationModal";
 
 // Apple HIG Components
-import { Stack, Banner, Container, Skeleton, Divider, SegmentedControl, FormField } from "./apple-hig";
+import { Stack, Banner, Container, Skeleton, Divider, SegmentedControl, FormField, Title2, Body } from "./apple-hig";
 
 export default function AdminPage() {
   const { logs, users, loading, error, currentPage, totalPages, fetchLogs, fetchUsers, deleteUser, changeUserRole } =
@@ -65,7 +65,15 @@ export default function AdminPage() {
       {/* Main Content Container */}
       <div className="flex-1 overflow-y-auto">
         <Container size="xl" className="py-[var(--apple-space-8)]">
-          <Stack direction="vertical" spacing="lg">
+          <Stack direction="vertical" spacing="xl">
+            {/* Header */}
+            <Stack direction="vertical" spacing="sm">
+              <Title2>Panel Administratora</Title2>
+              <Body className="text-[hsl(var(--apple-label-secondary))]">
+                Zarządzaj użytkownikami i przeglądaj logi błędów generacji
+              </Body>
+            </Stack>
+
             {/* Error Banner */}
             {error && (
               <Banner

@@ -1,0 +1,100 @@
+---
+import { createSupabaseServerInstance } from "../../db/supabase.client";
+
+// This page handles Supabase email confirmations and password recovery links.
+// The verification is performed on the server using the Supabase SSR client
+// so that session cookies are managed consistently with the rest of the app.
+export const prerender = false;
+
+const supabase = createSupabaseServerInstance({
+  cookies: Astro.cookies,
+  headers: Astro.request.headers,
+});
+
+const redirectWithMessage = (target: string, message: string, errorKey: string) =>
+  Astro.redirect(`${target}?error=${errorKey}&message=${encodeURIComponent(message)}`);
+
+const tokenHash = Astro.url.searchParams.get("token") ?? Astro.url.searchParams.get("token_hash");
+const codeParam = Astro.url.searchParams.get("code");
+const typeParam = Astro.url.searchParams.get("type") ?? "signup";
+const errorParam = Astro.url.searchParams.get("error");
+const errorDescription = Astro.url.searchParams.get("error_description") ?? Astro.url.searchParams.get("message") ?? "";
+
+if (errorParam) {
+  const redirectTarget = typeParam === "recovery" ? "/auth/forgot-password" : "/auth/login";
+  const message = errorDescription || "Wystąpił błąd podczas potwierdzania";
+  return redirectWithMessage(redirectTarget, message, "confirmation_failed");
+}
+
+const SUPPORTED_TYPES = new Set(["signup", "recovery"]);
+
+if (!SUPPORTED_TYPES.has(typeParam)) {
+  return redirectWithMessage("/auth/login", "Nieobsługiwany rodzaj potwierdzenia", "unexpected");
+}
+
+const verifyType = typeParam === "recovery" ? "recovery" : "signup";
+
+if (!tokenHash) {
+  if (verifyType === "signup") {
+    return Astro.redirect("/auth/login?confirmed=true");
+  }
+
+  if (codeParam) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(codeParam);
+
+    if (error || !data.session) {
+      const message = error?.message ?? "Nie udało się utworzyć sesji resetu hasła";
+      return redirectWithMessage("/auth/forgot-password", message, "unexpected");
+    }
+
+    return Astro.redirect("/auth/reset-password");
+  }
+
+  return redirectWithMessage(
+    "/auth/forgot-password",
+    "Link resetowania hasła jest nieprawidłowy lub wygasł",
+    "confirmation_failed"
+  );
+}
+
+try {
+  const { data, error } = await supabase.auth.verifyOtp({
+    type: verifyType,
+    token_hash: tokenHash,
+  });
+
+  if (error) {
+    const message =
+      error.message === "Email link is invalid or has expired"
+        ? "Link potwierdzający jest nieprawidłowy lub wygasł"
+        : error.message || "Nie udało się potwierdzić tokenu";
+
+    const redirectTarget = verifyType === "recovery" ? "/auth/forgot-password" : "/auth/login";
+
+    return redirectWithMessage(redirectTarget, message, "confirmation_failed");
+  }
+
+  if (verifyType === "recovery") {
+    if (!data.session) {
+      return redirectWithMessage("/auth/forgot-password", "Nie udało się utworzyć sesji resetu hasła", "unexpected");
+    }
+
+    return Astro.redirect("/auth/reset-password");
+  }
+
+  return Astro.redirect("/auth/login?confirmed=true");
+} catch (error) {
+  const message =
+    error instanceof Response
+      ? ""
+      : error instanceof Error
+        ? error.message
+        : "Wystąpił nieoczekiwany błąd podczas potwierdzania";
+
+  if (error instanceof Response) {
+    return error;
+  }
+
+  return redirectWithMessage("/auth/login", message, "unexpected");
+}
+---

@@ -30,7 +30,7 @@ export function useFlashcards(): UseFlashcardsReturn {
   const [totalPages, setTotalPages] = useState(1);
   const [filters, setFilters] = useState<FlashcardsFilters>({
     page: 1,
-    limit: 20,
+    limit: 21,
     sort_by: "created_at",
     sort_order: "desc",
   });
@@ -102,8 +102,26 @@ export function useFlashcards(): UseFlashcardsReturn {
       throw new Error("Nie udało się usunąć fiszki");
     }
 
-    // Refresh the list
-    await fetchFlashcards(filters);
+    // Check if this is the last item on the current page before removing it
+    const currentPage = filters.page;
+    const currentPageItems = items.length;
+    const isLastItemOnPage = currentPageItems === 1;
+    const shouldNavigateToPreviousPage = isLastItemOnPage && currentPage > 1;
+
+    // Optimistic update: remove item from local state immediately
+    setItems((prevItems) => prevItems.filter((item) => item.id !== id));
+
+    // If we deleted the last item on the current page and we're not on page 1,
+    // navigate to the previous page
+    if (shouldNavigateToPreviousPage) {
+      const newPage = currentPage - 1;
+      const newFilters = { ...filters, page: newPage };
+      setFilters(newFilters);
+      await fetchFlashcards(newFilters);
+    } else {
+      // Otherwise, refresh the current page
+      await fetchFlashcards(filters);
+    }
   };
 
   const updateFlashcard = async (id: number, data: UpdateFlashcardCommand): Promise<void> => {

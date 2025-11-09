@@ -34,9 +34,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       headers: request.headers,
     });
 
+    const originUrl = new URL(request.url);
+    const recoveryUrl = new URL("/auth/confirm", originUrl.origin);
+    recoveryUrl.searchParams.set("type", "recovery");
+
     // Send password reset email
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${new URL(request.url).origin}/auth/confirm?type=recovery`,
+      redirectTo: recoveryUrl.toString(),
     });
 
     if (error) {
@@ -63,4 +67,3 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     );
   }
 };
-

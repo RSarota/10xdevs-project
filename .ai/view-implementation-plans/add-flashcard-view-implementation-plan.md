@@ -17,6 +17,7 @@ Widok umożliwia zalogowanemu użytkownikowi ręczne tworzenie nowych fiszek pop
 ## 4. Szczegóły komponentów
 
 ### AddFlashcardPage
+
 - Opis: Kontener widoku, zarządza stanem formularza i wywołuje hook do wysłania danych do API.
 - Główne elementy: nagłówek, komponent `AddFlashcardForm`, `ToastNotification`.
 - Zdarzenia:
@@ -27,6 +28,7 @@ Widok umożliwia zalogowanemu użytkownikowi ręczne tworzenie nowych fiszek pop
 - Propsy: brak (root page).
 
 ### AddFlashcardForm
+
 - Opis: Formularz z dwoma polami: „Przód” i „Tył” oraz przyciskiem zapisu.
 - Główne elementy: `<input>` dla frontu, `<textarea>` dla tyłu, `<button>` „Zapisz”.
 - Zdarzenia:
@@ -41,6 +43,7 @@ Widok umożliwia zalogowanemu użytkownikowi ręczne tworzenie nowych fiszek pop
 - Propsy: `onSubmit`.
 
 ### ToastNotification
+
 - Opis: Komponent do wyświetlania komunikatów o sukcesie lub błędach.
 - Główne elementy: toast z Shadcn/ui.
 - Zdarzenia: automatyczne zamknięcie po określonym czasie.
@@ -63,12 +66,15 @@ interface AddFlashcardFormProps {
 ```
 
 Istniejące typy:
+
 - `CreateFlashcardCommand` – `{ front: string; back: string; source: 'manual'; generation_id?: null }`.
 
 ## 6. Zarządzanie stanem
 
 ### Custom hook: `useAddFlashcard()`
+
 Zwraca:
+
 ```typescript
 {
   formData: AddFlashcardFormData;
@@ -77,7 +83,9 @@ Zwraca:
   submit: (data: AddFlashcardFormData) => Promise<void>;
 }
 ```
+
 Logika:
+
 - Utrzymuje stan pól formularza i błędów
 - Waliduje dane przed wysłaniem
 - Wysyła `CreateFlashcardCommand` do `/api/flashcards`

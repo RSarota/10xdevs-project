@@ -55,7 +55,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const sizeClasses = iconOnly
       ? {
           small: "text-[var(--apple-font-footnote)] p-2 h-9 w-9",
-          medium: "text-[var(--apple-font-body)] p-2 min-h-[var(--apple-touch-target)] min-w-[var(--apple-touch-target)]",
+          medium:
+            "text-[var(--apple-font-body)] p-2 min-h-[var(--apple-touch-target)] min-w-[var(--apple-touch-target)]",
           large: "text-[var(--apple-font-headline)] p-3 min-h-[3.25rem] min-w-[3.25rem]",
         }
       : {

@@ -57,6 +57,7 @@
 ### 4. Opis kroków autentykacji:
 
 **Rejestracja:**
+
 1. Użytkownik wypełnia formularz (walidacja klienta)
 2. POST do /api/auth/register z danymi
 3. Walidacja serwerowa
@@ -65,6 +66,7 @@
 6. Użytkownik klika link, konto aktywowane
 
 **Logowanie:**
+
 1. Użytkownik wypełnia formularz
 2. POST do /api/auth/login
 3. Walidacja serwerowa
@@ -74,6 +76,7 @@
 7. Przekierowanie do dashboard
 
 **Dostęp do chronionych zasobów:**
+
 1. Żądanie do chronionej strony/API
 2. Middleware odczytuje token z ciasteczek
 3. Weryfikacja tokenu w Supabase
@@ -81,6 +84,7 @@
 5. Jeśli odświeżenie niemożliwe - przekierowanie do logowania
 
 **Odświeżanie tokenu:**
+
 1. Wykrycie wygasłego access_token
 2. Wywołanie supabase.auth.refreshSession()
 3. Supabase weryfikuje refresh_token
@@ -90,6 +94,7 @@
 </authentication_analysis>
 
 <mermaid_diagram>
+
 ```mermaid
 sequenceDiagram
 autonumber
@@ -114,7 +119,7 @@ alt Dane nieprawidłowe
     Browser->>Browser: Wyświetlenie błędu
 else Dane prawidłowe
     API->>Auth: signUp(email, password)
-    
+
     alt Email już istnieje
         Auth-->>API: Błąd: użytkownik istnieje
         API-->>Browser: 409 Conflict
@@ -127,9 +132,9 @@ else Dane prawidłowe
         API-->>Browser: 201 Created
         Note right of Browser: {success: true}
         Browser->>Browser: Komunikat: Sprawdź email
-        
+
         Note over Auth,Browser: Email z linkiem aktywacyjnym
-        
+
         Browser->>Browser: Użytkownik klika link w emailu
         Browser->>Auth: GET /auth/verify?token=xyz
         Auth->>Auth: Weryfikacja tokenu
@@ -175,7 +180,7 @@ alt Brak sesji lub token wygasł
     Browser->>Browser: Wyświetlenie strony logowania
 else Sesja istnieje
     Middleware->>Auth: Weryfikacja tokenu
-    
+
     alt Token nieważny
         Auth-->>Middleware: Błąd weryfikacji
         Middleware-->>Browser: 302 Redirect /auth/login
@@ -275,12 +280,12 @@ else Użytkownik potwierdza
     API->>Middleware: Weryfikacja sesji
     Middleware->>Middleware: Sprawdzenie autentykacji
     Middleware-->>API: Użytkownik zweryfikowany
-    
+
     API->>Auth: Usunięcie użytkownika i danych
     Auth->>Auth: Usunięcie konta użytkownika
     Auth->>Auth: Usunięcie powiązanych danych
     Auth-->>API: Konto usunięte
-    
+
     API->>API: Usunięcie ciasteczek
     API-->>Browser: 200 OK
     Note right of Browser: {message: Konto usunięte}
@@ -306,6 +311,7 @@ else Nieoczekiwany błąd
     Browser->>Browser: Komunikat o błędzie
 end
 ```
+
 </mermaid_diagram>
 
 ## Kluczowe elementy architektury

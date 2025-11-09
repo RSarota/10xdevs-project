@@ -201,6 +201,24 @@ export async function deleteFlashcard(
 }
 
 /**
+ * Pobiera wszystkie ID fiszek użytkownika.
+ * Używane do usuwania wszystkich fiszek przed usunięciem konta.
+ *
+ * @param supabase - Klient Supabase
+ * @param userId - ID użytkownika
+ * @returns Tablica ID fiszek
+ */
+export async function getAllFlashcardIds(supabase: SupabaseClient, userId: string): Promise<number[]> {
+  const { data, error } = await supabase.from("flashcards").select("id").eq("user_id", userId);
+
+  if (error) {
+    throw new Error(`Błąd podczas pobierania ID fiszek: ${error.message}`);
+  }
+
+  return (data || []).map((flashcard) => flashcard.id);
+}
+
+/**
  * Usuwa wiele fiszek jednocześnie (bulk delete).
  * Weryfikuje ownership - usuwa tylko fiszki należące do użytkownika.
  *
@@ -214,6 +232,11 @@ export async function bulkDeleteFlashcards(
   userId: string,
   flashcardIds: number[]
 ): Promise<{ deletedCount: number }> {
+  // Jeśli brak fiszek do usunięcia, zwróć 0
+  if (flashcardIds.length === 0) {
+    return { deletedCount: 0 };
+  }
+
   // Deduplikacja ID
   const uniqueIds = [...new Set(flashcardIds)];
 

@@ -5,14 +5,6 @@ export interface UserProfileDTO {
   name?: string;
 }
 
-export interface HistoryItemViewModel {
-  id: string;
-  type: "generation" | "session";
-  date: string;
-  count: number;
-  score?: number;
-}
-
 export interface ProfileFormData {
   email: string;
   password?: string;
@@ -21,7 +13,6 @@ export interface ProfileFormData {
 
 interface UseProfileReturn {
   profile: UserProfileDTO | null;
-  history: HistoryItemViewModel[];
   loading: boolean;
   error: Error | null;
   updateProfile: (data: ProfileFormData) => Promise<void>;
@@ -30,7 +21,6 @@ interface UseProfileReturn {
 
 export function useProfile(): UseProfileReturn {
   const [profile, setProfile] = useState<UserProfileDTO | null>(null);
-  const [history, setHistory] = useState<HistoryItemViewModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -56,9 +46,6 @@ export function useProfile(): UseProfileReturn {
 
       const data = await response.json();
       setProfile(data);
-
-      // Mock history for now
-      setHistory([]);
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Wystąpił nieoczekiwany błąd"));
     } finally {
@@ -67,12 +54,9 @@ export function useProfile(): UseProfileReturn {
   };
 
   const updateProfile = async (data: ProfileFormData): Promise<void> => {
-    const body: { email?: string; password?: string } = {};
+    const body: { password?: string } = {};
 
-    if (data.email !== profile?.email) {
-      body.email = data.email;
-    }
-
+    // Only password can be updated (email is read-only)
     if (data.password && data.password.trim().length > 0) {
       body.password = data.password;
     }
@@ -114,7 +98,19 @@ export function useProfile(): UseProfileReturn {
         window.location.href = "/auth/login";
         return;
       }
-      throw new Error("Nie udało się usunąć konta");
+
+      // Try to parse error message from response
+      let errorMessage = "Nie udało się usunąć konta";
+      try {
+        const errorData = await response.json();
+        if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+      } catch {
+        // If parsing fails, use default message
+      }
+
+      throw new Error(errorMessage);
     }
 
     // Redirect to login after account deletion
@@ -127,7 +123,6 @@ export function useProfile(): UseProfileReturn {
 
   return {
     profile,
-    history,
     loading,
     error,
     updateProfile,

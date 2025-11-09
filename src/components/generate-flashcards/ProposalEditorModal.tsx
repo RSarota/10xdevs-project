@@ -211,7 +211,7 @@ export function ProposalEditorModal({ proposal, open, onSave, onCancel }: Propos
                 justify="end"
                 className="pt-[var(--apple-space-4)] border-t border-[hsl(var(--apple-separator-opaque))]"
               >
-                <Button type="button" variant="plain" color="gray" size="large" onClick={handleCancel}>
+                <Button type="button" variant="plain" color="gray" size="medium" onClick={handleCancel}>
                   Anuluj
                 </Button>
                 <Button type="submit" variant="filled" color="green" size="large" disabled={!isFormValid}>

@@ -1,6 +1,6 @@
 import { ThemeToggle } from "./ThemeToggle";
 import { Logo } from "./Logo";
-import { Sparkles, Brain, Zap, BookOpen, Target, TrendingUp } from "lucide-react";
+import { Sparkles, Brain, Zap, BookOpen, Target, TrendingUp, LayoutDashboard } from "lucide-react";
 
 // Apple HIG Components
 import {
@@ -19,7 +19,11 @@ import {
   Divider,
 } from "./apple-hig";
 
-export default function LandingPage() {
+interface LandingPageProps {
+  isAuthenticated?: boolean;
+}
+
+export default function LandingPage({ isAuthenticated = false }: LandingPageProps) {
   const handleLogin = () => {
     window.location.href = "/auth/login";
   };
@@ -29,7 +33,16 @@ export default function LandingPage() {
   };
 
   const handleDemo = () => {
-    window.location.href = "/generate-flashcards";
+    // Demo requires authentication - redirect to register if not logged in
+    if (isAuthenticated) {
+      window.location.href = "/generate-flashcards";
+    } else {
+      window.location.href = "/auth/register";
+    }
+  };
+
+  const handleGoToApp = () => {
+    window.location.href = "/dashboard";
   };
 
   const features = [
@@ -55,7 +68,7 @@ export default function LandingPage() {
 
   const stats = [
     { value: "10,000+", label: "Fiszek wygenerowanych" },
-    { value: "95%", label: "Wskaźnik akceptacji AI" },
+    { value: "95%", label: "Fiszek zaakceptowanych z AI" },
     { value: "< 30s", label: "Średni czas generacji" },
   ];
 
@@ -71,34 +84,48 @@ export default function LandingPage() {
         }
         blur
         shadow
-        rightAction={<ThemeToggle />}
+        rightAction={
+          isAuthenticated && (
+            <button
+              onClick={handleGoToApp}
+              className="flex items-center gap-1.5 px-[var(--apple-space-3)] py-[var(--apple-space-2)] rounded-[var(--apple-radius-medium)] text-[var(--apple-font-footnote)] text-[hsl(var(--apple-label-secondary))] hover:text-[hsl(var(--apple-blue))] hover:bg-[hsl(var(--apple-fill))]/10 transition-colors"
+              aria-label="Przejdź do aplikacji"
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span className="hidden sm:inline">Aplikacja</span>
+            </button>
+          )
+        }
       />
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto pt-16">
         {/* Hero Section */}
-        <Container size="xl" className="py-[var(--apple-space-16)] sm:py-[var(--apple-space-20)]">
-          <Stack direction="vertical" spacing="xl" align="center" className="min-h-[70vh] justify-center">
+        <Container
+          size="xl"
+          className="py-[var(--apple-space-12)] sm:py-[var(--apple-space-16)] lg:py-[var(--apple-space-20)]"
+        >
+          <Stack direction="vertical" spacing="xl" align="center" className="text-center">
             {/* Hero Content */}
-            <Stack direction="vertical" spacing="lg" align="center" className="text-center max-w-4xl px-4">
+            <Stack direction="vertical" spacing="lg" align="center" className="max-w-4xl">
               <Badge color="blue" variant="filled" size="lg">
                 <Sparkles className="w-4 h-4" />
                 Powered by AI
               </Badge>
 
-              <LargeTitle className="text-[hsl(var(--apple-label))] text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight">
+              <LargeTitle className="text-[hsl(var(--apple-label))] text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
                 Ucz się mądrzej,
                 <br />
                 nie dłużej
               </LargeTitle>
 
-              <Title2 className="text-[hsl(var(--apple-label-secondary))] font-normal max-w-2xl text-lg sm:text-xl">
+              <Title2 className="text-[hsl(var(--apple-label-secondary))] font-normal max-w-2xl text-base sm:text-lg lg:text-xl">
                 Przekształć dowolny tekst w fiszki do nauki za pomocą sztucznej inteligencji. Oszczędź czas i ucz się
                 efektywniej.
               </Title2>
 
               {/* CTA Buttons */}
-              <Stack direction="horizontal" spacing="md" className="mt-[var(--apple-space-6)] flex-wrap justify-center">
+              <Stack direction="horizontal" spacing="md" className="mt-[var(--apple-space-4)] flex-wrap justify-center">
                 <Button variant="filled" color="blue" size="large" onClick={handleRegister}>
                   <Sparkles className="w-5 h-5" />
                   Rozpocznij za darmo
@@ -108,50 +135,60 @@ export default function LandingPage() {
                 </Button>
               </Stack>
 
-              <Body className="text-[hsl(var(--apple-label-tertiary))] text-sm mt-[var(--apple-space-2)]">
+              <Body className="text-[hsl(var(--apple-label-tertiary))] text-sm mt-[var(--apple-space-4)]">
                 Bez karty kredytowej • Bez zobowiązań
               </Body>
             </Stack>
-
-            {/* Stats */}
-            <div className="w-full mt-[var(--apple-space-16)]">
-              <Grid columns={1} gap="md" className="sm:grid-cols-3 max-w-5xl mx-auto px-4">
-                {stats.map((stat, index) => (
-                  <Card key={index} elevation="md" padding="lg" variant="grouped">
-                    <CardContent>
-                      <Stack direction="vertical" spacing="xs" align="center">
-                        <Title1 className="text-[hsl(var(--apple-blue))] text-3xl sm:text-4xl">{stat.value}</Title1>
-                        <Body className="text-[hsl(var(--apple-label-secondary))] text-center text-sm sm:text-base">
-                          {stat.label}
-                        </Body>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                ))}
-              </Grid>
-            </div>
           </Stack>
         </Container>
 
         <Divider />
 
+        {/* Stats Section */}
+        <Container
+          size="xl"
+          className="py-[var(--apple-space-12)] sm:py-[var(--apple-space-16)] lg:py-[var(--apple-space-20)]"
+        >
+          <Grid columns={3} gap="lg" className="max-w-5xl mx-auto">
+            {stats.map((stat, index) => (
+              <Card key={index} elevation="md" padding="xl" variant="grouped">
+                <CardContent>
+                  <Stack direction="vertical" spacing="sm" align="center">
+                    <Title1 className="text-[hsl(var(--apple-blue))] text-3xl sm:text-4xl">{stat.value}</Title1>
+                    <Body className="text-[hsl(var(--apple-label-secondary))] text-center text-sm sm:text-base">
+                      {stat.label}
+                    </Body>
+                  </Stack>
+                </CardContent>
+              </Card>
+            ))}
+          </Grid>
+        </Container>
+
+        <Divider />
+
         {/* Features Section */}
-        <Container size="xl" className="py-[var(--apple-space-16)] sm:py-[var(--apple-space-20)]">
+        <Container
+          size="xl"
+          className="py-[var(--apple-space-12)] sm:py-[var(--apple-space-16)] lg:py-[var(--apple-space-20)]"
+        >
           <Stack direction="vertical" spacing="xl">
-            <Stack direction="vertical" spacing="md" align="center" className="text-center px-4">
-              <Title1 className="text-3xl sm:text-4xl">Wszystko czego potrzebujesz do efektywnej nauki</Title1>
-              <Body className="text-[hsl(var(--apple-label-secondary))] max-w-2xl text-base sm:text-lg">
+            <Stack direction="vertical" spacing="md" align="center" className="text-center max-w-3xl mx-auto">
+              <Title1 className="text-3xl sm:text-4xl lg:text-5xl">
+                Wszystko czego potrzebujesz do efektywnej nauki
+              </Title1>
+              <Body className="text-[hsl(var(--apple-label-secondary))] text-base sm:text-lg">
                 Nasza platforma łączy moc sztucznej inteligencji z prostotą użytkowania
               </Body>
             </Stack>
 
-            <Grid columns={1} gap="lg" className="sm:grid-cols-3 px-4">
+            <Grid columns={1} gap="lg" className="sm:grid-cols-2 lg:grid-cols-3">
               {features.map((feature, index) => (
                 <Card key={index} elevation="md" padding="xl" variant="grouped">
                   <CardContent>
                     <Stack direction="vertical" spacing="md" align="start">
                       <Stack direction="horizontal" justify="between" align="start" className="w-full">
-                        <div className="w-14 h-14 flex items-center justify-center rounded-[var(--apple-radius-large)] bg-[hsl(var(--apple-blue)/0.1)] text-[hsl(var(--apple-blue))]">
+                        <div className="w-14 h-14 flex items-center justify-center rounded-[var(--apple-radius-large)] bg-[hsl(var(--apple-blue)/0.1)] text-[hsl(var(--apple-blue))] flex-shrink-0">
                           {feature.icon}
                         </div>
                         <Badge color="blue" variant="filled" size="sm">
@@ -175,16 +212,19 @@ export default function LandingPage() {
         <Divider />
 
         {/* How it works Section */}
-        <Container size="xl" className="py-[var(--apple-space-16)] sm:py-[var(--apple-space-20)]">
+        <Container
+          size="xl"
+          className="py-[var(--apple-space-12)] sm:py-[var(--apple-space-16)] lg:py-[var(--apple-space-20)]"
+        >
           <Stack direction="vertical" spacing="xl">
-            <Stack direction="vertical" spacing="md" align="center" className="text-center px-4">
-              <Title1 className="text-3xl sm:text-4xl">Jak to działa?</Title1>
-              <Body className="text-[hsl(var(--apple-label-secondary))] max-w-2xl text-base sm:text-lg">
+            <Stack direction="vertical" spacing="md" align="center" className="text-center max-w-3xl mx-auto">
+              <Title1 className="text-3xl sm:text-4xl lg:text-5xl">Jak to działa?</Title1>
+              <Body className="text-[hsl(var(--apple-label-secondary))] text-base sm:text-lg">
                 Zacznij tworzyć fiszki w trzech prostych krokach
               </Body>
             </Stack>
 
-            <Grid columns={1} gap="lg" className="sm:grid-cols-3 max-w-5xl mx-auto px-4">
+            <Grid columns={1} gap="lg" className="sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
               <Card elevation="md" padding="xl" variant="grouped">
                 <CardContent>
                   <Stack direction="vertical" spacing="md" align="center" className="text-center">
@@ -239,45 +279,53 @@ export default function LandingPage() {
         <Divider />
 
         {/* Final CTA Section */}
-        <Container size="xl" className="py-[var(--apple-space-16)] sm:py-[var(--apple-space-20)]">
-          <div className="px-4">
-            <Card elevation="lg" padding="xl" variant="grouped">
-              <CardContent>
-                <Stack
-                  direction="vertical"
-                  spacing="lg"
-                  align="center"
-                  className="text-center py-[var(--apple-space-8)]"
-                >
-                  <Stack direction="vertical" spacing="md">
-                    <Title1 className="text-3xl sm:text-4xl">Gotowy, aby zacząć?</Title1>
-                    <Body className="text-[hsl(var(--apple-label-secondary))] max-w-xl text-base sm:text-lg">
-                      Dołącz do tysięcy studentów, którzy już uczą się mądrzej dzięki AI
-                    </Body>
-                  </Stack>
-                  <Stack direction="horizontal" spacing="md" className="flex-wrap justify-center">
-                    <Button variant="filled" color="blue" size="large" onClick={handleRegister}>
-                      <Sparkles className="w-5 h-5" />
-                      Utwórz darmowe konto
-                    </Button>
-                    <Button variant="default" color="blue" size="large" onClick={handleDemo}>
-                      Zobacz demo
-                    </Button>
-                  </Stack>
+        <Container
+          size="xl"
+          className="py-[var(--apple-space-12)] sm:py-[var(--apple-space-16)] lg:py-[var(--apple-space-20)]"
+        >
+          <Card elevation="lg" padding="xl" variant="grouped" className="max-w-4xl mx-auto">
+            <CardContent>
+              <Stack
+                direction="vertical"
+                spacing="lg"
+                align="center"
+                className="text-center py-[var(--apple-space-6)] sm:py-[var(--apple-space-8)]"
+              >
+                <Stack direction="vertical" spacing="md" align="center" className="max-w-2xl">
+                  <Title1 className="text-3xl sm:text-4xl lg:text-5xl">Gotowy, aby zacząć?</Title1>
+                  <Body className="text-[hsl(var(--apple-label-secondary))] text-base sm:text-lg">
+                    Dołącz do tysięcy studentów, którzy już uczą się mądrzej dzięki AI
+                  </Body>
                 </Stack>
-              </CardContent>
-            </Card>
-          </div>
+                <Stack
+                  direction="horizontal"
+                  spacing="md"
+                  className="flex-wrap justify-center mt-[var(--apple-space-2)]"
+                >
+                  <Button variant="filled" color="blue" size="large" onClick={handleRegister}>
+                    <Sparkles className="w-5 h-5" />
+                    Utwórz darmowe konto
+                  </Button>
+                  <Button variant="default" color="blue" size="large" onClick={handleDemo}>
+                    Zobacz demo
+                  </Button>
+                </Stack>
+              </Stack>
+            </CardContent>
+          </Card>
         </Container>
 
         {/* Footer */}
-        <Container size="xl" className="py-[var(--apple-space-10)]">
-          <Stack direction="vertical" spacing="md" align="center" className="text-center">
-            <Body className="text-[hsl(var(--apple-label-tertiary))] text-sm">
-              © 2025 10xCards. Wszystkie prawa zastrzeżone.
-            </Body>
-          </Stack>
-        </Container>
+        <footer className="w-full border-t border-[hsl(var(--apple-separator-opaque))] bg-[hsl(var(--apple-grouped-bg-secondary))] mt-[var(--apple-space-8)]">
+          <div className="max-w-7xl mx-auto px-[var(--apple-space-5)] py-[var(--apple-space-3)]">
+            <div className="flex items-center justify-center gap-3">
+              <p className="text-center text-[var(--apple-font-footnote)] text-[hsl(var(--apple-label-tertiary))]">
+                © 2025 10xCards. Wszystkie prawa zastrzeżone.
+              </p>
+              <ThemeToggle />
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );

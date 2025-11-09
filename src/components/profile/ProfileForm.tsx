@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, Stack, Input, Button, Title2, FormField, Footnote } from "@/components/apple-hig";
+import { useState } from "react";
+import { Card, CardHeader, Stack, Input, Button, Footnote } from "@/components/apple-hig";
+import { Mail, Lock } from "lucide-react";
 import type { ProfileFormData, UserProfileDTO } from "@/hooks/useProfile";
 
 export interface ProfileFormProps {
@@ -9,23 +10,12 @@ export interface ProfileFormProps {
 }
 
 export function ProfileForm({ profile, onSubmit, loading = false }: ProfileFormProps) {
-  const [email, setEmail] = useState(profile.email);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<Partial<Record<keyof ProfileFormData, string>>>({});
 
-  useEffect(() => {
-    setEmail(profile.email);
-  }, [profile]);
-
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof ProfileFormData, string>> = {};
-
-    // Validate email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      newErrors.email = "Wprowadź poprawny adres e-mail";
-    }
 
     // Validate password if provided
     if (password.trim().length > 0) {
@@ -55,52 +45,43 @@ export function ProfileForm({ profile, onSubmit, loading = false }: ProfileFormP
     }
 
     onSubmit({
-      email,
+      email: profile.email, // Email is read-only, always use profile email
       password: password.trim().length > 0 ? password : undefined,
       confirmPassword: confirmPassword.trim().length > 0 ? confirmPassword : undefined,
     });
   };
 
-  const hasChanges = email !== profile.email || password.trim().length > 0;
+  const hasChanges = password.trim().length > 0;
 
   return (
-    <Card elevation="md" padding="lg" variant="grouped">
-      <CardContent>
+    <Card elevation="md" padding="xl" variant="grouped">
+      <Stack direction="vertical" spacing="xl">
+        <CardHeader title="Dane konta" subtitle="Zarządzaj danymi swojego konta" />
+
         <form onSubmit={handleSubmit}>
           <Stack direction="vertical" spacing="lg">
-            <Title2>Dane konta</Title2>
-
-            {/* Email field */}
-            <Stack direction="vertical" spacing="xs">
-              <FormField
-                label="Adres e-mail"
-                description={errors.email}
-                control={
-                  <Input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="twoj@email.com"
-                    disabled={loading}
-                  />
-                }
-              />
-            </Stack>
+            {/* Email field - read only */}
+            <Input
+              type="email"
+              label="Adres e-mail"
+              value={profile.email}
+              placeholder="twoj@email.com"
+              disabled={true}
+              readOnly
+              icon={<Mail className="w-5 h-5" />}
+            />
 
             {/* Password field */}
             <Stack direction="vertical" spacing="xs">
-              <FormField
+              <Input
+                type="password"
                 label="Nowe hasło"
-                description={errors.password}
-                control={
-                  <Input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Pozostaw puste, jeśli nie chcesz zmieniać"
-                    disabled={loading}
-                  />
-                }
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Pozostaw puste, jeśli nie chcesz zmieniać"
+                disabled={loading}
+                error={errors.password}
+                icon={<Lock className="w-5 h-5" />}
               />
               <Footnote className="text-[hsl(var(--apple-label-tertiary))]">
                 Min. 8 znaków, jedna wielka litera i jedna cyfra
@@ -109,38 +90,35 @@ export function ProfileForm({ profile, onSubmit, loading = false }: ProfileFormP
 
             {/* Confirm Password field */}
             {password.trim().length > 0 && (
-              <Stack direction="vertical" spacing="xs">
-                <FormField
-                  label="Potwierdź hasło"
-                  description={errors.confirmPassword}
-                  control={
-                    <Input
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Powtórz hasło"
-                      disabled={loading}
-                    />
-                  }
-                />
-              </Stack>
+              <Input
+                type="password"
+                label="Potwierdź hasło"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Powtórz hasło"
+                disabled={loading}
+                error={errors.confirmPassword}
+                icon={<Lock className="w-5 h-5" />}
+              />
             )}
 
             {/* Submit button */}
-            <Button
-              type="submit"
-              variant="filled"
-              color="blue"
-              size="large"
-              disabled={!hasChanges || loading}
-              isLoading={loading}
-              className="w-full"
-            >
-              {loading ? "Zapisywanie..." : "Zapisz zmiany"}
-            </Button>
+            <div className="pt-[var(--apple-space-4)]">
+              <Button
+                type="submit"
+                variant="filled"
+                color="blue"
+                size="large"
+                fullWidth
+                disabled={!hasChanges || loading}
+                isLoading={loading}
+              >
+                {loading ? "Zapisywanie..." : "Zapisz zmiany"}
+              </Button>
+            </div>
           </Stack>
         </form>
-      </CardContent>
+      </Stack>
     </Card>
   );
 }

@@ -5,7 +5,6 @@ export const prerender = false;
 
 // Validation schemas
 const updateProfileSchema = z.object({
-  email: z.string().email("Nieprawidłowy format adresu e-mail").optional(),
   password: z
     .string()
     .min(8, "Hasło musi zawierać minimum 8 znaków")
@@ -82,7 +81,7 @@ export const GET: APIRoute = async ({ locals }) => {
 /**
  * PATCH /api/users/me
  * Aktualizuje profil aktualnie zalogowanego użytkownika
- * Możliwe pola: email, password
+ * Możliwe pola: password (email nie może być zmieniony)
  */
 export const PATCH: APIRoute = async ({ request, locals }) => {
   try {
@@ -135,11 +134,10 @@ export const PATCH: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    const { email, password } = validationResult.data;
+    const { password } = validationResult.data;
 
-    // Prepare update data
-    const updateData: { email?: string; password?: string } = {};
-    if (email) updateData.email = email;
+    // Prepare update data (email cannot be changed)
+    const updateData: { password?: string } = {};
     if (password) updateData.password = password;
 
     // Check if there's anything to update
@@ -160,21 +158,6 @@ export const PATCH: APIRoute = async ({ request, locals }) => {
     const { data, error } = await locals.supabase.auth.updateUser(updateData);
 
     if (error) {
-      // Handle specific error cases
-      if (error.message.includes("email") && error.message.includes("already")) {
-        return new Response(
-          JSON.stringify({
-            error: "Conflict",
-            message: "Ten adres e-mail jest już używany",
-            field: "email",
-          }),
-          {
-            status: 409,
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-      }
-
       return new Response(
         JSON.stringify({
           error: "Bad Request",
@@ -239,18 +222,37 @@ export const DELETE: APIRoute = async ({ locals }) => {
       );
     }
 
-    // Delete user from Supabase Auth (this will cascade delete related data if RLS is configured)
-    const { error } = await locals.supabase.rpc("delete_user");
+    // Delete user from Supabase Auth (this will cascade delete all related data)
+    // Note: Using type assertion because the function is not yet in the generated types
+    const rpcResult = await (
+      locals.supabase.rpc as unknown as (
+        name: string
+      ) => Promise<{ data: unknown; error: { code?: string; message?: string } | null }>
+    )("delete_user");
 
-    if (error) {
+    if (rpcResult.error) {
+      const error = rpcResult.error;
       console.error("Error deleting user account:", error);
 
-      // If RPC function doesn't exist, try admin API (requires service role key)
-      // For now, we'll return an error and document that admin API is needed
+      // Check if RPC function doesn't exist
+      if (error.code === "42883" || error.message?.includes("function") || error.message?.includes("does not exist")) {
+        return new Response(
+          JSON.stringify({
+            error: "Internal Server Error",
+            message: "Funkcja usuwania konta nie jest dostępna. Skontaktuj się z administratorem.",
+          }),
+          {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+      }
+
+      // Return error with details
       return new Response(
         JSON.stringify({
           error: "Internal Server Error",
-          message: "Nie można usunąć konta. Skontaktuj się z administratorem.",
+          message: error.message || "Nie można usunąć konta. Skontaktuj się z administratorem.",
         }),
         {
           status: 500,

@@ -26,7 +26,7 @@ Widok dashboardu stanowi centralny punkt aplikacji po zalogowaniu użytkownika. 
 
 - **Opis:** Główny kontener widoku dashboardu, zarządza pobieraniem statystyk użytkownika i stanem całego widoku. Odpowiada za layout i rozmieszczenie sekcji dashboardu.
 - **Główne elementy:** Nagłówek strony, sekcja statystyk (karty statystyczne), panel szybkich akcji, feed ostatniej aktywności.
-- **Zdarzenia:** 
+- **Zdarzenia:**
   - Inicjalizacja widoku – pobieranie statystyk użytkownika
   - Obsługa błędów ładowania danych
 - **Walidacja:** Sprawdzenie czy użytkownik jest zalogowany (autoryzacja JWT).
@@ -38,7 +38,7 @@ Widok dashboardu stanowi centralny punkt aplikacji po zalogowaniu użytkownika. 
 ### DashboardHeader
 
 - **Opis:** Nagłówek widoku zawierający powitanie użytkownika oraz datę ostatniego logowania.
-- **Główne elementy:** 
+- **Główne elementy:**
   - `<h1>` z tekstem powitalnym (np. "Witaj, [imię użytkownika]")
   - `<p>` z informacją o ostatniej aktywności
 - **Obsługiwane zdarzenia:** brak.
@@ -72,7 +72,7 @@ Widok dashboardu stanowi centralny punkt aplikacji po zalogowaniu użytkownika. 
 
 - **Opis:** Panel z przyciskami szybkiego dostępu do głównych funkcjonalności aplikacji (generowanie fiszek, dodawanie ręczne, rozpoczęcie sesji nauki).
 - **Główne elementy:** Kontener z komponentami `QuickActionButton`.
-- **Obsługiwane zdarzenia:** 
+- **Obsługiwane zdarzenia:**
   - Nawigacja do odpowiednich widoków po kliknięciu przycisku
 - **Walidacja:** brak.
 - **Typy:** `QuickActionsPanelProps { actions: QuickAction[] }`.
@@ -85,7 +85,7 @@ Widok dashboardu stanowi centralny punkt aplikacji po zalogowaniu użytkownika. 
   - `<button>` lub `<Link>` z Astro/React Router
   - Ikona akcji
   - Tekst opisujący akcję
-- **Obsługiwane zdarzenia:** 
+- **Obsługiwane zdarzenia:**
   - `onClick()` – nawigacja do docelowego widoku
 - **Walidacja:** brak.
 - **Typy:** `QuickActionButtonProps { label: string; path: string; icon?: ReactNode; onClick: () => void }`.
@@ -94,7 +94,7 @@ Widok dashboardu stanowi centralny punkt aplikacji po zalogowaniu użytkownika. 
 ### RecentActivityFeed
 
 - **Opis:** Lista prezentująca ostatnie aktywności użytkownika (ostatnie generacje, dodane fiszki).
-- **Główne elementy:** 
+- **Główne elementy:**
   - Nagłówek sekcji
   - Lista komponentów `ActivityItem`
   - Komunikat "Brak aktywności" gdy lista jest pusta
@@ -127,6 +127,7 @@ Widok dashboardu stanowi centralny punkt aplikacji po zalogowaniu użytkownika. 
 ## 5. Typy
 
 ### Istniejące typy (z `src/types.ts`):
+
 - `UserStatisticsDTO` – dane statystyk użytkownika z API
 
 ```typescript
@@ -159,7 +160,7 @@ interface DashboardViewModel {
 // Model aktywności użytkownika
 interface ActivityViewModel {
   id: string;
-  type: 'generation' | 'flashcard' | 'session';
+  type: "generation" | "flashcard" | "session";
   description: string;
   timestamp: string; // ISO 8601 format
 }
@@ -204,14 +205,14 @@ interface RecentActivityFeedProps {
 }
 
 interface ActivityItemProps {
-  type: 'generation' | 'flashcard' | 'session';
+  type: "generation" | "flashcard" | "session";
   description: string;
   timestamp: string;
 }
 
 interface ToastProps {
   message: string;
-  type: 'success' | 'error' | 'info';
+  type: "success" | "error" | "info";
 }
 ```
 
@@ -222,6 +223,7 @@ interface ToastProps {
 Hook zarządzający stanem dashboardu i pobieraniem danych.
 
 **Zwracane wartości:**
+
 ```typescript
 interface UseDashboardReturn {
   statistics: UserStatisticsDTO | null;
@@ -232,12 +234,14 @@ interface UseDashboardReturn {
 ```
 
 **Logika:**
+
 - Pobiera statystyki użytkownika z API przy montowaniu komponentu
 - Utrzymuje stan ładowania i błędów
 - Zapewnia funkcję `refetch()` do odświeżania danych
 - Opcjonalnie: cache danych z czasem wygaśnięcia
 
 **Stan lokalny:**
+
 - `statistics: UserStatisticsDTO | null` – pobrane statystyki
 - `loading: boolean` – flaga ładowania
 - `error: Error | null` – obiekt błędu
@@ -250,11 +254,13 @@ interface UseDashboardReturn {
 **Opis:** Pobiera kompleksowe statystyki zalogowanego użytkownika.
 
 **Request:**
+
 - Metoda: `GET`
 - Headers: `Authorization: Bearer {token}`
 - Body: brak
 
 **Response (200):**
+
 ```typescript
 {
   flashcards: {
@@ -276,11 +282,13 @@ interface UseDashboardReturn {
 ```
 
 **Obsługa błędów:**
+
 - `401 Unauthorized` – przekierowanie do strony logowania
 - `500 Server Error` – wyświetlenie komunikatu toast o błędzie
 - Network error – wyświetlenie komunikatu o problemach z połączeniem
 
 **Mapowanie danych:**
+
 - Dane z API (`UserStatisticsDTO`) są bezpośrednio używane w widoku
 - Przygotowanie danych dla `StatisticsCard` (ekstrakcja poszczególnych metryk)
 - Formatowanie liczb i procentów dla lepszej czytelności
@@ -319,11 +327,13 @@ interface UseDashboardReturn {
 ## 9. Warunki i walidacja
 
 ### Autoryzacja widoku:
+
 - **Warunek:** Użytkownik musi być zalogowany (posiadać ważny JWT token)
 - **Weryfikacja:** Middleware Astro sprawdza obecność tokenu
 - **Akcja przy niepowodzeniu:** Przekierowanie do `/login`
 
 ### Walidacja danych:
+
 - **Statystyki:**
   - Wszystkie wartości liczbowe muszą być `>= 0`
   - Procenty (acceptance_rate, edit_rate) muszą być w zakresie `0-100`
@@ -333,12 +343,14 @@ interface UseDashboardReturn {
   - Jeśli `recentActivities.length === 0` → wyświetl "Brak ostatnich aktywności"
 
 ### Stan komponentów:
+
 - Przyciski szybkich akcji zawsze aktywne (bez warunków walidacyjnych)
 - Karty statystyk wyświetlają "0" lub "-" gdy brak danych
 
 ## 10. Obsługa błędów
 
 ### Błędy API:
+
 - **401 Unauthorized:**
   - Wylogowanie użytkownika
   - Przekierowanie do `/login`
@@ -354,16 +366,19 @@ interface UseDashboardReturn {
   - Wyświetlenie przycisku "Spróbuj ponownie"
 
 ### Obsługa timeout:
+
 - Ustawienie timeout na 10 sekund dla wywołania API
 - Po przekroczeniu: traktowanie jak network error
 
 ### Fallback UI:
+
 - W przypadku błędu ładowania statystyk:
   - Wyświetlenie szkieletów kart (skeleton loaders)
   - Komunikat o błędzie w miejscu danych
   - Zachowanie funkcjonalności szybkich akcji (nawigacja nadal działa)
 
 ### Walidacja response:
+
 - Sprawdzenie struktury odpowiedzi z API
 - Jeśli struktura nieprawidłowa → traktowanie jak błąd serwera
 - Logowanie błędów walidacji do console (dev mode)
@@ -437,4 +452,3 @@ interface UseDashboardReturn {
     - Zaimplementować cache dla statystyk (opcjonalnie)
     - Dodać lazy loading dla komponentów jeśli potrzebne
     - Zoptymalizować rerenderowanie komponentów
-

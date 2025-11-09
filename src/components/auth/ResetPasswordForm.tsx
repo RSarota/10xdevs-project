@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Lock, AlertCircle, CheckCircle } from "lucide-react";
 import { Button, Stack, Input, Body } from "../apple-hig";
 
@@ -12,18 +12,6 @@ export function ResetPasswordForm({ onSuccess }: ResetPasswordFormProps) {
   const [errors, setErrors] = useState<{ password?: string; confirmPassword?: string; general?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Extract token from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const tokenFromUrl = urlParams.get("token");
-    setToken(tokenFromUrl);
-
-    if (!tokenFromUrl) {
-      setErrors({ general: "Nieprawidłowy lub brakujący token resetowania hasła" });
-    }
-  }, []);
 
   const validatePassword = (password: string): { valid: boolean; message?: string } => {
     if (password.length < 8) {
@@ -69,11 +57,6 @@ export function ResetPasswordForm({ onSuccess }: ResetPasswordFormProps) {
     e.preventDefault();
     setErrors({});
 
-    if (!token) {
-      setErrors({ general: "Nieprawidłowy lub brakujący token resetowania hasła" });
-      return;
-    }
-
     if (!validateForm()) {
       return;
     }
@@ -86,7 +69,7 @@ export function ResetPasswordForm({ onSuccess }: ResetPasswordFormProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ token, password }),
+        body: JSON.stringify({ password }),
       });
 
       const data = await response.json();
@@ -134,31 +117,6 @@ export function ResetPasswordForm({ onSuccess }: ResetPasswordFormProps) {
           </Stack>
           <Button variant="default" color="blue" size="medium" onClick={() => (window.location.href = "/auth/login")}>
             Przejdź do logowania
-          </Button>
-        </Stack>
-      </div>
-    );
-  }
-
-  // Invalid token state
-  if (!token && errors.general) {
-    return (
-      <div className="w-full">
-        <Stack direction="vertical" spacing="lg" align="center" className="text-center py-8">
-          <div className="w-16 h-16 flex items-center justify-center rounded-full bg-[hsl(var(--apple-red))]/10">
-            <AlertCircle className="w-10 h-10 text-[hsl(var(--apple-red))]" />
-          </div>
-          <Stack direction="vertical" spacing="sm">
-            <Body className="text-[hsl(var(--apple-label))] text-lg font-medium">Nieprawidłowy link</Body>
-            <Body className="text-[hsl(var(--apple-label-secondary))] text-sm max-w-md">{errors.general}</Body>
-          </Stack>
-          <Button
-            variant="default"
-            color="blue"
-            size="medium"
-            onClick={() => (window.location.href = "/auth/forgot-password")}
-          >
-            Wyślij nowy link
           </Button>
         </Stack>
       </div>

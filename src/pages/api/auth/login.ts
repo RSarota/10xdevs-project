@@ -19,9 +19,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     if (!validationResult.success) {
       const firstError = validationResult.error.errors[0];
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: firstError.message,
-          field: firstError.path[0] 
+          field: firstError.path[0],
         }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
@@ -92,5 +92,3 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     );
   }
 };
-
-

@@ -213,6 +213,8 @@ export interface SidebarItemProps {
   children?: React.ReactNode;
   collapsible?: boolean;
   defaultOpen?: boolean;
+  collapsed?: boolean;
+  title?: string;
 }
 
 export const SidebarItem: React.FC<SidebarItemProps> = ({
@@ -224,6 +226,8 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
   children,
   collapsible = false,
   defaultOpen = false,
+  collapsed = false,
+  title,
 }) => {
   const [isOpen, setIsOpen] = React.useState(defaultOpen);
 
@@ -238,12 +242,15 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
     <div>
       <button
         onClick={handleClick}
+        title={title || label}
         className={`
-          w-full flex items-center gap-[var(--apple-space-3)]
-          px-[var(--apple-space-4)] py-[var(--apple-space-3)]
+          w-full flex items-center 
+          ${collapsed ? "justify-center px-0" : "gap-[var(--apple-space-3)] px-[var(--apple-space-4)]"}
+          py-[var(--apple-space-3)]
           rounded-[var(--apple-radius-medium)]
           text-[var(--apple-font-body)]
           transition-all duration-200
+          ${collapsed ? "relative group" : ""}
           ${
             active
               ? "bg-[hsl(var(--apple-fill))]/20 text-[hsl(var(--apple-label))] font-[var(--apple-weight-semibold)]"
@@ -254,25 +261,39 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
           .replace(/\s+/g, " ")}
       >
         {icon && <div className="flex-shrink-0 w-5 h-5">{icon}</div>}
-        <span className="flex-1 text-left truncate">{label}</span>
-        {badge && (
-          <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 flex items-center justify-center text-[11px] font-[var(--apple-weight-semibold)] text-[hsl(var(--apple-label-secondary))] bg-[hsl(var(--apple-fill))]/20 rounded-full">
+        {!collapsed && (
+          <>
+            <span className="flex-1 text-left truncate">{label}</span>
+            {badge && (
+              <span className="flex-shrink-0 min-w-[20px] h-5 px-1.5 flex items-center justify-center text-[11px] font-[var(--apple-weight-semibold)] text-[hsl(var(--apple-label-secondary))] bg-[hsl(var(--apple-fill))]/20 rounded-full">
+                {badge}
+              </span>
+            )}
+            {collapsible && (
+              <svg
+                className={`flex-shrink-0 w-4 h-4 transition-transform ${isOpen ? "rotate-90" : ""}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            )}
+          </>
+        )}
+        {collapsed && badge && (
+          <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 flex items-center justify-center text-[10px] font-[var(--apple-weight-semibold)] text-white bg-[hsl(var(--apple-red))] rounded-full">
             {badge}
           </span>
         )}
-        {collapsible && (
-          <svg
-            className={`flex-shrink-0 w-4 h-4 transition-transform ${isOpen ? "rotate-90" : ""}`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
+        {collapsed && (
+          <div className="absolute left-full ml-2 px-2 py-1.5 bg-[hsl(var(--apple-label))] dark:bg-[hsl(var(--apple-label))] text-[hsl(var(--apple-grouped-bg))] text-xs font-[var(--apple-weight-medium)] rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-50 shadow-lg">
+            {label}
+          </div>
         )}
       </button>
 
-      {collapsible && isOpen && children && (
+      {collapsible && isOpen && children && !collapsed && (
         <div className="ml-[var(--apple-space-7)] mt-[var(--apple-space-2)] space-y-[var(--apple-space-1)]">
           {children}
         </div>
@@ -291,37 +312,40 @@ export interface SidebarProps {
   header?: React.ReactNode;
   footer?: React.ReactNode;
   className?: string;
+  collapsed?: boolean;
+  onToggle?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ children, header, footer, className = "" }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ children, header, footer, className = "", collapsed = false }) => {
   return (
     <aside
       className={`
         flex flex-col
-        w-64
-        h-full
+        ${collapsed ? "w-16" : "w-64"}
+        h-screen
         bg-[hsl(var(--apple-grouped-bg-secondary))]
         border-r border-[hsl(var(--apple-separator-opaque))]
+        transition-all duration-300 ease-in-out
         ${className}
       `
         .trim()
         .replace(/\s+/g, " ")}
     >
-      {header && (
-        <div className="flex-shrink-0 px-[var(--apple-space-5)] py-[var(--apple-space-5)] border-b border-[hsl(var(--apple-separator-opaque))]">
-          {header}
-        </div>
-      )}
+      {header && <div className="flex-shrink-0 border-b border-[hsl(var(--apple-separator-opaque))]">{header}</div>}
 
-      <nav className="flex-1 overflow-y-auto px-[var(--apple-space-4)] py-[var(--apple-space-4)] space-y-[var(--apple-space-1)]">
+      <nav
+        className={`
+        flex-1 overflow-y-auto overflow-x-hidden
+        ${collapsed ? "px-[var(--apple-space-2)]" : "px-[var(--apple-space-4)]"}
+        py-[var(--apple-space-4)] 
+        space-y-[var(--apple-space-1)]
+        transition-all duration-300
+      `}
+      >
         {children}
       </nav>
 
-      {footer && (
-        <div className="flex-shrink-0 px-[var(--apple-space-5)] py-[var(--apple-space-4)] border-t border-[hsl(var(--apple-separator-opaque))]">
-          {footer}
-        </div>
-      )}
+      {footer && <div className="flex-shrink-0 border-t border-[hsl(var(--apple-separator-opaque))]">{footer}</div>}
     </aside>
   );
 };

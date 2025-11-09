@@ -1,4 +1,5 @@
 <mermaid_diagram>
+
 ```mermaid
 stateDiagram-v2
 
@@ -54,4 +55,5 @@ state "Aplikacja" as App {
   PotwierdzenieUsuniecia --> KontoUsuniete: Konto usunięte
 }
 ```
+
 </mermaid_diagram>
