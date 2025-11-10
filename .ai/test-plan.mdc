@@ -1,0 +1,1035 @@
+# Plan Testów - 10x-cards
+
+## 1. Wprowadzenie i Cele Testowania
+
+### 1.1. Wprowadzenie
+
+10x-cards to aplikacja webowa do tworzenia i zarządzania fiszkami edukacyjnymi z wykorzystaniem AI. Aplikacja umożliwia automatyczne generowanie fiszek z tekstu źródłowego przy użyciu Azure OpenAI oraz ręczne tworzenie i zarządzanie fiszkami. System wspiera naukę metodą spaced repetition.
+
+### 1.2. Cele Testowania
+
+- **Zapewnienie jakości funkcjonalnej**: Weryfikacja, że wszystkie funkcjonalności działają zgodnie z wymaganiami
+- **Bezpieczeństwo danych**: Potwierdzenie, że dane użytkowników są chronione i prywatne
+- **Niezawodność integracji**: Sprawdzenie poprawności komunikacji z zewnętrznymi serwisami (Supabase, Azure OpenAI)
+- **Wydajność**: Weryfikacja, że aplikacja działa wydajnie przy typowych obciążeniach
+- **Dostępność**: Zapewnienie zgodności z wytycznymi WCAG AA
+- **Stabilność**: Minimalizacja błędów krytycznych przed wdrożeniem produkcyjnym
+
+## 2. Zakres Testów
+
+### 2.1. Funkcjonalności w Zakresie Testów
+
+#### 2.1.1. Autentykacja i Autoryzacja
+- Rejestracja użytkownika z weryfikacją email
+- Logowanie i wylogowanie
+- Odzyskiwanie hasła (forgot password, reset password)
+- Weryfikacja sesji i tokenów
+- Ochrona tras wymagających autentykacji
+- Usuwanie konta użytkownika
+
+#### 2.1.2. Zarządzanie Fiszkami
+- Ręczne tworzenie fiszek (single i bulk)
+- Edycja fiszek
+- Usuwanie fiszek (single i bulk)
+- Listowanie i filtrowanie fiszek
+- Paginacja wyników
+- Walidacja limitów znaków (front: 200, back: 500)
+
+#### 2.1.3. Generowanie Fiszek przez AI
+- Generowanie propozycji fiszek z tekstu źródłowego (1000-10000 znaków)
+- Zatwierdzanie propozycji (ai-full)
+- Edycja i zatwierdzanie propozycji (ai-edited)
+- Odrzucanie propozycji
+- Obsługa błędów generacji
+- Logowanie błędów do bazy danych
+
+#### 2.1.4. Statystyki i Raportowanie
+- Statystyki użytkownika (liczba fiszek, generacji, acceptance rate)
+- Historia generacji
+- Dashboard z przeglądem aktywności
+
+#### 2.1.5. Panel Administracyjny
+- Przeglądanie logów błędów generacji
+- Zarządzanie użytkownikami
+- Filtrowanie i sortowanie danych
+
+### 2.2. Funkcjonalności poza Zakresem (MVP)
+
+- Sesje nauki z algorytmem spaced repetition (niezaimplementowane)
+- Historia sesji nauki (niezaimplementowane)
+- Zaawansowane statystyki nauki (niezaimplementowane)
+
+## 3. Typy Testów do Przeprowadzenia
+
+### 3.1. Testy Jednostkowe (Unit Tests)
+
+**Cel**: Weryfikacja poprawności pojedynczych funkcji i komponentów w izolacji.
+
+**Obszary testowania**:
+- **Serwisy** (`src/lib/services/`):
+  - `openai.service.ts` - parsowanie odpowiedzi, obsługa błędów
+  - `flashcards.service.ts` - walidacja, tworzenie, aktualizacja, usuwanie
+  - `generations.service.ts` - tworzenie generacji, logowanie błędów
+  - `statistics.service.ts` - obliczanie statystyk
+- **Schematy walidacji** (`src/lib/schemas/`):
+  - Walidacja danych wejściowych (Zod schemas)
+  - Transformacje danych
+- **Narzędzia** (`src/lib/utils/`):
+  - Funkcje pomocnicze (hash, formatowanie)
+- **Komponenty React**:
+  - Komponenty formularzy (walidacja po stronie klienta)
+  - Hooks (`src/hooks/`) - logika biznesowa komponentów
+
+**Narzędzia**: 
+- **Vitest**: Główny framework testowy dla TypeScript/JavaScript
+  - Natywne wsparcie ESM i TypeScript
+  - Szybkie wykonanie dzięki integracji z Vite
+  - Kompatybilność z API Jest
+- **React Testing Library**: Testowanie komponentów React
+  - Fokus na testowanie zachowań użytkownika
+  - Dostępność i semantyka HTML
+- **@testing-library/user-event**: Symulacja interakcji użytkownika
+- **@testing-library/jest-dom**: Dodatkowe matchery DOM
+- **@vitest/ui**: Interaktywny UI do przeglądania testów
+- **@vitest/coverage-v8**: Pokrycie kodu (coverage reports)
+
+### 3.2. Testy Integracyjne (Integration Tests)
+
+**Cel**: Weryfikacja współpracy między komponentami systemu.
+
+**Obszary testowania**:
+- **API Endpoints** (`src/pages/api/`):
+  - Integracja z Supabase (CRUD operacje)
+  - Walidacja request/response
+  - Obsługa błędów i kodów statusu HTTP
+  - Autoryzacja i middleware
+- **Integracja z Azure OpenAI**:
+  - Wywołania API (mockowane w testach)
+  - Parsowanie odpowiedzi
+  - Obsługa timeoutów i błędów sieciowych
+- **Middleware** (`src/middleware/index.ts`):
+  - Ochrona tras
+  - Przekierowania
+  - Zarządzanie sesją
+
+**Narzędzia**: 
+- **Vitest**: Framework testowy (wspólny z testami jednostkowymi)
+- **MSW (Mock Service Worker)**: Mockowanie wywołań API
+  - Działa zarówno w Node.js jak i przeglądarce
+  - Mockowanie Azure OpenAI, Supabase API
+- **Supertest** lub **undici**: Testowanie endpointów Astro API Routes
+- **@testing-library/user-event**: Symulacja interakcji użytkownika
+
+### 3.3. Testy End-to-End (E2E Tests)
+
+**Cel**: Weryfikacja pełnych przepływów użytkownika.
+
+**Główne scenariusze**:
+1. Rejestracja → Weryfikacja email → Logowanie → Tworzenie fiszek
+2. Generowanie fiszek przez AI → Przeglądanie propozycji → Zatwierdzanie/edycja
+3. Zarządzanie fiszkami → Edycja → Usuwanie
+4. Odzyskiwanie hasła → Reset → Logowanie
+5. Panel administracyjny → Przeglądanie logów → Zarządzanie użytkownikami
+
+**Narzędzia**: 
+- **Playwright**: Automatyzacja przeglądarki
+  - Wsparcie dla wielu przeglądarek (Chromium, Firefox, WebKit)
+  - Szybkie wykonanie dzięki równoległym testom
+  - Doskonała integracja z CI/CD
+  - Wsparcie dla Astro SSR
+  - Wbudowane narzędzia do debugowania
+- **@axe-core/playwright**: Integracja testów dostępności w E2E
+- **playwright-html-reporter**: Zaawansowane raporty testów
+- **Docker**: Izolacja środowiska testowego (opcjonalnie)
+
+### 3.4. Testy Bezpieczeństwa (Security Tests)
+
+**Cel**: Weryfikacja zabezpieczeń aplikacji.
+
+**Obszary testowania**:
+- **Row Level Security (RLS)**:
+  - Użytkownik nie może uzyskać dostępu do fiszek innych użytkowników
+  - Weryfikacja polityk RLS w Supabase
+- **Autoryzacja**:
+  - Ochrona endpointów API przed nieautoryzowanym dostępem
+  - Weryfikacja tokenów JWT
+  - CSRF protection
+- **Walidacja danych**:
+  - SQL injection (ochrona przez Supabase)
+  - XSS (sanityzacja danych wejściowych)
+  - Rate limiting (Azure API Management)
+
+**Narzędzia**: OWASP ZAP, manualne testy penetracyjne
+
+### 3.5. Testy Wydajnościowe (Performance Tests)
+
+**Cel**: Weryfikacja wydajności aplikacji pod obciążeniem.
+
+**Obszary testowania**:
+- **Czasy odpowiedzi API**:
+  - GET /api/flashcards (z paginacją)
+  - POST /api/generations (generowanie AI)
+  - POST /api/flashcards (bulk create)
+- **Odpowiedzi bazy danych**:
+  - Zapytania z indeksami
+  - Zapytania z filtrowaniem i sortowaniem
+- **Renderowanie frontendu**:
+  - Time to First Contentful Paint (FCP)
+  - Largest Contentful Paint (LCP)
+  - Cumulative Layout Shift (CLS)
+
+**Narzędzia**: k6, Lighthouse, WebPageTest
+
+### 3.6. Testy Dostępności (Accessibility Tests)
+
+**Cel**: Zapewnienie zgodności z WCAG AA.
+
+**Obszary testowania**:
+- Nawigacja klawiaturą
+- Obsługa czytników ekranu
+- Kontrast kolorów
+- Semantyczny HTML
+- ARIA attributes
+
+**Narzędzia**: axe DevTools, WAVE, manualne testy z czytnikami ekranu
+
+### 3.7. Testy Regresyjne (Regression Tests)
+
+**Cel**: Weryfikacja, że nowe zmiany nie zepsuły istniejących funkcjonalności.
+
+**Strategia**: Automatyzacja kluczowych scenariuszy E2E w pipeline CI/CD.
+
+## 4. Scenariusze Testowe dla Kluczowych Funkcjonalności
+
+### 4.1. Autentykacja
+
+#### TC-AUTH-001: Rejestracja użytkownika
+**Warunki wstępne**: Brak konta użytkownika
+**Kroki**:
+1. Przejdź do `/auth/register`
+2. Wprowadź poprawny email i hasło (min. 6 znaków)
+3. Kliknij "Zarejestruj się"
+4. Sprawdź email z linkiem weryfikacyjnym
+5. Kliknij link weryfikacyjny
+6. Przejdź do `/auth/confirm`
+
+**Oczekiwany rezultat**: Konto zostaje utworzone, email zweryfikowany, użytkownik może się zalogować
+
+#### TC-AUTH-002: Logowanie użytkownika
+**Warunki wstępne**: Konto użytkownika istnieje i jest zweryfikowane
+**Kroki**:
+1. Przejdź do `/auth/login`
+2. Wprowadź poprawny email i hasło
+3. Kliknij "Zaloguj się"
+
+**Oczekiwany rezultat**: Użytkownik zostaje zalogowany, przekierowany do dashboard, sesja jest aktywna
+
+#### TC-AUTH-003: Logowanie z nieprawidłowymi danymi
+**Warunki wstępne**: Konto użytkownika istnieje
+**Kroki**:
+1. Przejdź do `/auth/login`
+2. Wprowadź nieprawidłowy email lub hasło
+3. Kliknij "Zaloguj się"
+
+**Oczekiwany rezultat**: Wyświetla się komunikat błędu "Nieprawidłowy e-mail lub hasło", użytkownik nie jest zalogowany
+
+#### TC-AUTH-004: Odzyskiwanie hasła
+**Warunki wstępne**: Konto użytkownika istnieje
+**Kroki**:
+1. Przejdź do `/auth/forgot-password`
+2. Wprowadź email konta
+3. Kliknij "Wyślij link resetujący"
+4. Sprawdź email z linkiem resetującym
+5. Kliknij link i wprowadź nowe hasło
+6. Zaloguj się nowym hasłem
+
+**Oczekiwany rezultat**: Hasło zostaje zmienione, użytkownik może zalogować się nowym hasłem
+
+#### TC-AUTH-005: Ochrona tras wymagających autentykacji
+**Warunki wstępne**: Użytkownik nie jest zalogowany
+**Kroki**:
+1. Przejdź bezpośrednio do `/dashboard`
+2. Przejdź bezpośrednio do `/my-flashcards`
+3. Przejdź bezpośrednio do `/api/flashcards`
+
+**Oczekiwany rezultat**: Użytkownik zostaje przekierowany do `/auth/login` dla wszystkich chronionych tras
+
+### 4.2. Zarządzanie Fiszkami
+
+#### TC-FC-001: Ręczne tworzenie pojedynczej fiszki
+**Warunki wstępne**: Użytkownik jest zalogowany
+**Kroki**:
+1. Przejdź do `/add-flashcard`
+2. Wprowadź front (max 200 znaków) i back (max 500 znaków)
+3. Kliknij "Zapisz"
+
+**Oczekiwany rezultat**: Fiszka zostaje utworzona, wyświetla się komunikat sukcesu, fiszka pojawia się na liście
+
+#### TC-FC-002: Walidacja limitów znaków
+**Warunki wstępne**: Użytkownik jest zalogowany
+**Kroki**:
+1. Przejdź do `/add-flashcard`
+2. Wprowadź front z więcej niż 200 znakami
+3. Wprowadź back z więcej niż 500 znakami
+4. Kliknij "Zapisz"
+
+**Oczekiwany rezultat**: Wyświetlają się komunikaty walidacyjne, fiszka nie zostaje utworzona
+
+#### TC-FC-003: Edycja fiszki
+**Warunki wstępne**: Użytkownik jest zalogowany, istnieje co najmniej jedna fiszka
+**Kroki**:
+1. Przejdź do `/my-flashcards`
+2. Kliknij "Edytuj" przy wybranej fiszce
+3. Zmień treść front lub back
+4. Kliknij "Zapisz zmiany"
+
+**Oczekiwany rezultat**: Fiszka zostaje zaktualizowana, zmiany są widoczne na liście
+
+#### TC-FC-004: Usuwanie pojedynczej fiszki
+**Warunki wstępne**: Użytkownik jest zalogowany, istnieje co najmniej jedna fiszka
+**Kroki**:
+1. Przejdź do `/my-flashcards`
+2. Kliknij "Usuń" przy wybranej fiszce
+3. Potwierdź usunięcie w modalu
+4. Kliknij "Usuń" w modalu
+
+**Oczekiwany rezultat**: Fiszka zostaje usunięta, znika z listy
+
+#### TC-FC-005: Bulk delete fiszek
+**Warunki wstępne**: Użytkownik jest zalogowany, istnieje co najmniej 2 fiszki
+**Kroki**:
+1. Przejdź do `/my-flashcards`
+2. Zaznacz kilka fiszek
+3. Kliknij "Usuń zaznaczone"
+4. Potwierdź usunięcie
+
+**Oczekiwany rezultat**: Wszystkie zaznaczone fiszki zostają usunięte
+
+#### TC-FC-006: Filtrowanie i sortowanie fiszek
+**Warunki wstępne**: Użytkownik jest zalogowany, istnieją fiszki różnych typów
+**Kroki**:
+1. Przejdź do `/my-flashcards`
+2. Wybierz filtr "ai-full"
+3. Wybierz sortowanie "created_at desc"
+
+**Oczekiwany rezultat**: Lista pokazuje tylko fiszki typu "ai-full" posortowane od najnowszych
+
+#### TC-FC-007: Paginacja fiszek
+**Warunki wstępne**: Użytkownik jest zalogowany, istnieje więcej niż 50 fiszek
+**Kroki**:
+1. Przejdź do `/my-flashcards`
+2. Przejdź do następnej strony
+3. Przejdź do poprzedniej strony
+
+**Oczekiwany rezultat**: Paginacja działa poprawnie, wyświetlają się odpowiednie fiszki
+
+### 4.3. Generowanie Fiszek przez AI
+
+#### TC-AI-001: Generowanie propozycji fiszek
+**Warunki wstępne**: Użytkownik jest zalogowany, dostęp do Azure OpenAI
+**Kroki**:
+1. Przejdź do `/generate-flashcards`
+2. Wprowadź tekst źródłowy (1000-10000 znaków)
+3. Kliknij "Generuj fiszki"
+4. Poczekaj na odpowiedź AI
+
+**Oczekiwany rezultat**: Wyświetlają się propozycje fiszek, rekord w tabeli `generations` zostaje utworzony
+
+#### TC-AI-002: Walidacja długości tekstu źródłowego
+**Warunki wstępne**: Użytkownik jest zalogowany
+**Kroki**:
+1. Przejdź do `/generate-flashcards`
+2. Wprowadź tekst krótszy niż 1000 znaków
+3. Kliknij "Generuj fiszki"
+
+**Oczekiwany rezultat**: Wyświetla się komunikat walidacyjny, generowanie nie rozpoczyna się
+
+#### TC-AI-003: Zatwierdzanie propozycji bez edycji (ai-full)
+**Warunki wstępne**: Użytkownik jest zalogowany, wygenerowano propozycje fiszek
+**Kroki**:
+1. Na liście propozycji kliknij "Zatwierdź" przy wybranej fiszce
+2. Sprawdź listę "Moje fiszki"
+
+**Oczekiwany rezultat**: Fiszka zostaje utworzona z typem "ai-full", `accepted_unedited_count` w `generations` zostaje zaktualizowane
+
+#### TC-AI-004: Edycja i zatwierdzanie propozycji (ai-edited)
+**Warunki wstępne**: Użytkownik jest zalogowany, wygenerowano propozycje fiszek
+**Kroki**:
+1. Na liście propozycji kliknij "Edytuj" przy wybranej fiszce
+2. Zmień treść front lub back
+3. Kliknij "Zapisz"
+4. Sprawdź listę "Moje fiszki"
+
+**Oczekiwany rezultat**: Fiszka zostaje utworzona z typem "ai-edited", `accepted_edited_count` w `generations` zostaje zaktualizowane
+
+#### TC-AI-005: Bulk zatwierdzanie propozycji
+**Warunki wstępne**: Użytkownik jest zalogowany, wygenerowano wiele propozycji fiszek
+**Kroki**:
+1. Na liście propozycji zaznacz kilka fiszek
+2. Kliknij "Zatwierdź zaznaczone"
+3. Sprawdź listę "Moje fiszki"
+
+**Oczekiwany rezultat**: Wszystkie zaznaczone fiszki zostają utworzone, statystyki w `generations` zostają zaktualizowane
+
+#### TC-AI-006: Obsługa błędu generacji (timeout)
+**Warunki wstępne**: Użytkownik jest zalogowany, symulacja timeout Azure OpenAI
+**Kroki**:
+1. Przejdź do `/generate-flashcards`
+2. Wprowadź tekst źródłowy
+3. Kliknij "Generuj fiszki"
+4. Symuluj timeout API
+
+**Oczekiwany rezultat**: Wyświetla się komunikat błędu, rekord w `generation_error_logs` zostaje utworzony
+
+#### TC-AI-007: Obsługa rate limiting
+**Warunki wstępne**: Użytkownik jest zalogowany, przekroczony limit zapytań
+**Kroki**:
+1. Wykonaj wiele żądań generowania w krótkim czasie
+2. Sprawdź odpowiedź API
+
+**Oczekiwany rezultat**: Zwracany jest status 429, wyświetla się komunikat o przekroczeniu limitu
+
+### 4.4. Statystyki i Dashboard
+
+#### TC-STAT-001: Wyświetlanie statystyk użytkownika
+**Warunki wstępne**: Użytkownik jest zalogowany, ma utworzone fiszki i generacje
+**Kroki**:
+1. Przejdź do `/dashboard`
+2. Sprawdź sekcję statystyk
+
+**Oczekiwany rezultat**: Wyświetlają się poprawne statystyki (liczba fiszek, generacji, acceptance rate)
+
+#### TC-STAT-002: Historia generacji
+**Warunki wstępne**: Użytkownik jest zalogowany, ma historię generacji
+**Kroki**:
+1. Przejdź do `/dashboard`
+2. Sprawdź sekcję historii generacji
+
+**Oczekiwany rezultat**: Wyświetla się lista generacji z metadanymi (data, liczba wygenerowanych, zaakceptowanych)
+
+### 4.5. Panel Administracyjny
+
+#### TC-ADMIN-001: Przeglądanie logów błędów
+**Warunki wstępne**: Użytkownik ma uprawnienia administratora
+**Kroki**:
+1. Przejdź do `/admin`
+2. Sprawdź sekcję "Logi błędów generacji"
+
+**Oczekiwany rezultat**: Wyświetla się lista błędów z filtrowaniem i sortowaniem
+
+#### TC-ADMIN-002: Zarządzanie użytkownikami
+**Warunki wstępne**: Użytkownik ma uprawnienia administratora
+**Kroki**:
+1. Przejdź do `/admin`
+2. Sprawdź sekcję "Zarządzanie użytkownikami"
+3. Przetestuj filtrowanie i sortowanie
+
+**Oczekiwany rezultat**: Wyświetla się lista użytkowników z możliwością zarządzania
+
+## 5. Środowisko Testowe
+
+### 5.1. Środowiska Testowe
+
+#### 5.1.1. Środowisko Lokalne (Development)
+- **Cel**: Testy podczas rozwoju
+- **Konfiguracja**:
+  - Node.js 22.14.0
+  - Supabase Local (Docker)
+  - Mock Azure OpenAI API
+  - Baza danych testowa
+- **Dostęp**: Tylko dla deweloperów
+
+#### 5.1.2. Środowisko Testowe (Staging)
+- **Cel**: Testy integracyjne i E2E przed produkcją
+- **Konfiguracja**:
+  - Supabase Project (testowy)
+  - Azure OpenAI (testowy endpoint)
+  - DigitalOcean (staging deployment)
+- **Dostęp**: Zespół QA i deweloperzy
+
+#### 5.1.3. Środowisko Produkcyjne (Production)
+- **Cel**: Testy smoke przed wdrożeniem
+- **Konfiguracja**:
+  - Supabase Production
+  - Azure OpenAI Production
+  - DigitalOcean Production
+- **Dostęp**: Ograniczony, tylko testy smoke
+
+### 5.2. Dane Testowe
+
+#### 5.2.1. Użytkownicy Testowi
+- Użytkownik z weryfikowanym emailem
+- Użytkownik z niezweryfikowanym emailem
+- Użytkownik z historią generacji i fiszek
+- Użytkownik administrator
+
+#### 5.2.2. Fiszki Testowe
+- Fiszki typu "manual"
+- Fiszki typu "ai-full"
+- Fiszki typu "ai-edited"
+- Fiszki z różnymi długościami tekstu
+
+#### 5.2.3. Teksty Źródłowe do Generowania
+- Tekst 1000 znaków (minimum)
+- Tekst 5000 znaków (średni)
+- Tekst 10000 znaków (maksimum)
+- Tekst z różnymi językami i znakami specjalnymi
+
+## 6. Narzędzia do Testowania
+
+### 6.1. Testy Jednostkowe i Integracyjne
+
+- **Vitest** (`vitest`): Główny framework testowy
+  - Natywne wsparcie ESM i TypeScript
+  - Szybkie wykonanie dzięki integracji z Vite
+  - Kompatybilność z API Jest
+- **React Testing Library** (`@testing-library/react`): Testowanie komponentów React
+  - Fokus na testowanie zachowań użytkownika
+  - Dostępność i semantyka HTML
+- **MSW** (`msw`): Mockowanie wywołań API
+  - Działa zarówno w Node.js jak i przeglądarce
+  - Mockowanie Azure OpenAI, Supabase API
+- **@testing-library/user-event**: Symulacja interakcji użytkownika
+- **@testing-library/jest-dom**: Dodatkowe matchery DOM (`toBeInTheDocument()`, etc.)
+- **@vitest/ui**: Interaktywny UI do przeglądania testów (`npm run test:ui`)
+- **@vitest/coverage-v8**: Pokrycie kodu (coverage reports)
+
+**Konfiguracja przykładowa** (`vitest.config.ts`):
+```typescript
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./src/test/setup.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        branches: 80,
+        statements: 80,
+      },
+    },
+  },
+});
+```
+
+### 6.2. Testy End-to-End
+
+- **Playwright** (`@playwright/test`): Automatyzacja przeglądarki
+  - Wsparcie dla wielu przeglądarek (Chromium, Firefox, WebKit)
+  - Szybkie wykonanie dzięki równoległym testom
+  - Doskonała integracja z CI/CD
+  - Wsparcie dla Astro SSR
+  - Wbudowane narzędzia do debugowania i trace viewer
+- **@axe-core/playwright**: Integracja testów dostępności w E2E
+- **playwright-html-reporter**: Zaawansowane raporty testów
+- **Docker**: Izolacja środowiska testowego (opcjonalnie)
+
+**Konfiguracja przykładowa** (`playwright.config.ts`):
+```typescript
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './e2e',
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: 'html',
+  use: {
+    baseURL: 'http://localhost:3000',
+    trace: 'on-first-retry',
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
+  ],
+  webServer: {
+    command: 'npm run preview',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+  },
+});
+```
+
+### 6.3. Testy Wydajnościowe
+
+- **k6**: Testy obciążeniowe API
+- **Lighthouse**: Analiza wydajności frontendu
+- **WebPageTest**: Szczegółowa analiza czasu ładowania
+
+### 6.4. Testy Bezpieczeństwa
+
+- **OWASP ZAP**: Automatyczne skanowanie podatności
+- **Supabase Local Development**: Testowanie RLS policies lokalnie
+  - Użycie Supabase Client z różnymi użytkownikami w testach
+  - Weryfikacja polityk bezpieczeństwa w testach jednostkowych i integracyjnych
+- **Manual Security Testing**: Testy penetracyjne
+
+### 6.5. Testy Dostępności
+
+- **axe DevTools**: Automatyczne wykrywanie problemów dostępności
+- **WAVE**: Analiza dostępności stron
+- **NVDA/JAWS**: Testy z czytnikami ekranu
+
+### 6.6. Narzędzia Wspomagające
+
+- **Postman/Insomnia**: Testowanie API ręcznie
+- **Supabase Studio**: Zarządzanie bazą danych testowej
+- **GitHub Actions**: Automatyzacja testów w CI/CD
+
+## 7. Harmonogram Testów
+
+### 7.1. Faza 1: Testy Jednostkowe (Tydzień 1-2)
+- **Cel**: Pokrycie testami jednostkowymi kluczowych serwisów i funkcji
+- **Zakres**: 80% pokrycia kodu
+- **Odpowiedzialność**: Deweloperzy
+
+### 7.2. Faza 2: Testy Integracyjne (Tydzień 2-3)
+- **Cel**: Weryfikacja integracji między komponentami
+- **Zakres**: Wszystkie endpointy API, integracja z Supabase
+- **Odpowiedzialność**: Zespół QA + Deweloperzy
+
+### 7.3. Faza 3: Testy E2E (Tydzień 3-4)
+- **Cel**: Weryfikacja pełnych przepływów użytkownika
+- **Zakres**: Wszystkie kluczowe scenariusze z sekcji 4
+- **Odpowiedzialność**: Zespół QA
+
+### 7.4. Faza 4: Testy Bezpieczeństwa i Wydajności (Tydzień 4)
+- **Cel**: Weryfikacja bezpieczeństwa i wydajności
+- **Zakres**: RLS, autoryzacja, czasy odpowiedzi
+- **Odpowiedzialność**: Zespół QA + DevOps
+
+### 7.5. Faza 5: Testy Regresyjne (Ongoing)
+- **Cel**: Weryfikacja, że nowe zmiany nie zepsuły istniejących funkcji
+- **Zakres**: Automatyzacja w CI/CD
+- **Odpowiedzialność**: Zespół QA
+
+## 8. Kryteria Akceptacji Testów
+
+### 8.1. Kryteria Funkcjonalne
+
+- ✅ Wszystkie kluczowe scenariusze testowe (sekcja 4) przechodzą pomyślnie
+- ✅ Wszystkie endpointy API zwracają poprawne kody statusu HTTP
+- ✅ Walidacja danych działa poprawnie (frontend i backend)
+- ✅ Integracja z Supabase działa bez błędów
+- ✅ Integracja z Azure OpenAI działa poprawnie (z obsługą błędów)
+
+### 8.2. Kryteria Bezpieczeństwa
+
+- ✅ Row Level Security (RLS) działa poprawnie - użytkownicy nie mają dostępu do danych innych użytkowników
+- ✅ Wszystkie chronione trasy wymagają autentykacji
+- ✅ Tokeny JWT są poprawnie weryfikowane
+- ✅ Brak podatności na SQL injection, XSS, CSRF
+- ✅ Rate limiting działa poprawnie
+
+### 8.3. Kryteria Wydajnościowe
+
+- ✅ Czas odpowiedzi API < 500ms dla 95% żądań
+- ✅ Czas generowania fiszek przez AI < 30s dla 90% żądań
+- ✅ Time to First Contentful Paint (FCP) < 1.8s
+- ✅ Largest Contentful Paint (LCP) < 2.5s
+- ✅ Cumulative Layout Shift (CLS) < 0.1
+
+### 8.4. Kryteria Jakości Kodu
+
+- ✅ Pokrycie testami jednostkowymi ≥ 80%
+- ✅ Wszystkie testy automatyczne przechodzą w CI/CD
+- ✅ Brak błędów krytycznych (Critical, High)
+- ✅ Maksymalnie 5 błędów średnich (Medium) na release
+
+### 8.5. Kryteria Dostępności
+
+- ✅ Zgodność z WCAG AA
+- ✅ Wszystkie strony przechodzą testy axe DevTools bez błędów krytycznych
+- ✅ Nawigacja klawiaturą działa poprawnie
+- ✅ Komponenty są dostępne dla czytników ekranu
+
+## 9. Role i Odpowiedzialności w Procesie Testowania
+
+### 9.1. Deweloperzy (Developers)
+
+**Odpowiedzialności**:
+- Pisanie i utrzymanie testów jednostkowych
+- Weryfikacja lokalna przed commit
+- Naprawa błędów znalezionych przez QA
+- Code review z uwzględnieniem testów
+
+**Narzędzia**: Vitest, React Testing Library, lokalne środowisko
+
+### 9.2. Zespół QA (Quality Assurance)
+
+**Odpowiedzialności**:
+- Tworzenie i wykonywanie testów integracyjnych i E2E
+- Testy ręczne kluczowych funkcjonalności
+- Testy bezpieczeństwa i wydajności
+- Raportowanie błędów
+- Weryfikacja napraw błędów
+
+**Narzędzia**: Playwright, Postman, OWASP ZAP, Lighthouse
+
+### 9.3. DevOps
+
+**Odpowiedzialności**:
+- Konfiguracja środowisk testowych
+- Utrzymanie pipeline CI/CD
+- Monitorowanie wydajności w środowisku testowym
+- Zarządzanie danymi testowymi
+
+**Narzędzia**: GitHub Actions, Docker, DigitalOcean
+
+### 9.4. Product Owner
+
+**Odpowiedzialności**:
+- Definiowanie kryteriów akceptacji
+- Weryfikacja zgodności z wymaganiami biznesowymi
+- Decyzje o priorytetach napraw błędów
+
+## 10. Procedury Raportowania Błędów
+
+### 10.1. Szablon Raportu Błędu
+
+Każdy raport błędu powinien zawierać:
+
+1. **Tytuł**: Krótki, opisowy tytuł błędu
+2. **Priorytet**: Critical, High, Medium, Low
+3. **Środowisko**: Development, Staging, Production
+4. **Kroki reprodukcji**: Szczegółowe kroki prowadzące do błędu
+5. **Oczekiwany rezultat**: Co powinno się wydarzyć
+6. **Rzeczywisty rezultat**: Co się faktycznie wydarzyło
+7. **Zrzuty ekranu/Logi**: Wizualne dowody błędu
+8. **Dodatkowe informacje**: Wersja przeglądarki, system operacyjny, etc.
+
+### 10.2. Klasyfikacja Priorytetów
+
+#### Critical (Krytyczny)
+- Aplikacja jest całkowicie niedostępna
+- Utrata danych użytkownika
+- Błędy bezpieczeństwa umożliwiające nieautoryzowany dostęp
+- **Czas naprawy**: Natychmiastowy
+
+#### High (Wysoki)
+- Kluczowa funkcjonalność nie działa
+- Błędy uniemożliwiające ukończenie głównego przepływu użytkownika
+- **Czas naprawy**: W ciągu 24 godzin
+
+#### Medium (Średni)
+- Funkcjonalność działa, ale z ograniczeniami
+- Problemy z UX nie blokujące głównego przepływu
+- **Czas naprawy**: W ciągu tygodnia
+
+#### Low (Niski)
+- Drobne problemy kosmetyczne
+- Sugestie ulepszeń
+- **Czas naprawy**: W następnej iteracji
+
+### 10.3. Narzędzie do Śledzenia Błędów
+
+- **GitHub Issues**: Dla śledzenia błędów i zadań
+- **Etykiety**: `bug`, `critical`, `high`, `medium`, `low`
+- **Milestones**: Powiązanie z wersjami/release'ami
+
+### 10.4. Proces Naprawy Błędów
+
+1. **Raportowanie**: QA tworzy issue w GitHub
+2. **Triage**: Zespół ocenia priorytet i przypisuje dewelopera
+3. **Naprawa**: Deweloper naprawia błąd i dodaje testy
+4. **Weryfikacja**: QA weryfikuje naprawę
+5. **Zamknięcie**: Issue zostaje zamknięte po weryfikacji
+
+### 10.5. Metryki Jakości
+
+Śledzenie następujących metryk:
+- Liczba zgłoszonych błędów na release
+- Czas średni naprawy błędu (MTTR)
+- Wskaźnik naprawionych błędów
+- Wskaźnik regresji (błędy ponownie wprowadzone)
+
+## 11. Automatyzacja Testów w CI/CD
+
+### 11.1. Pipeline GitHub Actions
+
+#### 11.1.1. Przy każdym Pull Request:
+1. **Lint i Format**: ESLint, Prettier
+2. **Testy Jednostkowe**: Vitest (z coverage)
+3. **Testy Integracyjne**: Vitest + MSW
+4. **Build**: Weryfikacja, że aplikacja się buduje
+5. **Type Check**: TypeScript compilation check
+
+#### 11.1.2. Przy merge do main:
+1. Wszystkie testy z PR
+2. **Testy E2E**: Playwright (smoke tests na wielu przeglądarkach)
+3. **Deploy do Staging**: Automatyczny deploy
+4. **Testy na Staging**: Pełna suita E2E z Playwright
+
+#### 11.1.3. Przed Production Release:
+1. Wszystkie testy
+2. **Testy Bezpieczeństwa**: OWASP ZAP scan
+3. **Testy Wydajnościowe**: k6 load tests
+4. **Testy Smoke na Production**: Po deploy
+
+### 11.2. Konfiguracja Testów w CI
+
+```yaml
+# Przykładowa konfiguracja GitHub Actions
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run test:unit
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
+      
+  e2e-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+          cache: 'npm'
+      - run: npm ci
+      - run: npx playwright install --with-deps
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+```
+
+## 12. Testy Specyficzne dla Technologii
+
+### 12.1. Testy Astro
+
+- **SSR**: Weryfikacja renderowania po stronie serwera
+  - Testowanie z użyciem Vitest i Playwright
+  - Weryfikacja hydratacji Islands Architecture
+- **Routing**: Testowanie tras i middleware
+  - Testowanie przekierowań
+  - Weryfikacja middleware autoryzacji
+- **API Routes**: Testowanie endpointów Astro
+  - Użycie Vitest z Supertest lub undici
+  - Mockowanie `Astro.request` i `Astro.response`
+- **Astro Components**: Testowanie komponentów Astro (nie tylko React)
+  - Weryfikacja renderowania statycznego
+  - Testowanie props i slots
+- **SSG vs SSR**: Weryfikacja różnych trybów renderowania
+
+### 12.2. Testy Supabase
+
+- **RLS Policies**: Weryfikacja polityk bezpieczeństwa
+  - Testowanie z różnymi użytkownikami w Vitest
+  - Weryfikacja, że użytkownicy nie mają dostępu do danych innych użytkowników
+  - Użycie Supabase Local Development (Docker) do testów lokalnych
+- **Database Constraints**: Testowanie ograniczeń bazy danych
+  - Weryfikacja walidacji na poziomie bazy
+  - Testowanie foreign keys i unique constraints
+- **Triggers**: Weryfikacja automatycznych aktualizacji (updated_at)
+- **Supabase Client**: Testowanie integracji z Supabase JS Client
+  - Mockowanie w testach jednostkowych (MSW)
+  - Testy integracyjne z lokalnym Supabase
+
+### 12.3. Testy Azure OpenAI
+
+- **Mockowanie**: Użycie MSW do mockowania odpowiedzi API
+- **Error Handling**: Testowanie różnych scenariuszy błędów
+- **Rate Limiting**: Weryfikacja obsługi limitów
+
+### 12.4. Testy React Components
+
+- **Rendering**: Weryfikacja renderowania komponentów
+- **Interakcje**: Testowanie event handlers
+- **State Management**: Weryfikacja zarządzania stanem
+
+## 13. Checklist Przed Release
+
+### 13.1. Funkcjonalność
+- [ ] Wszystkie testy automatyczne przechodzą
+- [ ] Testy ręczne kluczowych scenariuszy wykonane
+- [ ] Brak znanych błędów krytycznych i wysokich
+- [ ] Dokumentacja zaktualizowana
+
+### 13.2. Bezpieczeństwo
+- [ ] Testy bezpieczeństwa wykonane
+- [ ] RLS policies zweryfikowane
+- [ ] Brak podatności w zależnościach (npm audit)
+
+### 13.3. Wydajność
+- [ ] Testy wydajnościowe wykonane
+- [ ] Metryki wydajności w normie
+- [ ] Optymalizacja obrazów i zasobów
+
+### 13.4. Dostępność
+- [ ] Testy dostępności wykonane
+- [ ] Zgodność z WCAG AA
+- [ ] Testy z czytnikami ekranu
+
+### 13.5. Deployment
+- [ ] Build produkcyjny działa
+- [ ] Zmienne środowiskowe skonfigurowane
+- [ ] Backup bazy danych przed deploy
+- [ ] Plan rollback przygotowany
+
+---
+
+---
+
+## 14. Konfiguracja Narzędzi Testowych
+
+### 14.1. Instalacja Zależności
+
+```bash
+# Testy jednostkowe i integracyjne
+npm install -D vitest @vitest/ui @vitest/coverage-v8
+npm install -D @testing-library/react @testing-library/jest-dom @testing-library/user-event
+npm install -D jsdom @vitejs/plugin-react
+npm install -D msw
+
+# Testy E2E
+npm install -D @playwright/test
+npm install -D @axe-core/playwright playwright-html-reporter
+
+# Opcjonalne - pomocnicze
+npm install -D @types/node
+```
+
+### 14.2. Skrypty w package.json
+
+```json
+{
+  "scripts": {
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:unit": "vitest run",
+    "test:watch": "vitest watch",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report"
+  }
+}
+```
+
+### 14.3. Struktura Katalogów Testowych
+
+```
+project-root/
+├── src/
+│   ├── test/
+│   │   ├── setup.ts          # Konfiguracja testów (MSW, matchers)
+│   │   ├── mocks/             # Mocki MSW
+│   │   └── utils/             # Pomocnicze funkcje testowe
+│   ├── lib/
+│   │   └── services/
+│   │       └── openai.service.test.ts
+│   └── components/
+│       └── Button.test.tsx
+├── e2e/
+│   ├── auth.spec.ts
+│   ├── flashcards.spec.ts
+│   └── fixtures/
+│       └── test-data.ts
+├── vitest.config.ts
+└── playwright.config.ts
+```
+
+### 14.4. Przykładowy Test Jednostkowy (Vitest)
+
+```typescript
+// src/lib/services/flashcards.service.test.ts
+import { describe, it, expect, vi } from 'vitest';
+import { createFlashcard } from './flashcards.service';
+
+describe('flashcards.service', () => {
+  it('should validate front length (max 200 chars)', () => {
+    const longFront = 'a'.repeat(201);
+    expect(() => createFlashcard({ front: longFront, back: 'test' }))
+      .toThrow('Front cannot exceed 200 characters');
+  });
+
+  it('should create flashcard with valid data', () => {
+    const result = createFlashcard({ 
+      front: 'Question?', 
+      back: 'Answer' 
+    });
+    expect(result).toHaveProperty('id');
+    expect(result.front).toBe('Question?');
+  });
+});
+```
+
+### 14.5. Przykładowy Test E2E (Playwright)
+
+```typescript
+// e2e/flashcards.spec.ts
+import { test, expect } from '@playwright/test';
+import { injectAxe, checkA11y } from 'axe-playwright';
+
+test.describe('Flashcards Management', () => {
+  test.beforeEach(async ({ page }) => {
+    // Logowanie użytkownika
+    await page.goto('/auth/login');
+    await page.fill('[name="email"]', 'test@example.com');
+    await page.fill('[name="password"]', 'password123');
+    await page.click('button[type="submit"]');
+    await page.waitForURL('/dashboard');
+  });
+
+  test('should create a new flashcard', async ({ page }) => {
+    await page.goto('/add-flashcard');
+    await page.fill('[name="front"]', 'What is React?');
+    await page.fill('[name="back"]', 'A JavaScript library for building UIs');
+    await page.click('button:has-text("Zapisz")');
+    
+    await expect(page.locator('text=Fiszka została utworzona')).toBeVisible();
+    await expect(page).toHaveURL('/my-flashcards');
+  });
+
+  test('should be accessible', async ({ page }) => {
+    await page.goto('/my-flashcards');
+    await injectAxe(page);
+    await checkA11y(page);
+  });
+});
+```
+
+---
+
+**Wersja dokumentu**: 2.0  
+**Data utworzenia**: 2025-01-XX  
+**Ostatnia aktualizacja**: 2025-01-XX  
+**Autor**: Zespół QA 10x-cards
