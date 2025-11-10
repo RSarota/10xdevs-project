@@ -1,7 +1,7 @@
-import '@testing-library/jest-dom';
-import { expect, afterEach, vi } from 'vitest';
-import { cleanup } from '@testing-library/react';
-import * as matchers from '@testing-library/jest-dom/matchers';
+import "@testing-library/jest-dom";
+import { expect, afterEach, vi } from "vitest";
+import { cleanup } from "@testing-library/react";
+import * as matchers from "@testing-library/jest-dom/matchers";
 
 // Extend Vitest's expect with jest-dom matchers
 expect.extend(matchers);
@@ -12,7 +12,7 @@ afterEach(() => {
 });
 
 // Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: vi.fn().mockImplementation((query) => ({
     matches: false,
@@ -28,20 +28,37 @@ Object.defineProperty(window, 'matchMedia', {
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
-  constructor() {}
-  disconnect() {}
-  observe() {}
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+  constructor() {
+    // Mock constructor - required for class definition
+  }
+  disconnect() {
+    // Mock method
+  }
+  observe() {
+    // Mock method
+  }
   takeRecords() {
     return [];
   }
-  unobserve() {}
+  unobserve() {
+    // Mock method
+  }
 } as unknown as typeof IntersectionObserver;
 
 // Mock ResizeObserver
 global.ResizeObserver = class ResizeObserver {
-  constructor() {}
-  disconnect() {}
-  observe() {}
-  unobserve() {}
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+  constructor() {
+    // Mock constructor - required for class definition
+  }
+  disconnect() {
+    // Mock method
+  }
+  observe() {
+    // Mock method
+  }
+  unobserve() {
+    // Mock method
+  }
 } as unknown as typeof ResizeObserver;
-
