@@ -62,6 +62,7 @@ export function FlashcardItem({ flashcard, onEdit, onDelete }: FlashcardItemProp
       variant="grouped"
       className="cursor-pointer w-full"
       onClick={() => setIsFlipped(!isFlipped)}
+      data-testid="flashcard-item"
     >
       <CardContent>
         <Stack direction="vertical" spacing="md">
@@ -80,6 +81,7 @@ export function FlashcardItem({ flashcard, onEdit, onDelete }: FlashcardItemProp
                   e.stopPropagation();
                   onEdit(flashcard.id);
                 }}
+                aria-label="Edytuj"
               >
                 <Edit className="w-4 h-4" />
               </Button>
@@ -91,6 +93,7 @@ export function FlashcardItem({ flashcard, onEdit, onDelete }: FlashcardItemProp
                   e.stopPropagation();
                   onDelete(flashcard.id);
                 }}
+                aria-label="Usuń"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>

@@ -10,7 +10,7 @@ export interface FlashcardsListProps {
 
 export function FlashcardsList({ items, onEdit, onDelete }: FlashcardsListProps) {
   return (
-    <Grid columns={3} gap="md" responsive={true}>
+    <Grid columns={3} gap="md" responsive={true} data-testid="flashcards-list">
       {items.map((flashcard) => (
         <FlashcardItem key={flashcard.id} flashcard={flashcard} onEdit={onEdit} onDelete={onDelete} />
       ))}

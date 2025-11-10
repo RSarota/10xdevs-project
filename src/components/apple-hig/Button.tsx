@@ -39,6 +39,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
+    const { ["data-testid"]: dataTestId, ...restProps } = props;
     // Base classes - Apple's clean, minimal style
     const baseClasses = `
       inline-flex items-center justify-center gap-2
@@ -103,8 +104,19 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       .trim()
       .replace(/\s+/g, " ");
 
+    // Generate testid from children text if not provided
+    const testId =
+      dataTestId ||
+      (typeof children === "string" ? `button-${children.toLowerCase().replace(/\s+/g, "-")}` : undefined);
+
     return (
-      <button ref={ref} className={combinedClasses} disabled={disabled || isLoading} {...props}>
+      <button
+        ref={ref}
+        data-testid={testId}
+        className={combinedClasses}
+        disabled={disabled || isLoading}
+        {...restProps}
+      >
         {isLoading ? (
           <>
             <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ChangeEvent } from "react";
+import { useEffect, useState, type FormEvent, type ChangeEvent } from "react";
 import { Card, CardHeader, Stack, Input, TextArea, Button, Badge } from "@/components/apple-hig";
 import type { AddFlashcardFormData } from "@/hooks/useAddFlashcard";
 
@@ -13,6 +13,11 @@ const BACK_MAX_LENGTH = 500;
 export function AddFlashcardForm({ onSubmit, loading = false }: AddFlashcardFormProps) {
   const [front, setFront] = useState("");
   const [back, setBack] = useState("");
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    setIsReady(true);
+  }, []);
 
   const frontLength = front.trim().length;
   const backLength = back.trim().length;
@@ -53,7 +58,12 @@ export function AddFlashcardForm({ onSubmit, loading = false }: AddFlashcardForm
       <Stack direction="vertical" spacing="xl">
         <CardHeader title="Dodaj nową fiszkę" subtitle="Stwórz fiszkę ręcznie, wpisując pytanie i odpowiedź" />
 
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={handleSubmit}
+          data-testid="add-flashcard-form"
+          data-ready={isReady ? "true" : "false"}
+          aria-busy={!isReady}
+        >
           <Stack direction="vertical" spacing="lg">
             {/* Front field */}
             <Input
@@ -63,9 +73,10 @@ export function AddFlashcardForm({ onSubmit, loading = false }: AddFlashcardForm
               onChange={handleFrontChange}
               placeholder="Wpisz pytanie lub termin..."
               disabled={loading}
+              data-testid="add-flashcard-front-input"
             />
 
-            <div className="pt-[var(--apple-space-2)]">
+            <div className="pt-[var(--apple-space-2)]" data-testid="add-flashcard-front-count">
               <Badge color={getFrontBadgeColor()} variant="outlined" size="md">
                 {frontLength} / {FRONT_MAX_LENGTH} znaków
               </Badge>
@@ -80,9 +91,10 @@ export function AddFlashcardForm({ onSubmit, loading = false }: AddFlashcardForm
               placeholder="Wpisz odpowiedź lub definicję..."
               disabled={loading}
               rows={5}
+              data-testid="add-flashcard-back-input"
             />
 
-            <div className="pt-[var(--apple-space-2)]">
+            <div className="pt-[var(--apple-space-2)]" data-testid="add-flashcard-back-count">
               <Badge color={getBackBadgeColor()} variant="outlined" size="md">
                 {backLength} / {BACK_MAX_LENGTH} znaków
               </Badge>
@@ -98,6 +110,7 @@ export function AddFlashcardForm({ onSubmit, loading = false }: AddFlashcardForm
                 type="submit"
                 disabled={!isValid || loading}
                 isLoading={loading}
+                data-testid="add-flashcard-submit-button"
               >
                 {loading ? "Zapisywanie..." : "Zapisz fiszkę"}
               </Button>

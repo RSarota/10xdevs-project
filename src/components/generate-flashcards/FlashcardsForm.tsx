@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ChangeEvent } from "react";
+import { useEffect, useState, type FormEvent, type ChangeEvent } from "react";
 import { Button, Card, TextArea, Stack, Badge } from "@/components/apple-hig";
 
 interface FlashcardsFormProps {
@@ -12,6 +12,11 @@ const MAX_LENGTH = 10000;
 
 export function FlashcardsForm({ onSubmit, loading, disabled = false }: FlashcardsFormProps) {
   const [text, setText] = useState("");
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    setIsReady(true);
+  }, []);
 
   const textLength = text.length;
   const isValid = textLength >= MIN_LENGTH && textLength <= MAX_LENGTH;
@@ -39,7 +44,12 @@ export function FlashcardsForm({ onSubmit, loading, disabled = false }: Flashcar
 
   return (
     <Card elevation="md" padding="xl" variant="grouped" className="h-fit">
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={handleSubmit}
+        data-testid="generate-flashcards-form"
+        data-ready={isReady ? "true" : "false"}
+        aria-busy={!isReady}
+      >
         <Stack direction="vertical" spacing="lg">
           <TextArea
             id="source-text"
@@ -49,12 +59,15 @@ export function FlashcardsForm({ onSubmit, loading, disabled = false }: Flashcar
             className="min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] font-mono text-sm !resize-y"
             disabled={loading || disabled}
             rows={20}
+            data-testid="generate-flashcards-textarea"
           />
 
           <Stack direction="horizontal" justify="between" align="center" wrap>
-            <Badge color={getBadgeColor()} variant="outlined" size="md">
-              {textLength.toLocaleString()} / {MAX_LENGTH.toLocaleString()} znaków
-            </Badge>
+            <div data-testid="generate-character-count">
+              <Badge color={getBadgeColor()} variant="outlined" size="md">
+                {textLength.toLocaleString()} / {MAX_LENGTH.toLocaleString()} znaków
+              </Badge>
+            </div>
             {textLength > 0 && textLength < MIN_LENGTH && (
               <span className="text-[var(--apple-font-caption-1)] text-[hsl(var(--apple-label-tertiary))]">
                 Minimum {MIN_LENGTH.toLocaleString()} znaków
@@ -70,6 +83,7 @@ export function FlashcardsForm({ onSubmit, loading, disabled = false }: Flashcar
             type="submit"
             disabled={!isValid || loading || disabled}
             isLoading={loading}
+            data-testid="button-generuj-fiszki"
           >
             {loading ? "Generowanie..." : "Generuj fiszki"}
           </Button>

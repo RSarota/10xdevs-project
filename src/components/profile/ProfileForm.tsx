@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardHeader, Stack, Input, Button, Footnote } from "@/components/apple-hig";
 import { Mail, Lock } from "lucide-react";
 import type { ProfileFormData, UserProfileDTO } from "@/hooks/useProfile";
@@ -13,6 +13,11 @@ export function ProfileForm({ profile, onSubmit, loading = false }: ProfileFormP
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<Partial<Record<keyof ProfileFormData, string>>>({});
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    setIsReady(true);
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof ProfileFormData, string>> = {};
@@ -40,12 +45,13 @@ export function ProfileForm({ profile, onSubmit, loading = false }: ProfileFormP
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    // Only validate if password is being changed
+    if (password.trim().length > 0 && !validateForm()) {
       return;
     }
 
     onSubmit({
-      email: profile.email, // Email is read-only, always use profile email
+      email: profile.email, // Email is read-only, always use original
       password: password.trim().length > 0 ? password : undefined,
       confirmPassword: confirmPassword.trim().length > 0 ? confirmPassword : undefined,
     });
@@ -58,7 +64,12 @@ export function ProfileForm({ profile, onSubmit, loading = false }: ProfileFormP
       <Stack direction="vertical" spacing="xl">
         <CardHeader title="Dane konta" subtitle="Zarządzaj danymi swojego konta" />
 
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={handleSubmit}
+          data-testid="profile-form"
+          data-ready={isReady ? "true" : "false"}
+          aria-busy={!isReady}
+        >
           <Stack direction="vertical" spacing="lg">
             {/* Email field - read only */}
             <Input
@@ -67,8 +78,8 @@ export function ProfileForm({ profile, onSubmit, loading = false }: ProfileFormP
               value={profile.email}
               placeholder="twoj@email.com"
               disabled={true}
-              readOnly
               icon={<Mail className="w-5 h-5" />}
+              data-testid="profile-email-input"
             />
 
             {/* Password field */}
@@ -82,6 +93,7 @@ export function ProfileForm({ profile, onSubmit, loading = false }: ProfileFormP
                 disabled={loading}
                 error={errors.password}
                 icon={<Lock className="w-5 h-5" />}
+                data-testid="profile-password-input"
               />
               <Footnote className="text-[hsl(var(--apple-label-tertiary))]">
                 Min. 8 znaków, jedna wielka litera i jedna cyfra
@@ -99,6 +111,7 @@ export function ProfileForm({ profile, onSubmit, loading = false }: ProfileFormP
                 disabled={loading}
                 error={errors.confirmPassword}
                 icon={<Lock className="w-5 h-5" />}
+                data-testid="profile-confirm-password-input"
               />
             )}
 
@@ -112,6 +125,7 @@ export function ProfileForm({ profile, onSubmit, loading = false }: ProfileFormP
                 fullWidth
                 disabled={!hasChanges || loading}
                 isLoading={loading}
+                data-testid="profile-save-button"
               >
                 {loading ? "Zapisywanie..." : "Zapisz zmiany"}
               </Button>

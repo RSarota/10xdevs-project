@@ -241,6 +241,7 @@ export const AlertDialog: React.FC<AlertDialogProps> = ({
 
       {/* Dialog */}
       <div
+        data-testid="alert-dialog"
         className={`
           relative w-full max-w-xs
           bg-[hsl(var(--apple-grouped-bg-secondary))]/95
@@ -289,6 +290,7 @@ export const AlertDialog: React.FC<AlertDialogProps> = ({
 
           {primaryAction && (
             <button
+              data-testid="alert-dialog-primary-button"
               onClick={() => {
                 primaryAction.onAction();
                 onClose();
@@ -310,6 +312,7 @@ export const AlertDialog: React.FC<AlertDialogProps> = ({
 
           {cancelAction && (
             <button
+              data-testid="alert-dialog-cancel-button"
               onClick={() => {
                 cancelAction.onAction?.();
                 onClose();

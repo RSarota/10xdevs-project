@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Mail, Lock, AlertCircle } from "lucide-react";
 import { Button, Stack, Input, Divider, Body } from "../apple-hig";
 
@@ -11,6 +11,11 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    setIsReady(true);
+  }, []);
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -85,11 +90,21 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full">
+    <form
+      onSubmit={handleSubmit}
+      className="w-full"
+      data-testid="login-form"
+      data-ready={isReady ? "true" : "false"}
+      aria-busy={!isReady}
+      noValidate
+    >
       <Stack direction="vertical" spacing="lg">
         {/* General Error */}
         {errors.general && (
-          <div className="flex items-start gap-3 p-4 bg-[hsl(var(--apple-red))]/10 border border-[hsl(var(--apple-red))]/20 rounded-[var(--apple-radius-medium)]">
+          <div
+            data-testid="login-general-error"
+            className="flex items-start gap-3 p-4 bg-[hsl(var(--apple-red))]/10 border border-[hsl(var(--apple-red))]/20 rounded-[var(--apple-radius-medium)]"
+          >
             <AlertCircle className="w-5 h-5 text-[hsl(var(--apple-red))] flex-shrink-0 mt-0.5" />
             <Body className="text-[hsl(var(--apple-red))] text-sm">{errors.general}</Body>
           </div>
@@ -107,6 +122,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           disabled={isLoading}
           autoComplete="email"
           required
+          data-testid="login-email-input"
         />
 
         {/* Password Input */}
@@ -121,12 +137,14 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           disabled={isLoading}
           autoComplete="current-password"
           required
+          data-testid="login-password-input"
         />
 
         {/* Forgot Password Link */}
         <div className="flex justify-end">
           <a
             href="/auth/forgot-password"
+            data-testid="login-forgot-password-link"
             className="text-[var(--apple-font-footnote)] text-[hsl(var(--apple-blue))] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--apple-blue))] rounded-sm"
           >
             Zapomniałeś hasła?
@@ -134,7 +152,15 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         </div>
 
         {/* Submit Button */}
-        <Button type="submit" variant="filled" color="blue" size="large" fullWidth isLoading={isLoading}>
+        <Button
+          type="submit"
+          variant="filled"
+          color="blue"
+          size="large"
+          fullWidth
+          isLoading={isLoading}
+          data-testid="login-submit-button"
+        >
           Zaloguj się
         </Button>
 
@@ -146,6 +172,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             Nie masz jeszcze konta?{" "}
             <a
               href="/auth/register"
+              data-testid="login-register-link"
               className="text-[hsl(var(--apple-blue))] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--apple-blue))] rounded-sm"
             >
               Zarejestruj się

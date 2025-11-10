@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Mail, Lock, User, AlertCircle, CheckCircle } from "lucide-react";
 import { Button, Stack, Input, Divider, Body } from "../apple-hig";
 
@@ -20,6 +20,11 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   }>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    setIsReady(true);
+  }, []);
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -107,7 +112,13 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        if (data.error?.includes("już istnieje") || data.error?.includes("already")) {
+        const errorMessage = data.error?.toLowerCase() ?? "";
+        const isEmailTaken =
+          errorMessage.includes("już istnieje") ||
+          errorMessage.includes("already") ||
+          errorMessage.includes("zarejestrowany");
+
+        if (isEmailTaken) {
           setErrors({ email: "Ten adres e-mail jest już zarejestrowany" });
         } else {
           setErrors({ general: data.error || "Wystąpił błąd podczas rejestracji" });
@@ -134,7 +145,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   // Show success message
   if (showSuccess) {
     return (
-      <div className="w-full">
+      <div className="w-full" data-testid="register-success-message">
         <Stack direction="vertical" spacing="lg" align="center" className="text-center py-8">
           <div className="w-16 h-16 flex items-center justify-center rounded-full bg-[hsl(var(--apple-green))]/10">
             <CheckCircle className="w-10 h-10 text-[hsl(var(--apple-green))]" />
@@ -146,7 +157,13 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
               link, aby aktywować konto.
             </Body>
           </Stack>
-          <Button variant="default" color="blue" size="medium" onClick={() => (window.location.href = "/auth/login")}>
+          <Button
+            variant="default"
+            color="blue"
+            size="medium"
+            onClick={() => (window.location.href = "/auth/login")}
+            data-testid="register-go-to-login-button"
+          >
             Przejdź do logowania
           </Button>
         </Stack>
@@ -155,11 +172,21 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full">
+    <form
+      onSubmit={handleSubmit}
+      className="w-full"
+      data-testid="register-form"
+      data-ready={isReady ? "true" : "false"}
+      aria-busy={!isReady}
+      noValidate
+    >
       <Stack direction="vertical" spacing="lg">
         {/* General Error */}
         {errors.general && (
-          <div className="flex items-start gap-3 p-4 bg-[hsl(var(--apple-red))]/10 border border-[hsl(var(--apple-red))]/20 rounded-[var(--apple-radius-medium)]">
+          <div
+            data-testid="register-general-error"
+            className="flex items-start gap-3 p-4 bg-[hsl(var(--apple-red))]/10 border border-[hsl(var(--apple-red))]/20 rounded-[var(--apple-radius-medium)]"
+          >
             <AlertCircle className="w-5 h-5 text-[hsl(var(--apple-red))] flex-shrink-0 mt-0.5" />
             <Body className="text-[hsl(var(--apple-red))] text-sm">{errors.general}</Body>
           </div>
@@ -177,6 +204,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           disabled={isLoading}
           autoComplete="name"
           required
+          data-testid="register-name-input"
         />
 
         {/* Email Input */}
@@ -191,6 +219,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           disabled={isLoading}
           autoComplete="email"
           required
+          data-testid="register-email-input"
         />
 
         {/* Password Input */}
@@ -206,6 +235,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           disabled={isLoading}
           autoComplete="new-password"
           required
+          data-testid="register-password-input"
         />
 
         {/* Confirm Password Input */}
@@ -220,10 +250,19 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           disabled={isLoading}
           autoComplete="new-password"
           required
+          data-testid="register-confirm-password-input"
         />
 
         {/* Submit Button */}
-        <Button type="submit" variant="filled" color="blue" size="large" fullWidth isLoading={isLoading}>
+        <Button
+          type="submit"
+          variant="filled"
+          color="blue"
+          size="large"
+          fullWidth
+          isLoading={isLoading}
+          data-testid="register-submit-button"
+        >
           Zarejestruj się
         </Button>
 
@@ -240,6 +279,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             Masz już konto?{" "}
             <a
               href="/auth/login"
+              data-testid="register-login-link"
               className="text-[hsl(var(--apple-blue))] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--apple-blue))] rounded-sm"
             >
               Zaloguj się

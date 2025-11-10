@@ -11,11 +11,12 @@ interface ProposalsListProps {
 
 export function ProposalsList({ proposals, onAccept, onEdit, onReject, disabled = false }: ProposalsListProps) {
   return (
-    <div className="space-y-[var(--apple-space-5)]">
+    <div className="space-y-[var(--apple-space-5)]" data-testid="proposals-list">
       {proposals.map((proposal, index) => (
         <div
           key={proposal.temporary_id}
           className="animate-in fade-in slide-in-from-bottom-4"
+          data-testid="proposal-item"
           style={{ animationDelay: `${index * 50}ms` }}
         >
           <ProposalItem

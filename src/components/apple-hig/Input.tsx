@@ -20,12 +20,23 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
  * - Support for icons and right elements
  * - Proper accessibility with ARIA attributes
  */
+const slugifyForTestId = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ label, helperText, error, success, icon, rightElement, className = "", id, disabled, ...props }, ref) => {
+    const { ["data-testid"]: dataTestId, ...restProps } = props;
     const reactId = React.useId();
     const inputId = id || `input-${reactId}`;
     const hasError = !!error;
     const hasSuccess = success && !hasError;
+    const baseTestId =
+      dataTestId || (label ? `input-${slugifyForTestId(label)}` : `input-${slugifyForTestId(inputId)}`);
 
     // Input wrapper classes
     const wrapperClasses = `
@@ -75,11 +86,12 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             id={inputId}
+            data-testid={baseTestId}
             className={`${inputClasses} ${className}`}
             disabled={disabled}
             aria-invalid={hasError}
             aria-describedby={error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined}
-            {...props}
+            {...restProps}
           />
 
           {rightElement && <div className="flex-shrink-0">{rightElement}</div>}
@@ -122,6 +134,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {error && (
           <p
             id={`${inputId}-error`}
+            data-testid={`${baseTestId}-error`}
             className="text-[var(--apple-font-footnote)] text-[hsl(var(--apple-red))] animate-in slide-in-from-top-1 duration-200"
           >
             {error}
@@ -155,9 +168,12 @@ export interface TextAreaProps extends React.TextareaHTMLAttributes<HTMLTextArea
 
 export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
   ({ label, helperText, error, success, className = "", id, disabled, ...props }, ref) => {
+    const { ["data-testid"]: dataTestId, ...restProps } = props;
     const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
     const hasError = !!error;
     const hasSuccess = success && !hasError;
+    const baseTestId =
+      dataTestId || (label ? `textarea-${slugifyForTestId(label)}` : `textarea-${slugifyForTestId(textareaId)}`);
 
     const wrapperClasses = `
       relative flex
@@ -203,17 +219,19 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(
           <textarea
             ref={ref}
             id={textareaId}
+            data-testid={baseTestId}
             className={`${textareaClasses} ${className}`}
             disabled={disabled}
             aria-invalid={hasError}
             aria-describedby={error ? `${textareaId}-error` : helperText ? `${textareaId}-helper` : undefined}
-            {...props}
+            {...restProps}
           />
         </div>
 
         {error && (
           <p
             id={`${textareaId}-error`}
+            data-testid={`${baseTestId}-error`}
             className="text-[var(--apple-font-footnote)] text-[hsl(var(--apple-red))] animate-in slide-in-from-top-1 duration-200"
           >
             {error}

@@ -203,7 +203,11 @@ export default function GenerateFlashcardsPage() {
             </Stack>
 
             {/* Error Banner */}
-            {error && <Banner open={!!error} message={error} type="error" dismissible onClose={() => setError(null)} />}
+            {error && (
+              <div data-testid="generate-error-banner">
+                <Banner open={!!error} message={error} type="error" dismissible onClose={() => setError(null)} />
+              </div>
+            )}
 
             {/* Two Column Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-[var(--apple-space-6)] lg:gap-[var(--apple-space-8)]">

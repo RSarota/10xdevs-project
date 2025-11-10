@@ -10,7 +10,7 @@ export function FlashcardsLoader({ loading }: FlashcardsLoaderProps) {
   }
 
   return (
-    <Card className="mt-[var(--spacing-xxxl)]">
+    <Card className="mt-[var(--spacing-xxxl)]" data-testid="flashcards-loader">
       <CardContent className="pt-[var(--spacing-xl)]">
         <div className="flex flex-col items-center justify-center py-[var(--spacing-xxxl)] space-y-[var(--spacing-l)]">
           <div className="relative">

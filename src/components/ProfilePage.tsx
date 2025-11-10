@@ -86,6 +86,7 @@ export default function ProfilePage() {
                         size="large"
                         fullWidth
                         onClick={() => setShowDeleteConfirm(true)}
+                        data-testid="profile-delete-account-button"
                       >
                         Usuń konto
                       </Button>
