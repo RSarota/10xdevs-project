@@ -13,6 +13,9 @@ RUN npm ci
 # Copy source code
 COPY . .
 
+# Set NODE_ENV=production for build (prevents Vite from inlining env vars)
+ENV NODE_ENV=production
+
 # Build application
 RUN npm run build
 

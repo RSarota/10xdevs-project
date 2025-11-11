@@ -16,6 +16,9 @@ export default defineConfig({
   },
   vite: {
     plugins: [tailwindcss()],
+    // Prevent Vite from inlining env vars at build time
+    // This allows runtime access to process.env in production (Azure Web App)
+    define: {},
   },
   adapter: node({
     mode: "standalone",
