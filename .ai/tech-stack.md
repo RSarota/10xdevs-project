@@ -21,5 +21,5 @@ AI - Komunikacja z modelami przez usługę Azure OpenAI Service
 
 CI/CD i Hosting:
 
-- Github Actions do tworzenia pipeline’ów CI/CD
-- DigitalOcean do hostowania aplikacji za pośrednictwem obrazu docker
+- GitHub Actions do tworzenia pipeline'ów CI/CD - buduje i publikuje obraz Docker do Azure Container Registry (ACR)
+- Azure Web App do hostowania aplikacji - uruchamia obraz w kontenerze

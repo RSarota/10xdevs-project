@@ -23,10 +23,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run unit tests
-        run: npm run test
+      - name: Run unit tests with coverage
+        run: npm run test:coverage
         env:
           NODE_ENV: test
+
+      - name: Verify coverage report exists
+        run: |
+          if [ ! -d "coverage" ] || [ -z "$(ls -A coverage 2>/dev/null)" ]; then
+            echo "❌ Coverage report not found or empty!"
+            exit 1
+          fi
+          echo "✅ Coverage report found"
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v5
@@ -67,6 +75,14 @@ jobs:
           E2E_USER_PASSWORD: ${{ secrets.E2E_USER_PASSWORD }}
           E2E_USERNAME_ID: ${{ secrets.E2E_USERNAME_ID }}
 
+      - name: Verify Playwright report exists
+        run: |
+          if [ ! -d "playwright-report" ] || [ -z "$(ls -A playwright-report 2>/dev/null)" ]; then
+            echo "❌ Playwright report not found or empty!"
+            exit 1
+          fi
+          echo "✅ Playwright report found"
+
       - name: Upload Playwright report
         uses: actions/upload-artifact@v5
         if: always()
@@ -75,9 +91,10 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
-      - name: Upload test results
+      - name: Upload test results (if any)
         uses: actions/upload-artifact@v5
         if: always()
+        continue-on-error: true
         with:
           name: test-results
           path: test-results/

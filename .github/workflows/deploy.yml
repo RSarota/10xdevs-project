@@ -1,4 +1,4 @@
-name: CD - Deploy to ACR
+name: Deploy to ACR
 
 on:
   workflow_run:
@@ -32,23 +32,14 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5.9.0
-        with:
-          images: ${{ secrets.ACR_REGISTRY }}/${{ github.event.repository.name }}
-          tags: |
-            type=ref,event=branch
-            type=sha,prefix={{branch}}-
-            type=raw,value=${{ github.event.inputs.image_tag || 'latest' }},enable={{is_default_branch}}
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v6.18.0
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ secrets.ACR_REGISTRY }}/${{ github.event.repository.name }}:buildcache
-          cache-to: type=registry,ref=${{ secrets.ACR_REGISTRY }}/${{ github.event.repository.name }}:buildcache,mode=max
+          tags: |
+            ${{ secrets.ACR_REGISTRY }}/10xcards:latest
+            ${{ secrets.ACR_REGISTRY }}/10xcards:${{ github.sha }}
+          cache-from: type=registry,ref=${{ secrets.ACR_REGISTRY }}/10xcards:buildcache
+          cache-to: type=registry,ref=${{ secrets.ACR_REGISTRY }}/10xcards:buildcache,mode=max
 
