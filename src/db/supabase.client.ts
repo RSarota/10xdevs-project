@@ -3,9 +3,10 @@ import { createServerClient, type CookieOptionsWithName } from "@supabase/ssr";
 import type { AstroCookies, AstroCookieSetOptions } from "astro";
 
 import type { Database } from "./database.types";
+import { getServerEnv } from "../lib/env.server";
 
-const supabaseUrl = import.meta.env.SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.SUPABASE_KEY;
+const supabaseUrl = getServerEnv("SUPABASE_URL");
+const supabaseAnonKey = getServerEnv("SUPABASE_KEY");
 
 // Legacy client for non-SSR contexts (will be phased out)
 export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey);
@@ -47,7 +48,7 @@ function parseCookieHeader(cookieHeader: string): { name: string; value: string 
 export const createSupabaseServerInstance = (context: { headers: Headers; cookies: AstroCookies }) => {
   const pendingCookies = new Map<string, { value: string; options?: AstroCookieSetOptions }>();
 
-  const supabase = createServerClient<Database>(import.meta.env.SUPABASE_URL, import.meta.env.SUPABASE_KEY, {
+  const supabase = createServerClient<Database>(getServerEnv("SUPABASE_URL"), getServerEnv("SUPABASE_KEY"), {
     cookieOptions,
     cookies: {
       getAll() {

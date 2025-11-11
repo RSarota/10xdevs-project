@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getServerEnv } from "../env.server";
 
 /**
  * Propozycja fiszki wygenerowana przez AI
@@ -87,8 +88,8 @@ const GenerateFlashcardsResponseSchema = z.object({
 });
 
 // Pobranie zmiennych środowiskowych na poziomie modułu (tak jak w supabase.client.ts)
-const openAiApiKey = import.meta.env.OPENAI_API_KEY;
-const openAiEndpoint = import.meta.env.OPENAI_URL;
+const openAiApiKey = getServerEnv("OPENAI_API_KEY");
+const openAiEndpoint = getServerEnv("OPENAI_URL");
 
 // Walidacja zmiennych środowiskowych na poziomie modułu
 if (!openAiApiKey || typeof openAiApiKey !== "string" || openAiApiKey.trim().length === 0) {
