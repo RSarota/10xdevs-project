@@ -84,7 +84,10 @@ test.describe("AI Flashcard Generation", () => {
     const currentCountMatch = characterCount?.match(/^([\d,.\s]+)\s*\/\s*10[,.]?\s*000/);
     expect(currentCountMatch).toBeTruthy();
     // Remove formatting and compare: should be > 10000
-    const currentCount = parseInt(currentCountMatch![1].replace(/[,.\s]/g, ""), 10);
+    if (!currentCountMatch) {
+      throw new Error("Failed to extract character count from badge");
+    }
+    const currentCount = parseInt(currentCountMatch[1].replace(/[,.\s]/g, ""), 10);
     expect(currentCount).toBeGreaterThan(10000);
   });
 

@@ -56,8 +56,8 @@ export class MyFlashcardsPage {
       this.flashcardItem
         .first()
         .waitFor({ timeout: 5000 })
-        .catch(() => {}),
-      this.emptyState.waitFor({ timeout: 5000 }).catch(() => {}),
+        .catch(() => undefined),
+      this.emptyState.waitFor({ timeout: 5000 }).catch(() => undefined),
     ]);
   }
 

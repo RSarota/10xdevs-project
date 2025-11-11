@@ -64,6 +64,7 @@ async function deleteFlashcardsByIds(
     });
   } catch (error) {
     // Ignoruj błędy podczas teardown - nie chcemy przerywać testów
+    // eslint-disable-next-line no-console
     console.warn("Failed to delete flashcards during teardown:", error);
   }
 }
@@ -90,10 +91,12 @@ async function deleteRecordsByUserId(request: APIRequestContext, tableName: stri
 
     if (!response.ok() && response.status() !== 404) {
       // Ignoruj błędy - może brakować polityk DELETE w RLS
+      // eslint-disable-next-line no-console
       console.warn(`Failed to delete ${tableName} records: ${response.status()} ${response.statusText()}`);
     }
   } catch (error) {
     // Ignoruj błędy podczas teardown - nie chcemy przerywać testów
+    // eslint-disable-next-line no-console
     console.warn(`Failed to delete ${tableName} records during teardown:`, error);
   }
 }
@@ -112,7 +115,7 @@ async function deleteRecordsByUserId(request: APIRequestContext, tableName: stri
  */
 export async function teardownAllFlashcards(
   request: APIRequestContext,
-  baseURL: string = "http://localhost:3000"
+  baseURL = "http://localhost:3000"
 ): Promise<void> {
   if (!isTeardownAvailable()) {
     return;

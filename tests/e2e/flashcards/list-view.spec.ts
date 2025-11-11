@@ -51,7 +51,7 @@ test.describe("Flashcards List View", () => {
 
     // Filter controls should be visible if implemented
     // In a real scenario, you'd interact with filter controls
-    const hasFilters = await myFlashcardsPage.filterControls.isVisible().catch(() => false);
+    await myFlashcardsPage.filterControls.isVisible().catch(() => false);
     // Test would continue based on actual implementation
   });
 
@@ -70,7 +70,7 @@ test.describe("Flashcards List View", () => {
     await myFlashcardsPage.waitForLoad();
 
     // Pagination controls should be visible if there are many flashcards
-    const hasPagination = await myFlashcardsPage.paginationControls.isVisible().catch(() => false);
+    await myFlashcardsPage.paginationControls.isVisible().catch(() => false);
     // Test would continue based on actual implementation
   });
 
@@ -92,7 +92,6 @@ test.describe("Flashcards List View", () => {
     if (isEmpty) {
       // Should have links to generate or add flashcards
       const generateButton = page.getByRole("button", { name: /wygeneruj/i });
-      const addButton = page.getByRole("button", { name: /dodaj ręcznie/i });
 
       if (await generateButton.isVisible().catch(() => false)) {
         await generateButton.click();

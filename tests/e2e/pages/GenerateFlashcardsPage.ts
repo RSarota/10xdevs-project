@@ -60,7 +60,7 @@ export class GenerateFlashcardsPage {
     await this.proposalItem.first().waitFor({ timeout: 30000 });
   }
 
-  async acceptProposal(index: number = 0) {
+  async acceptProposal(index = 0) {
     const proposal = this.proposalItem.nth(index);
     await proposal
       .getByRole("button", { name: /akceptuj/i })
@@ -68,7 +68,7 @@ export class GenerateFlashcardsPage {
       .click();
   }
 
-  async rejectProposal(index: number = 0) {
+  async rejectProposal(index = 0) {
     const proposal = this.proposalItem.nth(index);
     await proposal
       .getByRole("button", { name: /odrzuć/i })
@@ -76,7 +76,7 @@ export class GenerateFlashcardsPage {
       .click();
   }
 
-  async editProposal(index: number = 0) {
+  async editProposal(index = 0) {
     const proposal = this.proposalItem.nth(index);
     await proposal
       .getByRole("button", { name: /edytuj/i })
