@@ -8,12 +8,18 @@ function readProcessEnv(key: ServerEnvKey): string | undefined {
     }
 
     const value = process.env[key];
+
+    // Check if value exists and is a non-empty string
     if (!value || typeof value !== "string") {
       return undefined;
     }
 
     const trimmed = value.trim();
-    return trimmed.length > 0 ? trimmed : undefined;
+    if (trimmed.length === 0) {
+      return undefined;
+    }
+
+    return trimmed;
   } catch {
     // process.env might not be available in all contexts
     return undefined;
@@ -54,23 +60,39 @@ function readImportMetaEnv(key: ServerEnvKey): string | undefined {
 }
 
 export function getServerEnv(key: ServerEnvKey): string {
-  // First try runtime environment (process.env) - available in production (Azure Web App)
+  // Check if we're in production (Azure Web App)
+  const isProduction = typeof process !== "undefined" && process.env?.NODE_ENV === "production";
+
+  if (isProduction) {
+    // In production, ONLY use process.env (Azure injects variables at runtime)
+    // Do NOT fallback to import.meta.env as it may contain empty strings from build time
+    const runtimeValue = readProcessEnv(key);
+    if (runtimeValue) {
+      return runtimeValue;
+    }
+
+    // In production, if process.env doesn't have it, it's a configuration error
+    const availableKeys = Object.keys(process.env || {})
+      .filter((k) => k.includes("SUPABASE") || k.includes("OPENAI"))
+      .join(", ");
+
+    throw new Error(
+      `Missing environment variable: ${key}. Ensure it is configured in Azure Web App settings (Configuration > Application settings). ` +
+        `Available keys: ${availableKeys || "none"}`
+    );
+  }
+
+  // In development, try both sources
   const runtimeValue = readProcessEnv(key);
   if (runtimeValue) {
     return runtimeValue;
   }
 
-  // Fallback to build-time environment (import.meta.env) - available in dev/build
   const buildTimeValue = readImportMetaEnv(key);
   if (buildTimeValue) {
     return buildTimeValue;
   }
 
   // Neither source has the variable - throw error with helpful message
-  const isProduction = typeof process !== "undefined" && process.env?.NODE_ENV === "production";
-  const errorMessage = isProduction
-    ? `Missing environment variable: ${key}. Ensure it is configured in Azure Web App settings (Configuration > Application settings).`
-    : `Missing environment variable: ${key}. Ensure it is configured in .env file.`;
-
-  throw new Error(errorMessage);
+  throw new Error(`Missing environment variable: ${key}. Ensure it is configured in .env file.`);
 }
