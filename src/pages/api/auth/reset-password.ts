@@ -15,6 +15,7 @@ const resetPasswordSchema = z.object({
 });
 
 export const POST: APIRoute = async ({ request, cookies }) => {
+  let supabase: ReturnType<typeof createSupabaseServerInstance> | null = null;
   try {
     // Parse and validate request body
     const body = await request.json();
@@ -34,7 +35,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const { password } = validationResult.data;
 
     // Create Supabase server instance
-    const supabase = createSupabaseServerInstance({
+    supabase = createSupabaseServerInstance({
       cookies,
       headers: request.headers,
     });
@@ -46,6 +47,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
+      await supabase.flushPendingCookies();
       return new Response(
         JSON.stringify({
           error: "Sesja wygasła. Spróbuj ponownie zresetować hasło.",
@@ -61,6 +63,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     if (error) {
       console.error("Password update error:", error);
+      await supabase.flushPendingCookies();
       return new Response(
         JSON.stringify({
           error: error.message || "Wystąpił błąd podczas zmiany hasła",
@@ -70,6 +73,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     }
 
     // Success
+    await supabase.flushPendingCookies();
     return new Response(
       JSON.stringify({
         success: true,
@@ -79,6 +83,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     );
   } catch (error) {
     console.error("Reset password error:", error);
+    if (supabase) {
+      await supabase.flushPendingCookies();
+    }
     return new Response(
       JSON.stringify({
         error: "Wystąpił błąd serwera. Spróbuj ponownie później.",

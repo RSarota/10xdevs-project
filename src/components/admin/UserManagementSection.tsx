@@ -1,7 +1,7 @@
 import { Stack, Title2, Button, EmptyState } from "@/components/apple-hig";
 import { UsersTable } from "./UsersTable";
 import { Users, RefreshCw } from "lucide-react";
-import type { UserDTO } from "@/hooks/useAdmin";
+import type { UserDTO } from "@/lib/services/adminService";
 
 export interface UserManagementSectionProps {
   users: UserDTO[];

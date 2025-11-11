@@ -32,7 +32,9 @@ export const onRequest = defineMiddleware(async ({ locals, cookies, url, request
   // Skip auth check for public paths
   const isPublicPath = PUBLIC_PATHS.some((path) => url.pathname === path);
   if (isPublicPath) {
-    return next();
+    const response = await next();
+    await supabase.flushPendingCookies();
+    return response;
   }
 
   // Get user session
@@ -49,8 +51,11 @@ export const onRequest = defineMiddleware(async ({ locals, cookies, url, request
     };
   } else {
     // User is not authenticated - redirect to login for protected routes
+    await supabase.flushPendingCookies();
     return redirect("/auth/login");
   }
 
-  return next();
+  const response = await next();
+  await supabase.flushPendingCookies();
+  return response;
 });

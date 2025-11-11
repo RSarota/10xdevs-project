@@ -1,7 +1,10 @@
-import { useState } from "react";
-import { Card, CardContent, Stack, Body, Footnote, Button, Badge } from "@/components/apple-hig";
+import { Card, CardContent, Stack, Body, Footnote, Button } from "@/components/apple-hig";
+import { Edit, Trash2 } from "lucide-react";
+import { FlashcardTypeBadge } from "@/components/flashcards/FlashcardTypeBadge";
+import { FlashcardTypeIcon } from "@/components/flashcards/FlashcardTypeIcon";
+import { useFlashcardFlip } from "@/hooks/useFlashcardFlip";
+import { formatDate } from "@/lib/utils/date";
 import type { FlashcardDTO } from "@/types";
-import { Edit, Trash2, FileText, Sparkles, CheckCircle2 } from "lucide-react";
 
 export interface FlashcardItemProps {
   flashcard: FlashcardDTO;
@@ -10,50 +13,7 @@ export interface FlashcardItemProps {
 }
 
 export function FlashcardItem({ flashcard, onEdit, onDelete }: FlashcardItemProps) {
-  const [isFlipped, setIsFlipped] = useState(false);
-
-  const getTypeIcon = () => {
-    switch (flashcard.type) {
-      case "manual":
-        return <FileText className="w-4 h-4" />;
-      case "ai-full":
-        return <Sparkles className="w-4 h-4" />;
-      case "ai-edited":
-        return <CheckCircle2 className="w-4 h-4" />;
-    }
-  };
-
-  const getTypeBadge = () => {
-    switch (flashcard.type) {
-      case "manual":
-        return (
-          <Badge color="gray" variant="filled" size="sm">
-            Ręczne
-          </Badge>
-        );
-      case "ai-full":
-        return (
-          <Badge color="blue" variant="filled" size="sm">
-            AI
-          </Badge>
-        );
-      case "ai-edited":
-        return (
-          <Badge color="green" variant="filled" size="sm">
-            AI (edytowane)
-          </Badge>
-        );
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("pl-PL", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  };
+  const { isFlipped, flip } = useFlashcardFlip();
 
   return (
     <Card
@@ -61,7 +21,7 @@ export function FlashcardItem({ flashcard, onEdit, onDelete }: FlashcardItemProp
       padding="md"
       variant="grouped"
       className="cursor-pointer w-full"
-      onClick={() => setIsFlipped(!isFlipped)}
+      onClick={flip}
       data-testid="flashcard-item"
     >
       <CardContent>
@@ -69,8 +29,8 @@ export function FlashcardItem({ flashcard, onEdit, onDelete }: FlashcardItemProp
           {/* Header with type badge and actions */}
           <Stack direction="horizontal" justify="between" align="center">
             <Stack direction="horizontal" spacing="sm" align="center">
-              {getTypeIcon()}
-              {getTypeBadge()}
+              <FlashcardTypeIcon type={flashcard.type} />
+              <FlashcardTypeBadge type={flashcard.type} />
             </Stack>
             <Stack direction="horizontal" spacing="xs">
               <Button

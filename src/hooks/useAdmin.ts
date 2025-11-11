@@ -1,13 +1,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { adminService, type UserDTO } from "@/lib/services/adminService";
 import type { GenerationErrorDTO } from "@/types";
-
-export interface UserDTO {
-  id: string;
-  email: string;
-  created_at: string;
-  role?: string;
-}
 
 interface UseAdminReturn {
   logs: GenerationErrorDTO[];
@@ -35,31 +29,16 @@ export function useAdmin(): UseAdminReturn {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/generation-errors?page=${page}&limit=20`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          window.location.href = "/auth/login";
-          return;
-        }
-        if (response.status === 403) {
-          toast.error("Brak uprawnień");
-          window.location.href = "/dashboard";
-          return;
-        }
-        throw new Error("Nie udało się pobrać logów błędów");
-      }
-
-      const data = await response.json();
-      setLogs(data.errors || []);
-      setTotalPages(data.totalPages || 1);
+      const data = await adminService.fetchLogs(page, 20);
+      setLogs(data.errors);
+      setTotalPages(data.totalPages);
       setCurrentPage(page);
     } catch (err) {
+      if (err instanceof Error && err.message === "Brak uprawnień") {
+        toast.error("Brak uprawnień");
+        window.location.href = "/dashboard";
+        return;
+      }
       setError(err instanceof Error ? err : new Error("Wystąpił nieoczekiwany błąd"));
     } finally {
       setLoading(false);
@@ -71,29 +50,14 @@ export function useAdmin(): UseAdminReturn {
       setLoading(true);
       setError(null);
 
-      const response = await fetch("/api/users", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          window.location.href = "/auth/login";
-          return;
-        }
-        if (response.status === 403) {
-          toast.error("Brak uprawnień");
-          window.location.href = "/dashboard";
-          return;
-        }
-        throw new Error("Nie udało się pobrać listy użytkowników");
-      }
-
-      const data = await response.json();
-      setUsers(data.users || []);
+      const data = await adminService.fetchUsers();
+      setUsers(data.users);
     } catch (err) {
+      if (err instanceof Error && err.message === "Brak uprawnień") {
+        toast.error("Brak uprawnień");
+        window.location.href = "/dashboard";
+        return;
+      }
       setError(err instanceof Error ? err : new Error("Wystąpił nieoczekiwany błąd"));
     } finally {
       setLoading(false);
@@ -101,48 +65,13 @@ export function useAdmin(): UseAdminReturn {
   };
 
   const deleteUser = async (id: string): Promise<void> => {
-    const response = await fetch(`/api/users/${id}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        window.location.href = "/auth/login";
-        return;
-      }
-      if (response.status === 403) {
-        throw new Error("Brak uprawnień");
-      }
-      throw new Error("Nie udało się usunąć użytkownika");
-    }
-
+    await adminService.deleteUser(id);
     // Refresh users list
     await fetchUsers();
   };
 
   const changeUserRole = async (id: string, role: string): Promise<void> => {
-    const response = await fetch(`/api/users/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ role }),
-    });
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        window.location.href = "/auth/login";
-        return;
-      }
-      if (response.status === 403) {
-        throw new Error("Brak uprawnień");
-      }
-      throw new Error("Nie udało się zmienić roli użytkownika");
-    }
-
+    await adminService.changeUserRole(id, role);
     // Refresh users list
     await fetchUsers();
   };

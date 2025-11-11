@@ -1,130 +1,90 @@
 import { useState } from "react";
-import { Lock, AlertCircle, CheckCircle } from "lucide-react";
-import { Button, Stack, Input, Body } from "../apple-hig";
+import { Button, Stack, Body } from "../apple-hig";
+import { resetPasswordSchema, type ResetPasswordInput } from "@/lib/schemas/auth.schema";
+import { resetPassword } from "@/lib/services/authService";
+import { PasswordChangeFields } from "../profile/PasswordChangeFields";
+import { PasswordResetSuccessState } from "./PasswordResetSuccessState";
+import { AuthErrorDisplay } from "./AuthErrorDisplay";
+import { useFormValidation } from "@/hooks/useFormValidation";
+import { useFormReady } from "@/hooks/useFormReady";
 
 interface ResetPasswordFormProps {
   onSuccess?: () => void;
 }
 
 export function ResetPasswordForm({ onSuccess }: ResetPasswordFormProps) {
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [errors, setErrors] = useState<{ password?: string; confirmPassword?: string; general?: string }>({});
+  const [formData, setFormData] = useState<ResetPasswordInput>({
+    password: "",
+    confirmPassword: "",
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const { isReady } = useFormReady();
+  const { errors, setErrors, validateForm, clearFieldError } = useFormValidation({
+    schema: resetPasswordSchema,
+  });
 
-  const validatePassword = (password: string): { valid: boolean; message?: string } => {
-    if (password.length < 8) {
-      return { valid: false, message: "Hasło musi zawierać minimum 8 znaków" };
+  const handleFieldChange = <K extends keyof ResetPasswordInput>(field: K, value: ResetPasswordInput[K]) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      clearFieldError(field);
     }
-    if (!/[A-Z]/.test(password)) {
-      return { valid: false, message: "Hasło musi zawierać przynajmniej jedną wielką literę" };
-    }
-    if (!/[a-z]/.test(password)) {
-      return { valid: false, message: "Hasło musi zawierać przynajmniej jedną małą literę" };
-    }
-    if (!/[0-9]/.test(password)) {
-      return { valid: false, message: "Hasło musi zawierać przynajmniej jedną cyfrę" };
-    }
-    return { valid: true };
-  };
-
-  const validateForm = (): boolean => {
-    const newErrors: { password?: string; confirmPassword?: string } = {};
-
-    // Password validation
-    if (!password) {
-      newErrors.password = "Hasło jest wymagane";
-    } else {
-      const passwordValidation = validatePassword(password);
-      if (!passwordValidation.valid) {
-        newErrors.password = passwordValidation.message;
-      }
-    }
-
-    // Confirm password validation
-    if (!confirmPassword) {
-      newErrors.confirmPassword = "Potwierdzenie hasła jest wymagane";
-    } else if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Hasła nie są identyczne";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
 
-    if (!validateForm()) {
+    if (!validateForm(formData)) {
       return;
     }
 
     setIsLoading(true);
 
-    try {
-      const response = await fetch("/api/auth/reset-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ password }),
-      });
+    const result = await resetPassword({ password: formData.password });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (data.error?.includes("wygasł") || data.error?.includes("expired")) {
-          setErrors({ general: "Link resetowania hasła wygasł. Spróbuj ponownie." });
-        } else {
-          setErrors({ general: data.error || "Wystąpił błąd podczas resetowania hasła" });
-        }
-        return;
-      }
-
-      // Success - show message
-      setShowSuccess(true);
-
-      // Redirect to login after delay
-      setTimeout(() => {
-        if (onSuccess) {
-          onSuccess();
-        } else {
-          window.location.href = "/auth/login";
-        }
-      }, 3000);
-    } catch {
-      setErrors({ general: "Wystąpił błąd połączenia. Spróbuj ponownie." });
-    } finally {
+    if (!result.success) {
+      setErrors({ general: result.error || "Wystąpił błąd podczas resetowania hasła" });
       setIsLoading(false);
+      return;
     }
+
+    // Success - show message
+    setShowSuccess(true);
+
+    // Redirect to login after delay
+    setTimeout(() => {
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        window.location.href = "/auth/login";
+      }
+    }, 3000);
   };
 
   // Show success message
   if (showSuccess) {
     return (
-      <div className="w-full">
-        <Stack direction="vertical" spacing="lg" align="center" className="text-center py-8">
-          <div className="w-16 h-16 flex items-center justify-center rounded-full bg-[hsl(var(--apple-green))]/10">
-            <CheckCircle className="w-10 h-10 text-[hsl(var(--apple-green))]" />
-          </div>
-          <Stack direction="vertical" spacing="sm">
-            <Body className="text-[hsl(var(--apple-label))] text-lg font-medium">Hasło zostało zmienione!</Body>
-            <Body className="text-[hsl(var(--apple-label-secondary))] text-sm max-w-md">
-              Twoje hasło zostało pomyślnie zmienione. Za chwilę zostaniesz przekierowany do strony logowania.
-            </Body>
-          </Stack>
-          <Button variant="default" color="blue" size="medium" onClick={() => (window.location.href = "/auth/login")}>
-            Przejdź do logowania
-          </Button>
-        </Stack>
-      </div>
+      <PasswordResetSuccessState
+        onGoToLogin={() => {
+          if (onSuccess) {
+            onSuccess();
+          } else {
+            window.location.href = "/auth/login";
+          }
+        }}
+      />
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full">
+    <form
+      onSubmit={handleSubmit}
+      className="w-full"
+      data-testid="reset-password-form"
+      data-ready={isReady ? "true" : "false"}
+      aria-busy={!isReady}
+    >
       <Stack direction="vertical" spacing="lg">
         {/* Description */}
         <Body className="text-[hsl(var(--apple-label-secondary))] text-sm text-center">
@@ -132,40 +92,17 @@ export function ResetPasswordForm({ onSuccess }: ResetPasswordFormProps) {
         </Body>
 
         {/* General Error */}
-        {errors.general && (
-          <div className="flex items-start gap-3 p-4 bg-[hsl(var(--apple-red))]/10 border border-[hsl(var(--apple-red))]/20 rounded-[var(--apple-radius-medium)]">
-            <AlertCircle className="w-5 h-5 text-[hsl(var(--apple-red))] flex-shrink-0 mt-0.5" />
-            <Body className="text-[hsl(var(--apple-red))] text-sm">{errors.general}</Body>
-          </div>
-        )}
+        {errors.general && <AuthErrorDisplay message={errors.general} testId="reset-password-general-error" />}
 
-        {/* Password Input */}
-        <Input
-          type="password"
-          label="Nowe hasło"
-          placeholder="Minimum 8 znaków"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          error={errors.password}
-          helperText="Hasło musi zawierać min. 8 znaków, wielką i małą literę oraz cyfrę"
-          icon={<Lock className="w-5 h-5" />}
+        {/* Password fields */}
+        <PasswordChangeFields
+          password={formData.password}
+          confirmPassword={formData.confirmPassword}
+          onPasswordChange={(value) => handleFieldChange("password", value)}
+          onConfirmPasswordChange={(value) => handleFieldChange("confirmPassword", value)}
+          passwordError={errors.password}
+          confirmPasswordError={errors.confirmPassword}
           disabled={isLoading}
-          autoComplete="new-password"
-          required
-        />
-
-        {/* Confirm Password Input */}
-        <Input
-          type="password"
-          label="Potwierdź nowe hasło"
-          placeholder="Wprowadź hasło ponownie"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          error={errors.confirmPassword}
-          icon={<Lock className="w-5 h-5" />}
-          disabled={isLoading}
-          autoComplete="new-password"
-          required
         />
 
         {/* Submit Button */}

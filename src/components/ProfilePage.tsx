@@ -2,10 +2,11 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useProfile } from "@/hooks/useProfile";
 import { ProfileForm } from "./profile/ProfileForm";
-import { AlertTriangle } from "lucide-react";
+import { DangerZoneSection } from "./profile/DangerZoneSection";
+import { DeleteAccountModal } from "./profile/DeleteAccountModal";
 
 // Apple HIG Components
-import { Stack, Banner, Container, Skeleton, Button, AlertDialog, Title2, Body, Card } from "./apple-hig";
+import { Stack, Banner, Container, Skeleton, Title2, Body } from "./apple-hig";
 
 export default function ProfilePage() {
   const { profile, loading, error, updateProfile, deleteAccount } = useProfile();
@@ -72,26 +73,7 @@ export default function ProfilePage() {
                   <ProfileForm profile={profile} onSubmit={handleUpdateProfile} loading={updating} />
 
                   {/* Danger Zone */}
-                  <Card elevation="md" padding="xl" variant="grouped">
-                    <Stack direction="vertical" spacing="lg">
-                      <Banner
-                        open={true}
-                        message="Usunięcie konta jest nieodwracalne. Wszystkie twoje dane zostaną trwale usunięte."
-                        type="warning"
-                        icon={<AlertTriangle className="w-5 h-5" />}
-                      />
-                      <Button
-                        variant="filled"
-                        color="red"
-                        size="large"
-                        fullWidth
-                        onClick={() => setShowDeleteConfirm(true)}
-                        data-testid="profile-delete-account-button"
-                      >
-                        Usuń konto
-                      </Button>
-                    </Stack>
-                  </Card>
+                  <DangerZoneSection onDeleteClick={() => setShowDeleteConfirm(true)} />
                 </Stack>
               </div>
             )}
@@ -100,24 +82,11 @@ export default function ProfilePage() {
       </div>
 
       {/* Delete Confirmation Modal */}
-      <AlertDialog
+      <DeleteAccountModal
         open={showDeleteConfirm}
-        onClose={() => !deleting && setShowDeleteConfirm(false)}
-        title="Usuń konto"
-        message="Czy na pewno chcesz usunąć swoje konto? Ta operacja jest nieodwracalna i wszystkie twoje dane zostaną trwale usunięte."
-        primaryAction={{
-          label: deleting ? "Usuwanie..." : "Usuń konto",
-          onAction: handleDeleteAccount,
-          destructive: true,
-        }}
-        cancelAction={{
-          label: "Anuluj",
-          onAction: () => {
-            if (!deleting) {
-              setShowDeleteConfirm(false);
-            }
-          },
-        }}
+        deleting={deleting}
+        onConfirm={handleDeleteAccount}
+        onCancel={() => setShowDeleteConfirm(false)}
       />
     </div>
   );

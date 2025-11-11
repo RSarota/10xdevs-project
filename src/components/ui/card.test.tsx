@@ -54,3 +54,5 @@ describe("Card", () => {
     expect(screen.getByText("Footer content")).toBeInTheDocument();
   });
 });
+
+

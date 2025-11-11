@@ -76,3 +76,5 @@ export async function deleteUserById(request: APIRequestContext, userId: string)
     throw new Error(`Failed to delete Supabase user (${userId}): ${response.status()} ${response.statusText()}`);
   }
 }
+
+

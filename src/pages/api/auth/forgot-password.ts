@@ -10,6 +10,7 @@ const forgotPasswordSchema = z.object({
 });
 
 export const POST: APIRoute = async ({ request, cookies }) => {
+  let supabase: ReturnType<typeof createSupabaseServerInstance> | null = null;
   try {
     // Parse and validate request body
     const body = await request.json();
@@ -29,7 +30,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const { email } = validationResult.data;
 
     // Create Supabase server instance
-    const supabase = createSupabaseServerInstance({
+    supabase = createSupabaseServerInstance({
       cookies,
       headers: request.headers,
     });
@@ -50,6 +51,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     }
 
     // Always return success to prevent email enumeration attacks
+    await supabase.flushPendingCookies();
     return new Response(
       JSON.stringify({
         success: true,
@@ -59,6 +61,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     );
   } catch (error) {
     console.error("Forgot password error:", error);
+    if (supabase) {
+      await supabase.flushPendingCookies();
+    }
     return new Response(
       JSON.stringify({
         error: "Wystąpił błąd serwera. Spróbuj ponownie później.",

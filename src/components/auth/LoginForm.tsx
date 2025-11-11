@@ -1,91 +1,63 @@
-import { useEffect, useState } from "react";
-import { Mail, Lock, AlertCircle } from "lucide-react";
+import { useState } from "react";
+import { Mail, Lock } from "lucide-react";
 import { Button, Stack, Input, Divider, Body } from "../apple-hig";
+import { loginSchema, type LoginInput } from "@/lib/schemas/auth.schema";
+import { login, isEmailNotConfirmedError } from "@/lib/services/authService";
+import { AuthErrorDisplay } from "./AuthErrorDisplay";
+import { useFormValidation } from "@/hooks/useFormValidation";
+import { useFormReady } from "@/hooks/useFormReady";
 
 interface LoginFormProps {
   onSuccess?: () => void;
 }
 
 export function LoginForm({ onSuccess }: LoginFormProps) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
+  const [formData, setFormData] = useState<LoginInput>({
+    email: "",
+    password: "",
+  });
   const [isLoading, setIsLoading] = useState(false);
-  const [isReady, setIsReady] = useState(false);
+  const { isReady } = useFormReady();
+  const { errors, setErrors, validateForm, clearFieldError } = useFormValidation({
+    schema: loginSchema,
+  });
 
-  useEffect(() => {
-    setIsReady(true);
-  }, []);
-
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validateForm = (): boolean => {
-    const newErrors: { email?: string; password?: string } = {};
-
-    if (!email) {
-      newErrors.email = "Adres e-mail jest wymagany";
-    } else if (!validateEmail(email)) {
-      newErrors.email = "Podaj poprawny adres e-mail";
+  const handleFieldChange = <K extends keyof LoginInput>(field: K, value: LoginInput[K]) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      clearFieldError(field);
     }
-
-    if (!password) {
-      newErrors.password = "Hasło jest wymagane";
-    } else if (password.length < 6) {
-      newErrors.password = "Hasło musi zawierać minimum 6 znaków";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
 
-    if (!validateForm()) {
+    if (!validateForm(formData)) {
       return;
     }
 
     setIsLoading(true);
 
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+    const result = await login(formData);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        // Handle email not confirmed error
-        if (data.code === "email_not_confirmed") {
-          setErrors({
-            general: data.error || "Adres e-mail nie został potwierdzony. Sprawdź swoją skrzynkę e-mail.",
-          });
-          return;
-        }
-
-        // Handle other errors
-        setErrors({ general: data.error || "Nieprawidłowy e-mail lub hasło" });
-        return;
-      }
-
-      // Success - redirect or call callback
-      if (onSuccess) {
-        onSuccess();
+    if (!result.success) {
+      if (isEmailNotConfirmedError(result.code)) {
+        setErrors({
+          general: result.error || "Adres e-mail nie został potwierdzony. Sprawdź swoją skrzynkę e-mail.",
+        });
       } else {
-        window.location.href = "/dashboard";
+        setErrors({ general: result.error || "Nieprawidłowy e-mail lub hasło" });
       }
-    } catch {
-      setErrors({ general: "Wystąpił błąd połączenia. Spróbuj ponownie." });
-    } finally {
       setIsLoading(false);
+      return;
+    }
+
+    // Success - redirect or call callback
+    if (onSuccess) {
+      onSuccess();
+    } else {
+      window.location.href = "/dashboard";
     }
   };
 
@@ -100,23 +72,15 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
     >
       <Stack direction="vertical" spacing="lg">
         {/* General Error */}
-        {errors.general && (
-          <div
-            data-testid="login-general-error"
-            className="flex items-start gap-3 p-4 bg-[hsl(var(--apple-red))]/10 border border-[hsl(var(--apple-red))]/20 rounded-[var(--apple-radius-medium)]"
-          >
-            <AlertCircle className="w-5 h-5 text-[hsl(var(--apple-red))] flex-shrink-0 mt-0.5" />
-            <Body className="text-[hsl(var(--apple-red))] text-sm">{errors.general}</Body>
-          </div>
-        )}
+        {errors.general && <AuthErrorDisplay message={errors.general} testId="login-general-error" />}
 
         {/* Email Input */}
         <Input
           type="email"
           label="Adres e-mail"
           placeholder="twoj@email.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={formData.email}
+          onChange={(e) => handleFieldChange("email", e.target.value)}
           error={errors.email}
           icon={<Mail className="w-5 h-5" />}
           disabled={isLoading}
@@ -130,8 +94,8 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           type="password"
           label="Hasło"
           placeholder="Wprowadź hasło"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={formData.password}
+          onChange={(e) => handleFieldChange("password", e.target.value)}
           error={errors.password}
           icon={<Lock className="w-5 h-5" />}
           disabled={isLoading}

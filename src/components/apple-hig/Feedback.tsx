@@ -386,6 +386,7 @@ export interface BadgeProps {
   color?: "blue" | "red" | "green" | "orange" | "gray";
   size?: "sm" | "md" | "lg";
   className?: string;
+  "data-testid"?: string;
 }
 
 export const Badge: React.FC<BadgeProps> = ({
@@ -394,6 +395,7 @@ export const Badge: React.FC<BadgeProps> = ({
   color = "red",
   size = "md",
   className = "",
+  "data-testid": dataTestId,
 }) => {
   const sizeClasses = {
     sm: "min-w-[16px] h-4 px-1 text-[10px]",
@@ -420,6 +422,7 @@ export const Badge: React.FC<BadgeProps> = ({
 
   return (
     <span
+      data-testid={dataTestId}
       className={`
         inline-flex items-center justify-center
         ${sizeClasses[size]}

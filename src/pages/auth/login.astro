@@ -19,6 +19,7 @@ const {
 
 // Redirect authenticated users to dashboard
 if (user) {
+  await supabase.flushPendingCookies();
   return Astro.redirect("/dashboard");
 }
 
@@ -26,6 +27,8 @@ if (user) {
 const confirmed = Astro.url.searchParams.get("confirmed");
 const error = Astro.url.searchParams.get("error");
 const errorMessage = Astro.url.searchParams.get("message");
+
+await supabase.flushPendingCookies();
 ---
 
 <AuthLayout title="Logowanie - 10xCards">

@@ -125,3 +125,5 @@ Strony autoryzacji używają uproszczonego layoutu `AuthLayout.astro`, który za
 - Minimalistyczny nagłówek z logo i przełącznikiem motywu
 - Wyśrodkowaną zawartość formularza
 - Stopkę z informacjami o prawach autorskich
+
+

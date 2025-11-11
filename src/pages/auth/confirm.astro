@@ -11,11 +11,18 @@ const supabase = createSupabaseServerInstance({
   headers: Astro.request.headers,
 });
 
-const redirectWithMessage = (target: string, message: string, errorKey: string) =>
-  Astro.redirect(`${target}?error=${errorKey}&message=${encodeURIComponent(message)}`);
+const flushAndRedirect = async (target: string) => {
+  await supabase.flushPendingCookies();
+  return Astro.redirect(target);
+};
 
-const tokenHash = Astro.url.searchParams.get("token") ?? Astro.url.searchParams.get("token_hash");
+const redirectWithMessage = async (target: string, message: string, errorKey: string) =>
+  flushAndRedirect(`${target}?error=${errorKey}&message=${encodeURIComponent(message)}`);
+
+const rawToken = Astro.url.searchParams.get("token") ?? Astro.url.searchParams.get("token_hash");
 const codeParam = Astro.url.searchParams.get("code");
+const isPkceToken = rawToken?.startsWith("pkce_") ?? false;
+const tokenHash = isPkceToken ? null : rawToken;
 const typeParam = Astro.url.searchParams.get("type") ?? "signup";
 const errorParam = Astro.url.searchParams.get("error");
 const errorDescription = Astro.url.searchParams.get("error_description") ?? Astro.url.searchParams.get("message") ?? "";
@@ -23,34 +30,36 @@ const errorDescription = Astro.url.searchParams.get("error_description") ?? Astr
 if (errorParam) {
   const redirectTarget = typeParam === "recovery" ? "/auth/forgot-password" : "/auth/login";
   const message = errorDescription || "Wystąpił błąd podczas potwierdzania";
-  return redirectWithMessage(redirectTarget, message, "confirmation_failed");
+  return await redirectWithMessage(redirectTarget, message, "confirmation_failed");
 }
 
 const SUPPORTED_TYPES = new Set(["signup", "recovery"]);
 
 if (!SUPPORTED_TYPES.has(typeParam)) {
-  return redirectWithMessage("/auth/login", "Nieobsługiwany rodzaj potwierdzenia", "unexpected");
+  return await redirectWithMessage("/auth/login", "Nieobsługiwany rodzaj potwierdzenia", "unexpected");
 }
 
 const verifyType = typeParam === "recovery" ? "recovery" : "signup";
 
 if (!tokenHash) {
+  const codeToExchange = codeParam ?? (isPkceToken ? rawToken : null);
+
   if (verifyType === "signup") {
-    return Astro.redirect("/auth/login?confirmed=true");
+    return await flushAndRedirect("/auth/login?confirmed=true");
   }
 
-  if (codeParam) {
-    const { data, error } = await supabase.auth.exchangeCodeForSession(codeParam);
+  if (codeToExchange) {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(codeToExchange);
 
     if (error || !data.session) {
       const message = error?.message ?? "Nie udało się utworzyć sesji resetu hasła";
-      return redirectWithMessage("/auth/forgot-password", message, "unexpected");
+      return await redirectWithMessage("/auth/forgot-password", message, "unexpected");
     }
 
-    return Astro.redirect("/auth/reset-password");
+    return await flushAndRedirect("/auth/reset-password");
   }
 
-  return redirectWithMessage(
+  return await redirectWithMessage(
     "/auth/forgot-password",
     "Link resetowania hasła jest nieprawidłowy lub wygasł",
     "confirmation_failed"
@@ -71,18 +80,22 @@ try {
 
     const redirectTarget = verifyType === "recovery" ? "/auth/forgot-password" : "/auth/login";
 
-    return redirectWithMessage(redirectTarget, message, "confirmation_failed");
+    return await redirectWithMessage(redirectTarget, message, "confirmation_failed");
   }
 
   if (verifyType === "recovery") {
     if (!data.session) {
-      return redirectWithMessage("/auth/forgot-password", "Nie udało się utworzyć sesji resetu hasła", "unexpected");
+      return await redirectWithMessage(
+        "/auth/forgot-password",
+        "Nie udało się utworzyć sesji resetu hasła",
+        "unexpected"
+      );
     }
 
-    return Astro.redirect("/auth/reset-password");
+    return await flushAndRedirect("/auth/reset-password");
   }
 
-  return Astro.redirect("/auth/login?confirmed=true");
+  return await flushAndRedirect("/auth/login?confirmed=true");
 } catch (error) {
   const message =
     error instanceof Response
@@ -92,9 +105,10 @@ try {
         : "Wystąpił nieoczekiwany błąd podczas potwierdzania";
 
   if (error instanceof Response) {
+    await supabase.flushPendingCookies();
     return error;
   }
 
-  return redirectWithMessage("/auth/login", message, "unexpected");
+  return await redirectWithMessage("/auth/login", message, "unexpected");
 }
 ---

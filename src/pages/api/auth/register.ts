@@ -17,6 +17,7 @@ const registerSchema = z.object({
 });
 
 export const POST: APIRoute = async ({ request, cookies }) => {
+  let supabase: ReturnType<typeof createSupabaseServerInstance> | null = null;
   try {
     // Parse and validate request body
     const body = await request.json();
@@ -36,7 +37,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const { email, password, name } = validationResult.data;
 
     // Create Supabase server instance
-    const supabase = createSupabaseServerInstance({
+    supabase = createSupabaseServerInstance({
       cookies,
       headers: request.headers,
     });
@@ -60,6 +61,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     if (error) {
       // Handle specific error cases
       if (error.message.includes("already registered") || error.message.includes("already exists")) {
+        await supabase.flushPendingCookies();
         return new Response(
           JSON.stringify({
             error: "Ten adres e-mail jest już zarejestrowany",
@@ -70,6 +72,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       }
 
       // Generic error
+      await supabase.flushPendingCookies();
       return new Response(
         JSON.stringify({
           error: error.message || "Wystąpił błąd podczas rejestracji",
@@ -79,6 +82,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     }
 
     // Success - user needs to confirm email
+    await supabase.flushPendingCookies();
     return new Response(
       JSON.stringify({
         success: true,
@@ -92,6 +96,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     );
   } catch (error) {
     console.error("Registration error:", error);
+    if (supabase) {
+      await supabase.flushPendingCookies();
+    }
     return new Response(
       JSON.stringify({
         error: "Wystąpił błąd serwera. Spróbuj ponownie później.",

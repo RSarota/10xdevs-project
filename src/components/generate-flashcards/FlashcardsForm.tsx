@@ -1,5 +1,7 @@
-import { useEffect, useState, type FormEvent, type ChangeEvent } from "react";
+import { useEffect, useState } from "react";
 import { Button, Card, TextArea, Stack, Badge } from "@/components/apple-hig";
+import { useTextAreaValidation } from "@/hooks/useTextAreaValidation";
+import { FLASHCARD_GENERATION_LIMITS } from "@/lib/constants/flashcardGeneration";
 
 interface FlashcardsFormProps {
   onSubmit: (text: string) => void;
@@ -7,39 +9,30 @@ interface FlashcardsFormProps {
   disabled?: boolean;
 }
 
-const MIN_LENGTH = 1000;
-const MAX_LENGTH = 10000;
-
 export function FlashcardsForm({ onSubmit, loading, disabled = false }: FlashcardsFormProps) {
-  const [text, setText] = useState("");
   const [isReady, setIsReady] = useState(false);
+  const validation = useTextAreaValidation({
+    minLength: FLASHCARD_GENERATION_LIMITS.MIN_LENGTH,
+    maxLength: FLASHCARD_GENERATION_LIMITS.MAX_LENGTH,
+  });
 
   useEffect(() => {
     setIsReady(true);
   }, []);
 
-  const textLength = text.length;
-  const isValid = textLength >= MIN_LENGTH && textLength <= MAX_LENGTH;
-
-  const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (disabled) return;
-    setText(e.target.value);
+    validation.setValue(e.target.value);
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!isValid || disabled) {
+    if (!validation.isValid || disabled) {
       return;
     }
 
-    onSubmit(text);
-  };
-
-  const getBadgeColor = () => {
-    if (textLength < MIN_LENGTH) return "gray";
-    if (textLength > MAX_LENGTH) return "red";
-    return "green";
+    onSubmit(validation.value);
   };
 
   return (
@@ -53,7 +46,7 @@ export function FlashcardsForm({ onSubmit, loading, disabled = false }: Flashcar
         <Stack direction="vertical" spacing="lg">
           <TextArea
             id="source-text"
-            value={text}
+            value={validation.value}
             onChange={handleChange}
             placeholder="Wklej tutaj tekst z którego chcesz wygenerować fiszki..."
             className="min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] font-mono text-sm !resize-y"
@@ -64,13 +57,13 @@ export function FlashcardsForm({ onSubmit, loading, disabled = false }: Flashcar
 
           <Stack direction="horizontal" justify="between" align="center" wrap>
             <div data-testid="generate-character-count">
-              <Badge color={getBadgeColor()} variant="outlined" size="md">
-                {textLength.toLocaleString()} / {MAX_LENGTH.toLocaleString()} znaków
+              <Badge color={validation.badgeColor} variant="outlined" size="md">
+                {validation.length.toLocaleString()} / {FLASHCARD_GENERATION_LIMITS.MAX_LENGTH.toLocaleString()} znaków
               </Badge>
             </div>
-            {textLength > 0 && textLength < MIN_LENGTH && (
+            {validation.errorMessage && (
               <span className="text-[var(--apple-font-caption-1)] text-[hsl(var(--apple-label-tertiary))]">
-                Minimum {MIN_LENGTH.toLocaleString()} znaków
+                {validation.errorMessage}
               </span>
             )}
           </Stack>
@@ -81,7 +74,7 @@ export function FlashcardsForm({ onSubmit, loading, disabled = false }: Flashcar
             size="large"
             fullWidth
             type="submit"
-            disabled={!isValid || loading || disabled}
+            disabled={!validation.isValid || loading || disabled}
             isLoading={loading}
             data-testid="button-generuj-fiszki"
           >

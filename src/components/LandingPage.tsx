@@ -1,76 +1,20 @@
-import { ThemeToggle } from "./ThemeToggle";
 import { Logo } from "./Logo";
-import { Sparkles, Brain, Zap, BookOpen, Target, TrendingUp, LayoutDashboard } from "lucide-react";
-
-// Apple HIG Components
-import {
-  Button,
-  Stack,
-  NavigationBar,
-  Container,
-  LargeTitle,
-  Title1,
-  Title2,
-  Body,
-  Card,
-  CardContent,
-  Grid,
-  Badge,
-  Divider,
-} from "./apple-hig";
+import { LayoutDashboard } from "lucide-react";
+import { NavigationBar } from "./apple-hig";
+import { useLandingNavigation } from "@/hooks/useLandingNavigation";
+import { LandingHero } from "./landing/LandingHero";
+import { LandingStats } from "./landing/LandingStats";
+import { LandingFeatures } from "./landing/LandingFeatures";
+import { LandingHowItWorks } from "./landing/LandingHowItWorks";
+import { LandingCTA } from "./landing/LandingCTA";
+import { LandingFooter } from "./landing/LandingFooter";
 
 interface LandingPageProps {
   isAuthenticated?: boolean;
 }
 
 export default function LandingPage({ isAuthenticated = false }: LandingPageProps) {
-  const handleLogin = () => {
-    window.location.href = "/auth/login";
-  };
-
-  const handleRegister = () => {
-    window.location.href = "/auth/register";
-  };
-
-  const handleDemo = () => {
-    // Demo requires authentication - redirect to register if not logged in
-    if (isAuthenticated) {
-      window.location.href = "/generate-flashcards";
-    } else {
-      window.location.href = "/auth/register";
-    }
-  };
-
-  const handleGoToApp = () => {
-    window.location.href = "/dashboard";
-  };
-
-  const features = [
-    {
-      icon: <Sparkles className="w-8 h-8" />,
-      title: "Generowanie AI",
-      description: "Wklej tekst, a sztuczna inteligencja automatycznie wygeneruje fiszki do nauki",
-      badge: "AI",
-    },
-    {
-      icon: <Brain className="w-8 h-8" />,
-      title: "Inteligentna nauka",
-      description: "System dostosowuje się do Twojego postępu i skupia na trudniejszych materiałach",
-      badge: "Smart",
-    },
-    {
-      icon: <Zap className="w-8 h-8" />,
-      title: "Szybkie tworzenie",
-      description: "Dodawaj fiszki ręcznie lub generuj dziesiątki w kilka sekund",
-      badge: "Fast",
-    },
-  ];
-
-  const stats = [
-    { value: "10,000+", label: "Fiszek wygenerowanych" },
-    { value: "95%", label: "Fiszek zaakceptowanych z AI" },
-    { value: "< 30s", label: "Średni czas generacji" },
-  ];
+  const { handleLogin, handleRegister, handleDemo, handleGoToApp } = useLandingNavigation(isAuthenticated);
 
   return (
     <div className="min-h-screen flex flex-col bg-[hsl(var(--apple-grouped-bg))]">
@@ -100,232 +44,12 @@ export default function LandingPage({ isAuthenticated = false }: LandingPageProp
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto pt-16">
-        {/* Hero Section */}
-        <Container
-          size="xl"
-          className="py-[var(--apple-space-12)] sm:py-[var(--apple-space-16)] lg:py-[var(--apple-space-20)]"
-        >
-          <Stack direction="vertical" spacing="xl" align="center" className="text-center">
-            {/* Hero Content */}
-            <Stack direction="vertical" spacing="lg" align="center" className="max-w-4xl">
-              <Badge color="blue" variant="filled" size="lg">
-                <Sparkles className="w-4 h-4" />
-                Powered by AI
-              </Badge>
-
-              <LargeTitle className="text-[hsl(var(--apple-label))] text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
-                Ucz się mądrzej,
-                <br />
-                nie dłużej
-              </LargeTitle>
-
-              <Title2 className="text-[hsl(var(--apple-label-secondary))] font-normal max-w-2xl text-base sm:text-lg lg:text-xl">
-                Przekształć dowolny tekst w fiszki do nauki za pomocą sztucznej inteligencji. Oszczędź czas i ucz się
-                efektywniej.
-              </Title2>
-
-              {/* CTA Buttons */}
-              <Stack direction="horizontal" spacing="md" className="mt-[var(--apple-space-4)] flex-wrap justify-center">
-                <Button variant="filled" color="blue" size="large" onClick={handleRegister}>
-                  <Sparkles className="w-5 h-5" />
-                  Rozpocznij za darmo
-                </Button>
-                <Button variant="default" color="blue" size="large" onClick={handleLogin}>
-                  Zaloguj się
-                </Button>
-              </Stack>
-
-              <Body className="text-[hsl(var(--apple-label-tertiary))] text-sm mt-[var(--apple-space-4)]">
-                Bez karty kredytowej • Bez zobowiązań
-              </Body>
-            </Stack>
-          </Stack>
-        </Container>
-
-        <Divider />
-
-        {/* Stats Section */}
-        <Container
-          size="xl"
-          className="py-[var(--apple-space-12)] sm:py-[var(--apple-space-16)] lg:py-[var(--apple-space-20)]"
-        >
-          <Grid columns={3} gap="lg" className="max-w-5xl mx-auto">
-            {stats.map((stat, index) => (
-              <Card key={index} elevation="md" padding="xl" variant="grouped">
-                <CardContent>
-                  <Stack direction="vertical" spacing="sm" align="center">
-                    <Title1 className="text-[hsl(var(--apple-blue))] text-3xl sm:text-4xl">{stat.value}</Title1>
-                    <Body className="text-[hsl(var(--apple-label-secondary))] text-center text-sm sm:text-base">
-                      {stat.label}
-                    </Body>
-                  </Stack>
-                </CardContent>
-              </Card>
-            ))}
-          </Grid>
-        </Container>
-
-        <Divider />
-
-        {/* Features Section */}
-        <Container
-          size="xl"
-          className="py-[var(--apple-space-12)] sm:py-[var(--apple-space-16)] lg:py-[var(--apple-space-20)]"
-        >
-          <Stack direction="vertical" spacing="xl">
-            <Stack direction="vertical" spacing="md" align="center" className="text-center max-w-3xl mx-auto">
-              <Title1 className="text-3xl sm:text-4xl lg:text-5xl">
-                Wszystko czego potrzebujesz do efektywnej nauki
-              </Title1>
-              <Body className="text-[hsl(var(--apple-label-secondary))] text-base sm:text-lg">
-                Nasza platforma łączy moc sztucznej inteligencji z prostotą użytkowania
-              </Body>
-            </Stack>
-
-            <Grid columns={1} gap="lg" className="sm:grid-cols-2 lg:grid-cols-3">
-              {features.map((feature, index) => (
-                <Card key={index} elevation="md" padding="xl" variant="grouped">
-                  <CardContent>
-                    <Stack direction="vertical" spacing="md" align="start">
-                      <Stack direction="horizontal" justify="between" align="start" className="w-full">
-                        <div className="w-14 h-14 flex items-center justify-center rounded-[var(--apple-radius-large)] bg-[hsl(var(--apple-blue)/0.1)] text-[hsl(var(--apple-blue))] flex-shrink-0">
-                          {feature.icon}
-                        </div>
-                        <Badge color="blue" variant="filled" size="sm">
-                          {feature.badge}
-                        </Badge>
-                      </Stack>
-                      <Stack direction="vertical" spacing="sm">
-                        <Title2 className="text-xl sm:text-2xl">{feature.title}</Title2>
-                        <Body className="text-[hsl(var(--apple-label-secondary))] text-sm sm:text-base">
-                          {feature.description}
-                        </Body>
-                      </Stack>
-                    </Stack>
-                  </CardContent>
-                </Card>
-              ))}
-            </Grid>
-          </Stack>
-        </Container>
-
-        <Divider />
-
-        {/* How it works Section */}
-        <Container
-          size="xl"
-          className="py-[var(--apple-space-12)] sm:py-[var(--apple-space-16)] lg:py-[var(--apple-space-20)]"
-        >
-          <Stack direction="vertical" spacing="xl">
-            <Stack direction="vertical" spacing="md" align="center" className="text-center max-w-3xl mx-auto">
-              <Title1 className="text-3xl sm:text-4xl lg:text-5xl">Jak to działa?</Title1>
-              <Body className="text-[hsl(var(--apple-label-secondary))] text-base sm:text-lg">
-                Zacznij tworzyć fiszki w trzech prostych krokach
-              </Body>
-            </Stack>
-
-            <Grid columns={1} gap="lg" className="sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
-              <Card elevation="md" padding="xl" variant="grouped">
-                <CardContent>
-                  <Stack direction="vertical" spacing="md" align="center" className="text-center">
-                    <div className="w-16 h-16 flex items-center justify-center rounded-full bg-[hsl(var(--apple-blue))] text-white shadow-lg">
-                      <BookOpen className="w-8 h-8" />
-                    </div>
-                    <Stack direction="vertical" spacing="sm">
-                      <Title2 className="text-xl sm:text-2xl">1. Wklej tekst</Title2>
-                      <Body className="text-[hsl(var(--apple-label-secondary))] text-sm sm:text-base">
-                        Skopiuj materiał do nauki - notatkę, artykuł lub fragment książki
-                      </Body>
-                    </Stack>
-                  </Stack>
-                </CardContent>
-              </Card>
-
-              <Card elevation="md" padding="xl" variant="grouped">
-                <CardContent>
-                  <Stack direction="vertical" spacing="md" align="center" className="text-center">
-                    <div className="w-16 h-16 flex items-center justify-center rounded-full bg-[hsl(var(--apple-green))] text-white shadow-lg">
-                      <Target className="w-8 h-8" />
-                    </div>
-                    <Stack direction="vertical" spacing="sm">
-                      <Title2 className="text-xl sm:text-2xl">2. Przejrzyj fiszki</Title2>
-                      <Body className="text-[hsl(var(--apple-label-secondary))] text-sm sm:text-base">
-                        AI wygeneruje fiszki - akceptuj, edytuj lub odrzuć każdą z nich
-                      </Body>
-                    </Stack>
-                  </Stack>
-                </CardContent>
-              </Card>
-
-              <Card elevation="md" padding="xl" variant="grouped">
-                <CardContent>
-                  <Stack direction="vertical" spacing="md" align="center" className="text-center">
-                    <div className="w-16 h-16 flex items-center justify-center rounded-full bg-[hsl(var(--apple-purple))] text-white shadow-lg">
-                      <TrendingUp className="w-8 h-8" />
-                    </div>
-                    <Stack direction="vertical" spacing="sm">
-                      <Title2 className="text-xl sm:text-2xl">3. Rozpocznij naukę</Title2>
-                      <Body className="text-[hsl(var(--apple-label-secondary))] text-sm sm:text-base">
-                        Ucz się w swoim tempie i śledź postępy w czasie rzeczywistym
-                      </Body>
-                    </Stack>
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Stack>
-        </Container>
-
-        <Divider />
-
-        {/* Final CTA Section */}
-        <Container
-          size="xl"
-          className="py-[var(--apple-space-12)] sm:py-[var(--apple-space-16)] lg:py-[var(--apple-space-20)]"
-        >
-          <Card elevation="lg" padding="xl" variant="grouped" className="max-w-4xl mx-auto">
-            <CardContent>
-              <Stack
-                direction="vertical"
-                spacing="lg"
-                align="center"
-                className="text-center py-[var(--apple-space-6)] sm:py-[var(--apple-space-8)]"
-              >
-                <Stack direction="vertical" spacing="md" align="center" className="max-w-2xl">
-                  <Title1 className="text-3xl sm:text-4xl lg:text-5xl">Gotowy, aby zacząć?</Title1>
-                  <Body className="text-[hsl(var(--apple-label-secondary))] text-base sm:text-lg">
-                    Dołącz do tysięcy studentów, którzy już uczą się mądrzej dzięki AI
-                  </Body>
-                </Stack>
-                <Stack
-                  direction="horizontal"
-                  spacing="md"
-                  className="flex-wrap justify-center mt-[var(--apple-space-2)]"
-                >
-                  <Button variant="filled" color="blue" size="large" onClick={handleRegister}>
-                    <Sparkles className="w-5 h-5" />
-                    Utwórz darmowe konto
-                  </Button>
-                  <Button variant="default" color="blue" size="large" onClick={handleDemo}>
-                    Zobacz demo
-                  </Button>
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Container>
-
-        {/* Footer */}
-        <footer className="w-full border-t border-[hsl(var(--apple-separator-opaque))] bg-[hsl(var(--apple-grouped-bg-secondary))] mt-[var(--apple-space-8)]">
-          <div className="max-w-7xl mx-auto px-[var(--apple-space-5)] py-[var(--apple-space-3)]">
-            <div className="flex items-center justify-center gap-3">
-              <p className="text-center text-[var(--apple-font-footnote)] text-[hsl(var(--apple-label-tertiary))]">
-                © 2025 10xCards. Wszystkie prawa zastrzeżone.
-              </p>
-              <ThemeToggle />
-            </div>
-          </div>
-        </footer>
+        <LandingHero onRegister={handleRegister} onLogin={handleLogin} />
+        <LandingStats />
+        <LandingFeatures />
+        <LandingHowItWorks />
+        <LandingCTA onRegister={handleRegister} onDemo={handleDemo} />
+        <LandingFooter />
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { ListItem, Stack, Button } from "@/components/apple-hig";
 import { User, Trash2, Shield } from "lucide-react";
-import type { UserDTO } from "@/hooks/useAdmin";
+import type { UserDTO } from "@/lib/services/adminService";
+import { formatDate } from "@/lib/utils/date";
 
 export interface UserRowProps {
   user: UserDTO;
@@ -9,15 +10,6 @@ export interface UserRowProps {
 }
 
 export function UserRow({ user, onDelete, onRoleChange }: UserRowProps) {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("pl-PL", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  };
-
   const isAdmin = user.role === "admin";
   const subtitle = `Zarejestrowano: ${formatDate(user.created_at)}${isAdmin ? " • Admin" : ""}`;
 

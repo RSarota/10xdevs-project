@@ -1,5 +1,7 @@
-import { useEffect, useState, type FormEvent, type ChangeEvent } from "react";
-import { Card, CardHeader, Stack, Input, TextArea, Button, Badge } from "@/components/apple-hig";
+import { useEffect, useState } from "react";
+import { Card, CardHeader, Stack, Button } from "@/components/apple-hig";
+import { FlashcardFormFields } from "@/components/flashcards/FlashcardFormFields";
+import { useFlashcardForm } from "@/hooks/useFlashcardForm";
 import type { AddFlashcardFormData } from "@/hooks/useAddFlashcard";
 
 export interface AddFlashcardFormProps {
@@ -7,50 +9,23 @@ export interface AddFlashcardFormProps {
   loading?: boolean;
 }
 
-const FRONT_MAX_LENGTH = 200;
-const BACK_MAX_LENGTH = 500;
-
 export function AddFlashcardForm({ onSubmit, loading = false }: AddFlashcardFormProps) {
-  const [front, setFront] = useState("");
-  const [back, setBack] = useState("");
   const [isReady, setIsReady] = useState(false);
+  const form = useFlashcardForm();
 
   useEffect(() => {
     setIsReady(true);
   }, []);
 
-  const frontLength = front.trim().length;
-  const backLength = back.trim().length;
-  const isValid = frontLength > 0 && frontLength <= FRONT_MAX_LENGTH && backLength > 0 && backLength <= BACK_MAX_LENGTH;
-
-  const handleFrontChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setFront(e.target.value);
-  };
-
-  const handleBackChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setBack(e.target.value);
-  };
-
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!isValid) {
+    if (!form.isFormValid) {
+      form.markAllTouched();
       return;
     }
 
-    onSubmit({ front, back });
-  };
-
-  const getFrontBadgeColor = () => {
-    if (frontLength === 0) return "gray";
-    if (frontLength > FRONT_MAX_LENGTH) return "red";
-    return "green";
-  };
-
-  const getBackBadgeColor = () => {
-    if (backLength === 0) return "gray";
-    if (backLength > BACK_MAX_LENGTH) return "red";
-    return "green";
+    onSubmit(form.getData());
   };
 
   return (
@@ -65,50 +40,27 @@ export function AddFlashcardForm({ onSubmit, loading = false }: AddFlashcardForm
           aria-busy={!isReady}
         >
           <Stack direction="vertical" spacing="lg">
-            {/* Front field */}
-            <Input
-              id="flashcard-front"
-              label="Przód fiszki"
-              value={front}
-              onChange={handleFrontChange}
-              placeholder="Wpisz pytanie lub termin..."
-              disabled={loading}
-              data-testid="add-flashcard-front-input"
+            <FlashcardFormFields
+              form={form}
+              frontId="add-flashcard-front"
+              backId="add-flashcard-back"
+              frontPlaceholder="Wpisz pytanie lub termin..."
+              backPlaceholder="Wpisz odpowiedź lub definicję..."
+              frontTestId="add-flashcard-front-input"
+              backTestId="add-flashcard-back-input"
+              frontCountTestId="add-flashcard-front-count"
+              backCountTestId="add-flashcard-back-count"
             />
-
-            <div className="pt-[var(--apple-space-2)]" data-testid="add-flashcard-front-count">
-              <Badge color={getFrontBadgeColor()} variant="outlined" size="md">
-                {frontLength} / {FRONT_MAX_LENGTH} znaków
-              </Badge>
-            </div>
-
-            {/* Back field */}
-            <TextArea
-              id="flashcard-back"
-              label="Tył fiszki"
-              value={back}
-              onChange={handleBackChange}
-              placeholder="Wpisz odpowiedź lub definicję..."
-              disabled={loading}
-              rows={5}
-              data-testid="add-flashcard-back-input"
-            />
-
-            <div className="pt-[var(--apple-space-2)]" data-testid="add-flashcard-back-count">
-              <Badge color={getBackBadgeColor()} variant="outlined" size="md">
-                {backLength} / {BACK_MAX_LENGTH} znaków
-              </Badge>
-            </div>
 
             {/* Submit button */}
             <div className="pt-[var(--apple-space-4)]">
               <Button
+                type="submit"
                 variant="filled"
                 color="blue"
                 size="large"
                 fullWidth
-                type="submit"
-                disabled={!isValid || loading}
+                disabled={!form.isFormValid || loading}
                 isLoading={loading}
                 data-testid="add-flashcard-submit-button"
               >

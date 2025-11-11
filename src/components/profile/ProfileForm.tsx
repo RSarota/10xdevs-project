@@ -1,7 +1,11 @@
-import { useEffect, useState } from "react";
-import { Card, CardHeader, Stack, Input, Button, Footnote } from "@/components/apple-hig";
-import { Mail, Lock } from "lucide-react";
+import { useState } from "react";
+import { Card, CardHeader, Stack, Input, Button } from "@/components/apple-hig";
+import { Mail } from "lucide-react";
+import { profileUpdateSchema, type ProfileUpdateInput } from "@/lib/schemas/profile.schema";
+import { PasswordChangeFields } from "./PasswordChangeFields";
 import type { ProfileFormData, UserProfileDTO } from "@/hooks/useProfile";
+import { useFormValidation } from "@/hooks/useFormValidation";
+import { useFormReady } from "@/hooks/useFormReady";
 
 export interface ProfileFormProps {
   profile: UserProfileDTO;
@@ -10,54 +14,58 @@ export interface ProfileFormProps {
 }
 
 export function ProfileForm({ profile, onSubmit, loading = false }: ProfileFormProps) {
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [errors, setErrors] = useState<Partial<Record<keyof ProfileFormData, string>>>({});
-  const [isReady, setIsReady] = useState(false);
+  const [formData, setFormData] = useState<ProfileUpdateInput>({
+    email: profile.email,
+    password: "",
+    confirmPassword: "",
+  });
+  const { isReady } = useFormReady();
+  const { errors, setErrors, validateForm, clearFieldError } = useFormValidation({
+    schema: profileUpdateSchema,
+  });
 
-  useEffect(() => {
-    setIsReady(true);
-  }, []);
-
-  const validateForm = (): boolean => {
-    const newErrors: Partial<Record<keyof ProfileFormData, string>> = {};
-
-    // Validate password if provided
-    if (password.trim().length > 0) {
-      if (password.length < 8) {
-        newErrors.password = "Hasło musi mieć co najmniej 8 znaków";
-      } else if (!/[A-Z]/.test(password)) {
-        newErrors.password = "Hasło musi zawierać co najmniej jedną wielką literę";
-      } else if (!/[0-9]/.test(password)) {
-        newErrors.password = "Hasło musi zawierać co najmniej jedną cyfrę";
-      }
-
-      // Validate password confirmation
-      if (password !== confirmPassword) {
-        newErrors.confirmPassword = "Hasła nie są zgodne";
-      }
+  const handleFieldChange = <K extends keyof ProfileUpdateInput>(field: K, value: ProfileUpdateInput[K]) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      clearFieldError(field);
     }
+  };
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const validateFormConditionally = (): boolean => {
+    // Jeśli hasło nie jest podane, nie walidujemy
+    if (formData.password?.trim().length === 0) {
+      setErrors({});
+      return true;
+    }
+    return validateForm(formData);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     // Only validate if password is being changed
-    if (password.trim().length > 0 && !validateForm()) {
+    if (formData.password?.trim().length === 0) {
+      // No password change, submit without validation
+      onSubmit({
+        email: profile.email,
+        password: undefined,
+        confirmPassword: undefined,
+      });
+      return;
+    }
+
+    if (!validateFormConditionally()) {
       return;
     }
 
     onSubmit({
-      email: profile.email, // Email is read-only, always use original
-      password: password.trim().length > 0 ? password : undefined,
-      confirmPassword: confirmPassword.trim().length > 0 ? confirmPassword : undefined,
+      email: profile.email,
+      password: formData.password ?? undefined,
+      confirmPassword: formData.confirmPassword ?? undefined,
     });
   };
 
-  const hasChanges = password.trim().length > 0;
+  const hasChanges = (formData.password?.trim().length ?? 0) > 0;
 
   return (
     <Card elevation="md" padding="xl" variant="grouped">
@@ -82,38 +90,16 @@ export function ProfileForm({ profile, onSubmit, loading = false }: ProfileFormP
               data-testid="profile-email-input"
             />
 
-            {/* Password field */}
-            <Stack direction="vertical" spacing="xs">
-              <Input
-                type="password"
-                label="Nowe hasło"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Pozostaw puste, jeśli nie chcesz zmieniać"
-                disabled={loading}
-                error={errors.password}
-                icon={<Lock className="w-5 h-5" />}
-                data-testid="profile-password-input"
-              />
-              <Footnote className="text-[hsl(var(--apple-label-tertiary))]">
-                Min. 8 znaków, jedna wielka litera i jedna cyfra
-              </Footnote>
-            </Stack>
-
-            {/* Confirm Password field */}
-            {password.trim().length > 0 && (
-              <Input
-                type="password"
-                label="Potwierdź hasło"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Powtórz hasło"
-                disabled={loading}
-                error={errors.confirmPassword}
-                icon={<Lock className="w-5 h-5" />}
-                data-testid="profile-confirm-password-input"
-              />
-            )}
+            {/* Password fields */}
+            <PasswordChangeFields
+              password={formData.password ?? ""}
+              confirmPassword={formData.confirmPassword ?? ""}
+              onPasswordChange={(value) => handleFieldChange("password", value)}
+              onConfirmPasswordChange={(value) => handleFieldChange("confirmPassword", value)}
+              passwordError={errors.password}
+              confirmPasswordError={errors.confirmPassword}
+              disabled={loading}
+            />
 
             {/* Submit button */}
             <div className="pt-[var(--apple-space-4)]">

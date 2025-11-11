@@ -11,6 +11,7 @@ const loginSchema = z.object({
 });
 
 export const POST: APIRoute = async ({ request, cookies }) => {
+  let supabase: ReturnType<typeof createSupabaseServerInstance> | null = null;
   try {
     // Parse and validate request body
     const body = await request.json();
@@ -30,7 +31,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const { email, password } = validationResult.data;
 
     // Create Supabase server instance
-    const supabase = createSupabaseServerInstance({
+    supabase = createSupabaseServerInstance({
       cookies,
       headers: request.headers,
     });
@@ -44,6 +45,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     if (error) {
       // Handle specific error cases
       if (error.message.includes("Email not confirmed")) {
+        await supabase.flushPendingCookies();
         return new Response(
           JSON.stringify({
             error: "Adres e-mail nie został potwierdzony. Sprawdź swoją skrzynkę e-mail.",
@@ -54,6 +56,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       }
 
       if (error.message.includes("Invalid login credentials")) {
+        await supabase.flushPendingCookies();
         return new Response(
           JSON.stringify({
             error: "Nieprawidłowy e-mail lub hasło",
@@ -63,6 +66,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       }
 
       // Generic error
+      await supabase.flushPendingCookies();
       return new Response(
         JSON.stringify({
           error: error.message || "Wystąpił błąd podczas logowania",
@@ -72,6 +76,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     }
 
     // Success
+    await supabase.flushPendingCookies();
     return new Response(
       JSON.stringify({
         success: true,
@@ -84,6 +89,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     );
   } catch (error) {
     console.error("Login error:", error);
+    if (supabase) {
+      await supabase.flushPendingCookies();
+    }
     return new Response(
       JSON.stringify({
         error: "Wystąpił błąd serwera. Spróbuj ponownie później.",
@@ -92,3 +100,5 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     );
   }
 };
+
+

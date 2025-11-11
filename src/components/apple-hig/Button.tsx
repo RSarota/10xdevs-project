@@ -7,6 +7,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   fullWidth?: boolean;
   isLoading?: boolean;
   iconOnly?: boolean; // For icon-only buttons (removes padding, makes square)
+  "data-testid"?: string;
 }
 
 /**
@@ -39,7 +40,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const { ["data-testid"]: dataTestId, ...restProps } = props;
+    const { "data-testid": dataTestId, ...restProps } = props;
     // Base classes - Apple's clean, minimal style
     const baseClasses = `
       inline-flex items-center justify-center gap-2

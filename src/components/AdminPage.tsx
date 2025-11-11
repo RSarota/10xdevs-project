@@ -1,63 +1,47 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useAdminActions } from "@/hooks/useAdminActions";
 import { ErrorLogsSection } from "./admin/ErrorLogsSection";
 import { UserManagementSection } from "./admin/UserManagementSection";
 import { ConfirmationModal } from "./my-flashcards/ConfirmationModal";
+import { AdminTabs } from "./admin/AdminTabs";
 
 // Apple HIG Components
-import { Stack, Banner, Container, Skeleton, Divider, SegmentedControl, FormField, Title2, Body } from "./apple-hig";
+import { Stack, Banner, Container, Skeleton, Divider, Title2, Body } from "./apple-hig";
 
 export default function AdminPage() {
-  const { logs, users, loading, error, currentPage, totalPages, fetchLogs, fetchUsers, deleteUser, changeUserRole } =
-    useAdmin();
+  const { logs, users, loading, error, currentPage, totalPages, fetchLogs, fetchUsers } = useAdmin();
+  const { actionModal, handleDeleteUser, handleRoleChange, handleConfirmAction, handleCancelAction } =
+    useAdminActions();
   const [activeTab, setActiveTab] = useState<"logs" | "users">("logs");
-  const [actionModal, setActionModal] = useState<{
-    type: "delete" | "role";
-    userId?: string;
-    message: string;
-  } | null>(null);
 
-  const handleDeleteUser = (id: string) => {
-    setActionModal({
-      type: "delete",
-      userId: id,
-      message: "Czy na pewno chcesz usunąć tego użytkownika? Ta operacja jest nieodwracalna.",
-    });
-  };
-
-  const handleRoleChange = (id: string, role: string) => {
-    const action = role === "admin" ? "nadać uprawnienia administratora" : "odebrać uprawnienia administratora";
-    setActionModal({
-      type: "role",
-      userId: id,
-      message: `Czy na pewno chcesz ${action} temu użytkownikowi?`,
-    });
-  };
-
-  const handleConfirmAction = async () => {
-    if (!actionModal || !actionModal.userId) return;
-
-    try {
-      if (actionModal.type === "delete") {
-        await deleteUser(actionModal.userId);
-        toast.success("Użytkownik został usunięty");
-      } else if (actionModal.type === "role") {
-        const user = users.find((u) => u.id === actionModal.userId);
-        const newRole = user?.role === "admin" ? "user" : "admin";
-        await changeUserRole(actionModal.userId, newRole);
-        toast.success("Rola użytkownika została zmieniona");
-      }
-      setActionModal(null);
-    } catch (err) {
-      toast.error("Nie udało się wykonać operacji", {
-        description: err instanceof Error ? err.message : "Wystąpił nieoczekiwany błąd",
+  useEffect(() => {
+    if (error) {
+      toast.error("Nie udało się załadować danych", {
+        description: error.message,
       });
+    }
+  }, [error]);
+
+  const handleConfirmActionWithRefresh = async () => {
+    try {
+      await handleConfirmAction(users, () => {
+        if (activeTab === "users") {
+          fetchUsers();
+        }
+      });
+    } catch {
+      // Error already handled in hook
     }
   };
 
-  const handleCancelAction = () => {
-    setActionModal(null);
+  const handleRefetch = () => {
+    if (activeTab === "logs") {
+      fetchLogs(currentPage);
+    } else {
+      fetchUsers();
+    }
   };
 
   return (
@@ -83,28 +67,13 @@ export default function AdminPage() {
                 dismissible
                 action={{
                   label: "Spróbuj ponownie",
-                  onClick: () => {
-                    if (activeTab === "logs") {
-                      fetchLogs(currentPage);
-                    } else {
-                      fetchUsers();
-                    }
-                  },
+                  onClick: handleRefetch,
                 }}
               />
             )}
 
             {/* Tab Selector */}
-            <FormField label="Wybierz sekcję">
-              <SegmentedControl
-                value={activeTab}
-                onChange={(value) => setActiveTab(value as "logs" | "users")}
-                options={[
-                  { value: "logs", label: "Logi błędów" },
-                  { value: "users", label: "Użytkownicy" },
-                ]}
-              />
-            </FormField>
+            <AdminTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
             <Divider />
 
@@ -133,7 +102,7 @@ export default function AdminPage() {
                 users={users}
                 onRefresh={fetchUsers}
                 onDelete={handleDeleteUser}
-                onRoleChange={handleRoleChange}
+                onRoleChange={(id, role) => handleRoleChange(id, role)}
               />
             )}
           </Stack>
@@ -144,7 +113,7 @@ export default function AdminPage() {
       <ConfirmationModal
         isOpen={actionModal !== null}
         message={actionModal?.message || ""}
-        onConfirm={handleConfirmAction}
+        onConfirm={handleConfirmActionWithRefresh}
         onCancel={handleCancelAction}
       />
     </div>

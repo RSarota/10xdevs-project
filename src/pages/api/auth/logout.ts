@@ -4,9 +4,10 @@ import { createSupabaseServerInstance } from "../../../db/supabase.client";
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request, cookies }) => {
+  let supabase: ReturnType<typeof createSupabaseServerInstance> | null = null;
   try {
     // Create Supabase server instance
-    const supabase = createSupabaseServerInstance({
+    supabase = createSupabaseServerInstance({
       cookies,
       headers: request.headers,
     });
@@ -22,6 +23,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const { error } = await supabase.auth.signOut();
 
     if (error) {
+      await supabase.flushPendingCookies();
       return new Response(
         JSON.stringify({
           error: error.message || "Wystąpił błąd podczas wylogowania",
@@ -48,6 +50,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
     // Success
+    await supabase.flushPendingCookies();
     return new Response(
       JSON.stringify({
         success: true,
@@ -57,6 +60,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     );
   } catch (error) {
     console.error("Logout error:", error);
+    if (supabase) {
+      await supabase.flushPendingCookies();
+    }
     return new Response(
       JSON.stringify({
         error: "Wystąpił błąd serwera. Spróbuj ponownie później.",
