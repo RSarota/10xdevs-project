@@ -22,7 +22,24 @@ function readProcessEnv(key: ServerEnvKey): string | undefined {
 
 function readImportMetaEnv(key: ServerEnvKey): string | undefined {
   try {
-    const value = import.meta.env[key];
+    // Vite/Astro statically analyze import.meta.env at build time
+    // Only direct property access works, not dynamic bracket notation
+    let value: string | undefined;
+    switch (key) {
+      case "SUPABASE_URL":
+        value = import.meta.env.SUPABASE_URL;
+        break;
+      case "SUPABASE_KEY":
+        value = import.meta.env.SUPABASE_KEY;
+        break;
+      case "OPENAI_API_KEY":
+        value = import.meta.env.OPENAI_API_KEY;
+        break;
+      case "OPENAI_URL":
+        value = import.meta.env.OPENAI_URL;
+        break;
+    }
+
     // Check if value exists and is not an empty string
     // Empty strings might be embedded during build if env vars weren't available
     if (!value || typeof value !== "string" || value.trim().length === 0) {
