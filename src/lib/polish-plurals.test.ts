@@ -34,5 +34,3 @@ describe("pluralizeWithCount", () => {
     expect(pluralizeWithCount(10, "fiszka", "fiszki", "fiszek")).toBe("10 fiszek");
   });
 });
-
-

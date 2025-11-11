@@ -63,7 +63,7 @@ export const DEFAULT_QUICK_ACTIONS: QuickAction[] = [
   },
   {
     label: "Rozpocznij naukę",
-    path: "/session",
+    path: "/study",
     icon: PlayCircle,
   },
 ];

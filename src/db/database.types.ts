@@ -130,6 +130,108 @@ export interface Database {
         };
         Relationships: [];
       };
+      session_flashcards: {
+        Row: {
+          created_at: string;
+          difficulty: number;
+          elapsed_days: number;
+          flashcard_id: number;
+          id: number;
+          last_rating: number | null;
+          last_review: string | null;
+          lapses: number;
+          next_review_at: string;
+          review_count: number;
+          scheduled_days: number;
+          stability: number;
+          state: number;
+          study_session_id: number;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          difficulty: number;
+          elapsed_days?: number;
+          flashcard_id: number;
+          id?: number;
+          last_rating?: number | null;
+          last_review?: string | null;
+          lapses?: number;
+          next_review_at: string;
+          review_count?: number;
+          scheduled_days?: number;
+          stability: number;
+          state?: number;
+          study_session_id: number;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          difficulty?: number;
+          elapsed_days?: number;
+          flashcard_id?: number;
+          id?: number;
+          last_rating?: number | null;
+          last_review?: string | null;
+          lapses?: number;
+          next_review_at?: string;
+          review_count?: number;
+          scheduled_days?: number;
+          stability?: number;
+          state?: number;
+          study_session_id?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "session_flashcards_flashcard_id_fkey";
+            columns: ["flashcard_id"];
+            isOneToOne: false;
+            referencedRelation: "flashcards";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "session_flashcards_study_session_id_fkey";
+            columns: ["study_session_id"];
+            isOneToOne: false;
+            referencedRelation: "study_sessions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      study_sessions: {
+        Row: {
+          average_rating: number | null;
+          completed_at: string | null;
+          created_at: string;
+          flashcards_count: number;
+          id: number;
+          started_at: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          average_rating?: number | null;
+          completed_at?: string | null;
+          created_at?: string;
+          flashcards_count?: number;
+          id?: number;
+          started_at?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          average_rating?: number | null;
+          completed_at?: string | null;
+          created_at?: string;
+          flashcards_count?: number;
+          id?: number;
+          started_at?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<never, never>;
     Functions: Record<never, never>;

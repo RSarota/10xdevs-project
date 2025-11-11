@@ -74,7 +74,13 @@ export default defineConfig({
       name: "chromium-authenticated",
       use: { ...devices["Desktop Chrome"], storageState: "playwright/.auth/user.json" },
       dependencies: ["setup"],
-      testMatch: ["**/dashboard/**", "**/flashcards/**", "**/profile/**", "**/auth/account-deletion.spec.ts"],
+      testMatch: [
+        "**/dashboard/**",
+        "**/flashcards/**",
+        "**/profile/**",
+        "**/study/**",
+        "**/auth/account-deletion.spec.ts",
+      ],
     },
     // Tests that don't require authentication (can run independently)
     {

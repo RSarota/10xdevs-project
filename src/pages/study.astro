@@ -1,0 +1,15 @@
+---
+import AppLayout from "../layouts/AppLayout.astro";
+import StudySessionPage from "../components/study/StudySessionPage";
+
+export const prerender = false;
+
+const { user } = Astro.locals;
+if (!user) {
+  return Astro.redirect("/auth/login");
+}
+---
+
+<AppLayout title="Sesja nauki - 10xCards" currentPath="/study">
+  <StudySessionPage client:load />
+</AppLayout>

@@ -1,19 +1,17 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { useDashboard } from "@/hooks/useDashboard";
 import { DashboardHeader } from "./dashboard/DashboardHeader";
 import { StatisticsOverview } from "./dashboard/StatisticsOverview";
 import { QuickActionsPanel, DEFAULT_QUICK_ACTIONS } from "./dashboard/QuickActionsPanel";
 import { RecentActivityFeed } from "./dashboard/RecentActivityFeed";
-import type { ActivityViewModel } from "@/hooks/useDashboard";
 import { RefreshCw } from "lucide-react";
 
 // Apple HIG Components
 import { Button, Stack, Banner, EmptyState, Skeleton, Container, Divider } from "./apple-hig";
 
 export default function DashboardPage() {
-  const { statistics, loading, error, refetch } = useDashboard();
-  const [recentActivities] = useState<ActivityViewModel[]>([]);
+  const { statistics, recentActivities, loading, error, refetch } = useDashboard();
 
   useEffect(() => {
     if (error) {

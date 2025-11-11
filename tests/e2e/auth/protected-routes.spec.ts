@@ -50,5 +50,3 @@ test.describe("Protected Routes", () => {
     await expect(page).toHaveURL(/.*auth\/login/);
   });
 });
-
-

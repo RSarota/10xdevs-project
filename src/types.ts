@@ -73,7 +73,62 @@ export type GenerationDTO = Database["public"]["Tables"]["generations"]["Row"];
 // 7. GenerationError DTO - odpowiada rekordowi w tabeli generation_error_logs
 export type GenerationErrorDTO = Database["public"]["Tables"]["generation_error_logs"]["Row"];
 
-// 8. UserStatisticsDTO
+// 8. Study Session DTO - odpowiada rekordowi w tabeli study_sessions
+export type StudySessionDTO = Database["public"]["Tables"]["study_sessions"]["Row"];
+
+// 9. Session Flashcard DTO - odpowiada rekordowi w tabeli session_flashcards
+export type SessionFlashcardDTO = Database["public"]["Tables"]["session_flashcards"]["Row"];
+
+// 10. CreateStudySessionCommand - dane wejściowe do utworzenia sesji nauki
+export interface CreateStudySessionCommand {
+  userId: string;
+}
+
+// 11. UpdateStudySessionCommand - aktualizacja podstawowych danych sesji
+export interface UpdateStudySessionCommand {
+  completedAt?: string;
+  flashcardsCount?: number;
+  averageRating?: number;
+}
+
+// 12. StartStudySessionResponse - wynik uruchomienia sesji nauki
+export interface StartStudySessionResponse {
+  studySession: StudySessionDTO;
+  flashcards: FlashcardDTO[];
+}
+
+// 13. UpdateSessionFlashcardCommand - dane wejściowe do oceny fiszki w sesji
+export interface UpdateSessionFlashcardCommand {
+  studySessionId: number;
+  flashcardId: number;
+  lastRating: number;
+}
+
+// 14. GetStudyHistoryResponse - odpowiedź API z historią sesji
+export interface GetStudyHistoryResponse {
+  studySessions: StudySessionDTO[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    total_pages?: number;
+  };
+}
+
+// 15. GetFlashcardsDueResponse - odpowiedź z listą fiszek wymagających powtórki
+export interface GetFlashcardsDueResponse {
+  flashcards: (FlashcardDTO & {
+    nextReviewAt: string;
+    lastRating: number | null;
+    reviewCount: number;
+    stability: number;
+    difficulty: number;
+    lapses: number;
+    state: number;
+  })[];
+}
+
+// 16. UserStatisticsDTO
 // Odpowiada strukturze danych z endpointu GET /api/users/me/statistics.
 export interface UserStatisticsDTO {
   flashcards: {

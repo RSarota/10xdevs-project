@@ -106,5 +106,3 @@ describe("calculateHash", () => {
     expect(hashes[1]).toBe(hashes[2]);
   });
 });
-
-

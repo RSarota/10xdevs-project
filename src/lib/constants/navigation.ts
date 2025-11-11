@@ -1,4 +1,4 @@
-import { LayoutDashboard, Sparkles, Plus, BookOpen, User, ShieldAlert } from "lucide-react";
+import { LayoutDashboard, Sparkles, Plus, BookOpen, Brain, User, ShieldAlert } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export interface NavItem {
@@ -33,6 +33,12 @@ export const NAV_ITEMS: NavItem[] = [
     label: "Moje fiszki",
     icon: BookOpen,
     path: "/my-flashcards",
+  },
+  {
+    id: "study",
+    label: "Sesja nauki",
+    icon: Brain,
+    path: "/study",
   },
   {
     id: "profile",
