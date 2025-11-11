@@ -87,26 +87,35 @@ const GenerateFlashcardsResponseSchema = z.object({
   flashcards: z.array(FlashcardSchema).min(1),
 });
 
-// Pobranie zmiennych środowiskowych na poziomie modułu (tak jak w supabase.client.ts)
-const openAiApiKey = getServerEnv("OPENAI_API_KEY");
-const openAiEndpoint = getServerEnv("OPENAI_URL");
+// Helper function to get and validate OpenAI environment variables
+// Called at runtime (in constructor), not at module load time
+function getOpenAIConfig() {
+  const apiKey = getServerEnv("OPENAI_API_KEY");
+  const endpoint = getServerEnv("OPENAI_URL");
 
-// Walidacja zmiennych środowiskowych na poziomie modułu
-if (!openAiApiKey || typeof openAiApiKey !== "string" || openAiApiKey.trim().length === 0) {
-  throw new Error(
-    `Brak klucza API (OPENAI_API_KEY) w zmiennych środowiskowych. Upewnij się, że zmienna jest zdefiniowana w pliku .env.local`
-  );
-}
+  // Walidacja klucza API
+  if (!apiKey || typeof apiKey !== "string" || apiKey.trim().length === 0) {
+    throw new Error(
+      `Brak klucza API (OPENAI_API_KEY) w zmiennych środowiskowych. Upewnij się, że zmienna jest zdefiniowana w Azure Web App settings lub pliku .env.local`
+    );
+  }
 
-if (!openAiEndpoint || typeof openAiEndpoint !== "string" || openAiEndpoint.trim().length === 0) {
-  throw new Error(
-    `Brak endpointu (OPENAI_URL) w zmiennych środowiskowych. Upewnij się, że zmienna jest zdefiniowana w pliku .env.local`
-  );
-}
+  // Walidacja endpointu
+  if (!endpoint || typeof endpoint !== "string" || endpoint.trim().length === 0) {
+    throw new Error(
+      `Brak endpointu (OPENAI_URL) w zmiennych środowiskowych. Upewnij się, że zmienna jest zdefiniowana w Azure Web App settings lub pliku .env.local`
+    );
+  }
 
-// Walidacja formatu endpointu (wymuszanie HTTPS)
-if (!openAiEndpoint.startsWith("https://")) {
-  throw new Error("Endpoint (OPENAI_URL) musi używać protokołu HTTPS");
+  // Walidacja formatu endpointu (wymuszanie HTTPS)
+  if (!endpoint.startsWith("https://")) {
+    throw new Error("Endpoint (OPENAI_URL) musi używać protokołu HTTPS");
+  }
+
+  return {
+    apiKey: apiKey.trim(),
+    endpoint: endpoint.trim(),
+  };
 }
 
 /**
@@ -126,16 +135,17 @@ export class OpenAIService {
   /**
    * Konstruktor serwisu Azure OpenAI
    *
-   * Używa zmiennych środowiskowych załadowanych na poziomie modułu:
-   * - OPENAI_API_KEY: Klucz API do autoryzacji
+   * Używa zmiennych środowiskowych odczytywanych w runtime:
+   * - OPENAI_API_KEY: Klucz API do autoryzacji (z process.env w produkcji lub import.meta.env w dev)
    * - OPENAI_URL: Pełny URL endpointu API Azure OpenAI
    *   (np. https://{resource}.openai.azure.com/openai/deployments/{model}/chat/completions?api-version=2024-02-15-preview)
    */
   constructor() {
-    this._apiKey = openAiApiKey.trim();
-    // OPENAI_URL powinien zawierać pełny URL endpointu API
-    // np. https://{resource}.openai.azure.com/openai/deployments/{model}/chat/completions?api-version=2024-02-15-preview
-    this._endpoint = openAiEndpoint.trim();
+    // Odczyt i walidacja zmiennych środowiskowych w runtime (nie podczas importu modułu)
+    // To zapewnia, że process.env z Azure Web App jest dostępny
+    const config = getOpenAIConfig();
+    this._apiKey = config.apiKey;
+    this._endpoint = config.endpoint;
 
     // Domyślny komunikat systemowy dla generowania fiszek
     const defaultSystemMessage =
