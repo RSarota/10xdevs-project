@@ -1,8 +1,6 @@
 import { z } from "zod";
 
-export const StartStudySessionSchema = z.object({
-  userId: z.string().uuid().optional(),
-});
+export const StartStudySessionSchema = z.object({});
 
 export const UpdateSessionFlashcardSchema = z.object({
   studySessionId: z.number().int().positive(),

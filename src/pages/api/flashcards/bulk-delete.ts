@@ -77,7 +77,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
         headers: { "Content-Type": "application/json" },
       }
     );
-  } catch {
+  } catch (error) {
+    console.error("Error in POST /api/flashcards/bulk-delete:", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+
     return new Response(
       JSON.stringify({
         error: "Internal Server Error",

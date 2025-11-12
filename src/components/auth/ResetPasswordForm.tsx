@@ -103,6 +103,7 @@ export function ResetPasswordForm({ onSuccess }: ResetPasswordFormProps) {
           passwordError={errors.password}
           confirmPasswordError={errors.confirmPassword}
           disabled={isLoading}
+          required={true}
         />
 
         {/* Submit Button */}

@@ -72,6 +72,17 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       );
     }
 
+    // Clear recovery session flag and invalidate recovery session
+    cookies.delete("recovery_session", {
+      path: "/",
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+    });
+
+    // Sign out to invalidate the recovery session
+    await supabase.auth.signOut();
+
     // Success
     await supabase.flushPendingCookies();
     return new Response(

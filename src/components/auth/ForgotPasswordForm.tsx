@@ -61,6 +61,7 @@ export function ForgotPasswordForm({ onSuccess }: ForgotPasswordFormProps) {
 
   const handleResend = () => {
     setShowSuccess(false);
+    setIsLoading(false); // Reset loading state so button is clickable
     setFormData({ email: formData.email }); // Keep email
   };
 
