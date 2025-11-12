@@ -20,6 +20,9 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Mock astro:env/server for tests that import services directly
+      // (e.g., openai.service.test.ts tests the actual service implementation)
+      "astro:env/server": path.resolve(__dirname, "./src/test/mocks/astro-env-server.ts"),
     },
   },
 });
