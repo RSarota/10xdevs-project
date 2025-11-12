@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getServerEnv } from "../env.server";
+import { OPENAI_API_KEY, OPENAI_URL } from "astro:env/server";
 
 /**
  * Propozycja fiszki wygenerowana przez AI
@@ -87,35 +87,11 @@ const GenerateFlashcardsResponseSchema = z.object({
   flashcards: z.array(FlashcardSchema).min(1),
 });
 
-// Helper function to get and validate OpenAI environment variables
-// Called at runtime (in constructor), not at module load time
-function getOpenAIConfig() {
-  const apiKey = getServerEnv("OPENAI_API_KEY");
-  const endpoint = getServerEnv("OPENAI_URL");
-
-  // Walidacja klucza API
-  if (!apiKey || typeof apiKey !== "string" || apiKey.trim().length === 0) {
-    throw new Error(
-      `Brak klucza API (OPENAI_API_KEY) w zmiennych środowiskowych. Upewnij się, że zmienna jest zdefiniowana w Azure Web App settings lub pliku .env.local`
-    );
-  }
-
-  // Walidacja endpointu
-  if (!endpoint || typeof endpoint !== "string" || endpoint.trim().length === 0) {
-    throw new Error(
-      `Brak endpointu (OPENAI_URL) w zmiennych środowiskowych. Upewnij się, że zmienna jest zdefiniowana w Azure Web App settings lub pliku .env.local`
-    );
-  }
-
-  // Walidacja formatu endpointu (wymuszanie HTTPS)
+// Validate OpenAI endpoint format (Astro already validates presence and type)
+function validateEndpoint(endpoint: string): void {
   if (!endpoint.startsWith("https://")) {
     throw new Error("Endpoint (OPENAI_URL) musi używać protokołu HTTPS");
   }
-
-  return {
-    apiKey: apiKey.trim(),
-    endpoint: endpoint.trim(),
-  };
 }
 
 /**
@@ -135,17 +111,17 @@ export class OpenAIService {
   /**
    * Konstruktor serwisu Azure OpenAI
    *
-   * Używa zmiennych środowiskowych odczytywanych w runtime:
-   * - OPENAI_API_KEY: Klucz API do autoryzacji (z process.env w produkcji lub import.meta.env w dev)
+   * Używa zmiennych środowiskowych zdefiniowanych w astro.config.mjs:
+   * - OPENAI_API_KEY: Klucz API do autoryzacji
    * - OPENAI_URL: Pełny URL endpointu API Azure OpenAI
    *   (np. https://{resource}.openai.azure.com/openai/deployments/{model}/chat/completions?api-version=2024-02-15-preview)
    */
   constructor() {
-    // Odczyt i walidacja zmiennych środowiskowych w runtime (nie podczas importu modułu)
-    // To zapewnia, że process.env z Azure Web App jest dostępny
-    const config = getOpenAIConfig();
-    this._apiKey = config.apiKey;
-    this._endpoint = config.endpoint;
+    // Validate endpoint format (Astro already validates presence and type)
+    validateEndpoint(OPENAI_URL);
+
+    this._apiKey = OPENAI_API_KEY;
+    this._endpoint = OPENAI_URL.trim();
 
     // Domyślny komunikat systemowy dla generowania fiszek
     const defaultSystemMessage =

@@ -1,36 +1,8 @@
-import { createClient } from "@supabase/supabase-js";
 import { createServerClient, type CookieOptionsWithName } from "@supabase/ssr";
 import type { AstroCookies, AstroCookieSetOptions } from "astro";
 
 import type { Database } from "./database.types";
-import { getServerEnv } from "../lib/env.server";
-
-// Lazy initialization - get values at runtime, not at module load time
-// This ensures process.env is available (from Azure Web App) when the module is imported
-let _supabaseClient: ReturnType<typeof createClient<Database>> | null = null;
-
-function getSupabaseClient(): ReturnType<typeof createClient<Database>> {
-  if (!_supabaseClient) {
-    const url = getServerEnv("SUPABASE_URL");
-    const key = getServerEnv("SUPABASE_KEY");
-    _supabaseClient = createClient<Database>(url, key);
-  }
-  return _supabaseClient;
-}
-
-// Legacy client for non-SSR contexts (will be phased out)
-// Using Proxy to ensure values are read at runtime, not at module load time
-// This allows process.env (from Azure Web App) to be available when the client is actually used
-export const supabaseClient = new Proxy({} as ReturnType<typeof createClient<Database>>, {
-  get(_target, prop) {
-    const client = getSupabaseClient();
-    const value = client[prop as keyof typeof client];
-    if (typeof value === "function") {
-      return value.bind(client);
-    }
-    return value;
-  },
-});
+import { SUPABASE_URL, SUPABASE_KEY } from "astro:env/server";
 
 export type SupabaseClient = ReturnType<typeof createSupabaseServerInstance>;
 
@@ -69,7 +41,7 @@ function parseCookieHeader(cookieHeader: string): { name: string; value: string 
 export const createSupabaseServerInstance = (context: { headers: Headers; cookies: AstroCookies }) => {
   const pendingCookies = new Map<string, { value: string; options?: AstroCookieSetOptions }>();
 
-  const supabase = createServerClient<Database>(getServerEnv("SUPABASE_URL"), getServerEnv("SUPABASE_KEY"), {
+  const supabase = createServerClient<Database>(SUPABASE_URL, SUPABASE_KEY, {
     cookieOptions,
     cookies: {
       getAll() {

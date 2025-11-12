@@ -67,6 +67,7 @@ jobs:
       - name: Run E2E tests
         run: npm run test:e2e
         env:
+          NODE_ENV: integration
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           OPENAI_URL: ${{ secrets.OPENAI_URL }}
@@ -121,6 +122,7 @@ jobs:
       - name: Build application
         run: npm run build
         env:
+          NODE_ENV: production
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           OPENAI_URL: ${{ secrets.OPENAI_URL }}

@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from "astro/config";
+import { defineConfig, envField } from "astro/config";
 
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
@@ -23,4 +23,26 @@ export default defineConfig({
   adapter: node({
     mode: "standalone",
   }),
+  env: {
+    schema: {
+      // Server-side secret variables (available at runtime from Azure Web App settings)
+      // These are validated at runtime, not inlined in the bundle
+      SUPABASE_URL: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      SUPABASE_KEY: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      OPENAI_API_KEY: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      OPENAI_URL: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+    },
+  },
 });
