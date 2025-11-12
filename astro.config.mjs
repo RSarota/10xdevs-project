@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from "astro/config";
+import { defineConfig, envField } from "astro/config";
 
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
@@ -16,8 +16,33 @@ export default defineConfig({
   },
   vite: {
     plugins: [tailwindcss()],
+    // Prevent Vite from inlining env vars at build time
+    // This allows runtime access to process.env in production (Azure Web App)
+    define: {},
   },
   adapter: node({
     mode: "standalone",
   }),
+  env: {
+    schema: {
+      // Server-side secret variables (available at runtime from Azure Web App settings)
+      // These are validated at runtime, not inlined in the bundle
+      SUPABASE_URL: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      SUPABASE_KEY: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      OPENAI_API_KEY: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+      OPENAI_URL: envField.string({
+        context: "server",
+        access: "secret",
+      }),
+    },
+  },
 });

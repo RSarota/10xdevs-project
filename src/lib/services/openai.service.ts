@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { OPENAI_API_KEY, OPENAI_URL } from "astro:env/server";
 
 /**
  * Propozycja fiszki wygenerowana przez AI
@@ -86,26 +87,11 @@ const GenerateFlashcardsResponseSchema = z.object({
   flashcards: z.array(FlashcardSchema).min(1),
 });
 
-// Pobranie zmiennych środowiskowych na poziomie modułu (tak jak w supabase.client.ts)
-const openAiApiKey = import.meta.env.OPENAI_API_KEY;
-const openAiEndpoint = import.meta.env.OPENAI_URL;
-
-// Walidacja zmiennych środowiskowych na poziomie modułu
-if (!openAiApiKey || typeof openAiApiKey !== "string" || openAiApiKey.trim().length === 0) {
-  throw new Error(
-    `Brak klucza API (OPENAI_API_KEY) w zmiennych środowiskowych. Upewnij się, że zmienna jest zdefiniowana w pliku .env.local`
-  );
-}
-
-if (!openAiEndpoint || typeof openAiEndpoint !== "string" || openAiEndpoint.trim().length === 0) {
-  throw new Error(
-    `Brak endpointu (OPENAI_URL) w zmiennych środowiskowych. Upewnij się, że zmienna jest zdefiniowana w pliku .env.local`
-  );
-}
-
-// Walidacja formatu endpointu (wymuszanie HTTPS)
-if (!openAiEndpoint.startsWith("https://")) {
-  throw new Error("Endpoint (OPENAI_URL) musi używać protokołu HTTPS");
+// Validate OpenAI endpoint format (Astro already validates presence and type)
+function validateEndpoint(endpoint: string): void {
+  if (!endpoint.startsWith("https://")) {
+    throw new Error("Endpoint (OPENAI_URL) musi używać protokołu HTTPS");
+  }
 }
 
 /**
@@ -125,16 +111,17 @@ export class OpenAIService {
   /**
    * Konstruktor serwisu Azure OpenAI
    *
-   * Używa zmiennych środowiskowych załadowanych na poziomie modułu:
+   * Używa zmiennych środowiskowych zdefiniowanych w astro.config.mjs:
    * - OPENAI_API_KEY: Klucz API do autoryzacji
    * - OPENAI_URL: Pełny URL endpointu API Azure OpenAI
    *   (np. https://{resource}.openai.azure.com/openai/deployments/{model}/chat/completions?api-version=2024-02-15-preview)
    */
   constructor() {
-    this._apiKey = openAiApiKey.trim();
-    // OPENAI_URL powinien zawierać pełny URL endpointu API
-    // np. https://{resource}.openai.azure.com/openai/deployments/{model}/chat/completions?api-version=2024-02-15-preview
-    this._endpoint = openAiEndpoint.trim();
+    // Validate endpoint format (Astro already validates presence and type)
+    validateEndpoint(OPENAI_URL);
+
+    this._apiKey = OPENAI_API_KEY;
+    this._endpoint = OPENAI_URL.trim();
 
     // Domyślny komunikat systemowy dla generowania fiszek
     const defaultSystemMessage =
