@@ -47,6 +47,7 @@ const FlashcardSide = memo(function FlashcardSide({
                 onEdit(flashcard.id);
               }}
               aria-label="Edytuj"
+              data-testid="flashcard-edit-button"
             >
               <Edit className="w-4 h-4" />
             </button>
@@ -58,6 +59,7 @@ const FlashcardSide = memo(function FlashcardSide({
                 onDelete(flashcard.id);
               }}
               aria-label="Usuń"
+              data-testid="flashcard-delete-button"
             >
               <Trash2 className="w-4 h-4" />
             </button>

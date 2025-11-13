@@ -16,7 +16,9 @@ export class DashboardPage {
       .locator('[data-testid="statistics-overview"]')
       .or(page.getByText(/fiszek|generacji/i));
     this.quickActionsPanel = page.locator('[data-testid="quick-actions"]');
-    this.generateFlashcardsButton = page.getByRole("button", { name: /(wy)?generuj fiszki/i });
+    this.generateFlashcardsButton = page
+      .getByTestId("empty-state-action-button")
+      .or(page.getByRole("button", { name: /(wy)?generuj fiszki/i }));
     this.addFlashcardButton = page.getByRole("button", { name: /dodaj fiszkę/i });
     this.myFlashcardsButton = page.getByRole("link", { name: /moje fiszki/i });
     this.emptyState = page.getByText(/brak fiszek/i);

@@ -58,7 +58,13 @@ export function EditFlashcardModal({ flashcard, open, onSave, onCancel }: EditFl
     <BaseModal open={open} onClose={handleCancel} title="Edytuj fiszkę">
       <form onSubmit={handleSubmit}>
         <Stack direction="vertical" spacing="xl">
-          <FlashcardFormFields form={form} frontId="edit-front" backId="edit-back" />
+          <FlashcardFormFields
+            form={form}
+            frontId="edit-front"
+            backId="edit-back"
+            frontTestId="edit-flashcard-front-input"
+            backTestId="edit-flashcard-back-input"
+          />
 
           <Stack
             direction="horizontal"

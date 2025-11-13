@@ -22,8 +22,8 @@ export class MyFlashcardsPage {
     this.flashcardItem = page
       .locator('[data-testid="flashcard-item"]')
       .or(page.locator("div").filter({ hasText: /przód|tył/i }));
-    this.editButton = page.getByRole("button", { name: /edytuj/i });
-    this.deleteButton = page.getByRole("button", { name: /usuń|delete/i });
+    this.editButton = page.getByTestId("flashcard-edit-button");
+    this.deleteButton = page.getByTestId("flashcard-delete-button");
     this.emptyState = page.getByText(/brak fiszek/i);
     this.filterControls = page.locator('[data-testid="filter-controls"]');
     this.paginationControls = page.locator('[data-testid="pagination-controls"]');
@@ -95,8 +95,8 @@ export class MyFlashcardsPage {
 
   async editFlashcard(front: string, back: string) {
     if (await this.editModal.isVisible()) {
-      const frontInput = this.page.getByLabel(/przód/i);
-      const backInput = this.page.getByLabel(/tył/i);
+      const frontInput = this.page.getByTestId("edit-flashcard-front-input");
+      const backInput = this.page.getByTestId("edit-flashcard-back-input");
       await frontInput.fill(front);
       await backInput.fill(back);
       await this.saveEditButton.click();

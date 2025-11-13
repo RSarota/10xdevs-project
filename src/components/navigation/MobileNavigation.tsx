@@ -21,8 +21,8 @@ export function MobileNavigation({ onNavigate }: MobileNavigationProps) {
             onClick={() => onNavigate("/dashboard")}
             className="flex items-center gap-2 group hover:opacity-70 transition-opacity"
           >
-            <Logo size={28} variant="default" />
-            <h2 className="text-[var(--apple-font-title3)] font-[var(--apple-weight-bold)] text-[hsl(var(--apple-label))]">
+            <Logo size={28} variant="gradient" />
+            <h2 className="text-[var(--apple-font-title3)] font-[var(--apple-weight-bold)] bg-gradient-to-r from-[hsl(var(--apple-blue))] to-[hsl(var(--apple-purple))] bg-clip-text text-transparent">
               10xCards
             </h2>
           </button>

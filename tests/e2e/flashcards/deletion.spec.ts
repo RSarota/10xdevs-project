@@ -54,7 +54,7 @@ test.describe("Flashcard Deletion", () => {
     await expect(targetCard).toHaveCount(1, { timeout: 10000 });
 
     // Delete button should be visible on the target flashcard
-    const deleteButton = targetCard.first().getByRole("button", { name: /usuń|delete/i });
+    const deleteButton = targetCard.first().getByTestId("flashcard-delete-button").first();
     await expect(deleteButton).toBeVisible();
   });
 
@@ -80,10 +80,7 @@ test.describe("Flashcard Deletion", () => {
     // Use expect() which auto-waits and retries, following Playwright best practices
     await expect(targetCard).toHaveCount(1, { timeout: 10000 });
     await expect(targetCard.first()).toBeVisible();
-    await targetCard
-      .first()
-      .getByRole("button", { name: /usuń|delete/i })
-      .click();
+    await targetCard.first().getByTestId("flashcard-delete-button").first().click();
 
     // Should show confirmation modal
     await expect(myFlashcardsPage.confirmationModal).toBeVisible({ timeout: 5000 });
@@ -123,6 +120,7 @@ test.describe("Flashcard Deletion", () => {
     await targetCard
       .first()
       .getByRole("button", { name: /usuń|delete/i })
+      .first()
       .click();
     await myFlashcardsPage.confirmDelete();
 
@@ -164,6 +162,7 @@ test.describe("Flashcard Deletion", () => {
     await targetCard
       .first()
       .getByRole("button", { name: /usuń|delete/i })
+      .first()
       .click();
     await myFlashcardsPage.cancelDelete();
 

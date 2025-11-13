@@ -71,7 +71,7 @@ export default function StudySessionPage() {
 
         {/* Completion content */}
         <div className="bg-white/60 dark:bg-black/15 backdrop-blur-sm border border-[hsl(var(--apple-separator))]/25 rounded-3xl p-8 shadow-md">
-          <div className="text-center space-y-8 py-8 w-full">
+          <div className="text-center space-y-8 py-8 w-full" data-testid="study-session-complete">
             <div className="w-full max-w-2xl mx-auto">
               <StudySessionProgress current={completedIndex} total={flashcards.length} />
             </div>

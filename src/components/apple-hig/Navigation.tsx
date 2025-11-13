@@ -138,6 +138,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
         {/* Title */}
         <div className="flex-1 flex flex-col items-center text-center min-w-0 px-[var(--apple-space-4)]">
           {title && (
+            // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
             <h1
               onClick={onTitleClick}
               onKeyDown={(e) => {

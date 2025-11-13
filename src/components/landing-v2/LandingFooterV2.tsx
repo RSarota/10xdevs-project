@@ -23,7 +23,7 @@ export function LandingFooterV2() {
                 {/* Logo and brand */}
                 <div className="flex items-center gap-3">
                   <Logo size={48} variant="gradient" />
-                  <span className="text-2xl font-bold bg-gradient-to-r from-[hsl(var(--apple-blue))] to-[hsl(var(--apple-purple))] bg-clip-text text-transparent">
+                  <span className="text-[2.125rem] font-bold bg-gradient-to-r from-[hsl(var(--apple-blue))] to-[hsl(var(--apple-purple))] bg-clip-text text-transparent leading-none">
                     10xCards
                   </span>
                 </div>

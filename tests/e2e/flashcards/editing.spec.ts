@@ -45,10 +45,7 @@ test.describe("Flashcard Editing", () => {
     // Use expect().toHaveCount() which waits and retries, following Playwright best practices
     await expect(targetCard).toHaveCount(1, { timeout: 15000 });
     await expect(targetCard.first()).toBeVisible();
-    await targetCard
-      .first()
-      .getByRole("button", { name: /edytuj/i })
-      .click();
+    await targetCard.first().getByTestId("flashcard-edit-button").first().click();
 
     // Should show edit modal
     await expect(myFlashcardsPage.editModal).toBeVisible({ timeout: 5000 });
@@ -74,10 +71,7 @@ test.describe("Flashcard Editing", () => {
     // Use expect().toHaveCount() which waits and retries, following Playwright best practices
     await expect(targetCard).toHaveCount(1, { timeout: 15000 });
     await expect(targetCard.first()).toBeVisible();
-    await targetCard
-      .first()
-      .getByRole("button", { name: /edytuj/i })
-      .click();
+    await targetCard.first().getByTestId("flashcard-edit-button").first().click();
 
     const newFront = `${TEST_ENTITY_PREFIX} updated front ${Date.now()}`;
     const newBack = `${TEST_ENTITY_PREFIX} updated back ${Date.now()}`;
@@ -108,10 +102,7 @@ test.describe("Flashcard Editing", () => {
     // Use expect().toHaveCount() which waits and retries, following Playwright best practices
     await expect(targetCard).toHaveCount(1, { timeout: 15000 });
     await expect(targetCard.first()).toBeVisible();
-    await targetCard
-      .first()
-      .getByRole("button", { name: /edytuj/i })
-      .click();
+    await targetCard.first().getByTestId("flashcard-edit-button").first().click();
     await myFlashcardsPage.cancelEdit();
 
     // Modal should be closed
@@ -138,14 +129,11 @@ test.describe("Flashcard Editing", () => {
     // Use expect().toHaveCount() which waits and retries, following Playwright best practices
     await expect(targetCard).toHaveCount(1, { timeout: 15000 });
     await expect(targetCard.first()).toBeVisible();
-    await targetCard
-      .first()
-      .getByRole("button", { name: /edytuj/i })
-      .click();
+    await targetCard.first().getByTestId("flashcard-edit-button").first().click();
 
     // Try to enter text exceeding limits
-    const frontInput = page.getByLabel(/przód/i);
-    const backInput = page.getByLabel(/tył/i);
+    const frontInput = page.getByTestId("edit-flashcard-front-input");
+    const backInput = page.getByTestId("edit-flashcard-back-input");
 
     if (await frontInput.isVisible()) {
       await frontInput.fill(testFlashcards.longFront);

@@ -23,7 +23,10 @@ function FlashcardSide({ flashcard, side, textSize, isFlipping }: FlashcardSideP
   const sideLabel = isFront ? "PRZÓD" : "TYŁ";
 
   return (
-    <div className="absolute inset-0 w-full h-full">
+    <div
+      className="absolute inset-0 w-full h-full"
+      data-testid={isFront ? "flashcard-front-side" : "flashcard-back-side"}
+    >
       <div className="relative w-full h-full bg-white dark:bg-gray-900 backdrop-blur-sm border border-[hsl(var(--apple-separator))]/25 rounded-3xl p-6 shadow-[var(--apple-shadow-md)] transition-shadow duration-300 overflow-hidden">
         {/* Header */}
         <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-20">
@@ -35,6 +38,7 @@ function FlashcardSide({ flashcard, side, textSize, isFlipping }: FlashcardSideP
           <div
             className={`${textSize} ${isFront ? "font-semibold" : "font-medium"} text-[hsl(var(--apple-label))] text-center leading-relaxed break-words hyphens-auto max-w-full`}
             style={{ wordBreak: "break-word" }}
+            data-testid={isFront ? "flashcard-front-content" : "flashcard-back-content"}
           >
             {content}
           </div>

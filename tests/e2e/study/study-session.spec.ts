@@ -65,6 +65,9 @@ test.describe("Study Session - Spaced Repetition", () => {
     // Click to reveal
     await studyPage.revealFlashcard();
 
+    // Wait for animation to complete (300ms + buffer)
+    await page.waitForTimeout(500);
+
     // Should show back
     await expect(studyPage.flashcardBack).toBeVisible({ timeout: 5000 });
     const isRevealedAfter = await studyPage.isFlashcardRevealed();
@@ -87,6 +90,9 @@ test.describe("Study Session - Spaced Repetition", () => {
 
     // Reveal flashcard
     await studyPage.revealFlashcard();
+
+    // Wait for animation to complete (300ms + buffer)
+    await page.waitForTimeout(500);
 
     // Should see rating controls
     await expect(studyPage.ratingButton1).toBeVisible({ timeout: 5000 });
@@ -121,6 +127,10 @@ test.describe("Study Session - Spaced Repetition", () => {
 
     // Reveal and rate first flashcard
     await studyPage.revealFlashcard();
+
+    // Wait for animation to complete (300ms + buffer)
+    await page.waitForTimeout(500);
+
     await studyPage.rateFlashcard(4);
 
     // Wait for next flashcard
@@ -157,6 +167,10 @@ test.describe("Study Session - Spaced Repetition", () => {
 
     // Reveal and rate flashcard
     await studyPage.revealFlashcard();
+
+    // Wait for animation to complete (300ms + buffer)
+    await page.waitForTimeout(500);
+
     await studyPage.rateFlashcard(5);
 
     // Wait for session completion
@@ -220,6 +234,10 @@ test.describe("Study Session - Spaced Repetition", () => {
 
     // Rate first flashcard
     await studyPage.revealFlashcard();
+
+    // Wait for animation to complete (300ms + buffer)
+    await page.waitForTimeout(500);
+
     await studyPage.rateFlashcard(3);
 
     // Wait for next flashcard
@@ -262,6 +280,9 @@ test.describe("Study Session - Spaced Repetition", () => {
 
     // Reveal flashcard
     await studyPage.revealFlashcard();
+
+    // Wait for animation to complete (300ms + buffer)
+    await page.waitForTimeout(500);
 
     // Test all rating buttons are clickable
     const ratings: (1 | 2 | 3 | 4 | 5)[] = [1, 2, 3, 4, 5];
@@ -318,6 +339,10 @@ test.describe("Study Session - Spaced Repetition", () => {
       expect(flashcardText).toContain(flashcards[i].front);
 
       await studyPage.revealFlashcard();
+
+      // Wait for animation to complete (300ms + buffer)
+      await page.waitForTimeout(500);
+
       await studyPage.rateFlashcard(3);
 
       // Wait for next flashcard to appear (except for last one)

@@ -34,9 +34,9 @@ const { title } = Astro.props;
       <div class="max-w-7xl mx-auto px-[var(--apple-space-5)] py-[var(--apple-space-4)]">
         <div class="flex items-center justify-center">
           <a href="/" class="flex items-center gap-2 group">
-            <Logo size={32} variant="default" client:load />
+            <Logo size={32} variant="gradient" client:load />
             <span
-              class="text-[var(--apple-font-headline)] font-[var(--apple-weight-semibold)] text-[hsl(var(--apple-label))] group-hover:text-[hsl(var(--apple-blue))] transition-colors"
+              class="text-[1.375rem] font-[var(--apple-weight-semibold)] bg-gradient-to-r from-[hsl(var(--apple-blue))] to-[hsl(var(--apple-purple))] bg-clip-text text-transparent transition-colors leading-none"
             >
               10xCards
             </span>

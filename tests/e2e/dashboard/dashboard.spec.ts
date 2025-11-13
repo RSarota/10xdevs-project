@@ -68,7 +68,8 @@ test.describe("Dashboard", () => {
     if (isEmpty) {
       await expect(dashboardPage.emptyState).toBeVisible();
       // Should have action buttons in empty state
-      const hasAction = await dashboardPage.generateFlashcardsButton.isVisible().catch(() => false);
+      const generateButton = page.getByTestId("empty-state-action-button");
+      const hasAction = await generateButton.isVisible().catch(() => false);
       expect(hasAction).toBeTruthy();
     }
   });

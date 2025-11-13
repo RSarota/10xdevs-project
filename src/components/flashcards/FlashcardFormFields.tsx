@@ -36,7 +36,10 @@ export function FlashcardFormFields({
       <Stack direction="vertical" spacing="lg">
         <div>
           <Stack direction="horizontal" justify="between" align="center" className="mb-2">
-            <label className="text-[var(--apple-font-subheadline)] font-[var(--apple-weight-medium)] text-[hsl(var(--apple-label))]">
+            <label
+              htmlFor={frontId}
+              className="text-[var(--apple-font-subheadline)] font-[var(--apple-weight-medium)] text-[hsl(var(--apple-label))]"
+            >
               {frontLabel}
             </label>
             <Badge color={form.getFrontBadgeColor()} variant="filled" size="md" data-testid={frontCountTestId}>
@@ -49,7 +52,7 @@ export function FlashcardFormFields({
             onChange={(e) => form.handleFrontChange(e.target.value)}
             placeholder={frontPlaceholder}
             error={form.showFrontError && form.frontLength === 0 ? "Pole wymagane" : undefined}
-            data-testid={frontTestId}
+            data-testid={frontTestId || "flashcard-front-input"}
           />
         </div>
       </Stack>
@@ -57,7 +60,10 @@ export function FlashcardFormFields({
       <Stack direction="vertical" spacing="lg">
         <div>
           <Stack direction="horizontal" justify="between" align="center" className="mb-2">
-            <label className="text-[var(--apple-font-subheadline)] font-[var(--apple-weight-medium)] text-[hsl(var(--apple-label))]">
+            <label
+              htmlFor={backId}
+              className="text-[var(--apple-font-subheadline)] font-[var(--apple-weight-medium)] text-[hsl(var(--apple-label))]"
+            >
               {backLabel}
             </label>
             <Badge color={form.getBackBadgeColor()} variant="filled" size="md" data-testid={backCountTestId}>
@@ -72,7 +78,7 @@ export function FlashcardFormFields({
             className="min-h-[150px]"
             rows={6}
             error={form.showBackError && form.backLength === 0 ? "Pole wymagane" : undefined}
-            data-testid={backTestId}
+            data-testid={backTestId || "flashcard-back-input"}
           />
         </div>
       </Stack>

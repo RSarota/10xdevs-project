@@ -65,4 +65,37 @@ describe("RatingControls", () => {
 
     expect(screen.getByText("Jak poszło? Wybierz ocenę")).toBeInTheDocument();
   });
+
+  it("should have correct data-testid attributes", () => {
+    const onRatingSelect = vi.fn();
+    render(<RatingControls onRatingSelect={onRatingSelect} />);
+
+    expect(screen.getByTestId("rating-controls")).toBeInTheDocument();
+    expect(screen.getByTestId("rating-button-1")).toBeInTheDocument();
+    expect(screen.getByTestId("rating-button-2")).toBeInTheDocument();
+    expect(screen.getByTestId("rating-button-3")).toBeInTheDocument();
+    expect(screen.getByTestId("rating-button-4")).toBeInTheDocument();
+    expect(screen.getByTestId("rating-button-5")).toBeInTheDocument();
+  });
+
+  it("should call onRatingSelect with correct value for each rating", async () => {
+    const user = userEvent.setup();
+    const onRatingSelect = vi.fn();
+    render(<RatingControls onRatingSelect={onRatingSelect} />);
+
+    await user.click(screen.getByTestId("rating-button-1"));
+    expect(onRatingSelect).toHaveBeenCalledWith(1);
+
+    await user.click(screen.getByTestId("rating-button-2"));
+    expect(onRatingSelect).toHaveBeenCalledWith(2);
+
+    await user.click(screen.getByTestId("rating-button-3"));
+    expect(onRatingSelect).toHaveBeenCalledWith(3);
+
+    await user.click(screen.getByTestId("rating-button-4"));
+    expect(onRatingSelect).toHaveBeenCalledWith(4);
+
+    await user.click(screen.getByTestId("rating-button-5"));
+    expect(onRatingSelect).toHaveBeenCalledWith(5);
+  });
 });

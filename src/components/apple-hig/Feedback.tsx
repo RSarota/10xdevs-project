@@ -367,6 +367,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ icon, title, description
             hover:opacity-90 active:scale-95
             transition-all duration-200
           "
+          data-testid="empty-state-action-button"
         >
           {action.label}
         </button>
