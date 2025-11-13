@@ -93,7 +93,7 @@ TabBar.displayName = "AppleTabBar";
  * Navigation Bar - Top navigation with title and actions
  */
 export interface NavigationBarProps {
-  title?: string;
+  title?: string | React.ReactNode;
   subtitle?: string;
   leftAction?: React.ReactNode;
   rightAction?: React.ReactNode;
@@ -101,6 +101,7 @@ export interface NavigationBarProps {
   shadow?: boolean;
   large?: boolean;
   className?: string;
+  onTitleClick?: () => void;
 }
 
 export const NavigationBar: React.FC<NavigationBarProps> = ({
@@ -112,6 +113,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   shadow = true,
   large = false,
   className = "",
+  onTitleClick,
 }) => {
   return (
     <header
@@ -137,11 +139,13 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
         <div className="flex-1 flex flex-col items-center text-center min-w-0 px-[var(--apple-space-4)]">
           {title && (
             <h1
+              onClick={onTitleClick}
               className={`
               ${large ? "text-[var(--apple-font-large-title)]" : "text-[var(--apple-font-headline)]"}
               font-[var(--apple-weight-bold)]
               text-[hsl(var(--apple-label))]
               truncate max-w-full
+              ${onTitleClick ? "cursor-pointer hover:opacity-70 transition-opacity" : ""}
             `
                 .trim()
                 .replace(/\s+/g, " ")}

@@ -20,7 +20,7 @@ export function SidebarHeader({ isCollapsed, onToggle, onNavigate, userInfo, loa
         className={`flex items-center ${isCollapsed ? "justify-center flex-col gap-2" : "justify-between"} mb-[var(--apple-space-4)]`}
       >
         <button
-          onClick={() => onNavigate("/")}
+          onClick={() => onNavigate("/dashboard")}
           className="flex items-center gap-2 group hover:opacity-70 transition-opacity"
         >
           <Logo size={32} variant="default" />

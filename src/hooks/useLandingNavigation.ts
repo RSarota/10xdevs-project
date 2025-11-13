@@ -1,7 +1,7 @@
 /**
  * Hook dla nawigacji w LandingPage
  */
-export function useLandingNavigation(isAuthenticated: boolean) {
+export function useLandingNavigation() {
   const handleLogin = () => {
     window.location.href = "/auth/login";
   };
@@ -10,22 +10,8 @@ export function useLandingNavigation(isAuthenticated: boolean) {
     window.location.href = "/auth/register";
   };
 
-  const handleDemo = () => {
-    if (isAuthenticated) {
-      window.location.href = "/generate-flashcards";
-    } else {
-      window.location.href = "/auth/register";
-    }
-  };
-
-  const handleGoToApp = () => {
-    window.location.href = "/dashboard";
-  };
-
   return {
     handleLogin,
     handleRegister,
-    handleDemo,
-    handleGoToApp,
   };
 }

@@ -46,10 +46,12 @@ export function Logo({ size = 32, className = "", variant = "default" }: LogoPro
       </defs>
 
       {/* Karty rozchodzące się w różnych kierunkach */}
+      {/* Left and right cards rendered first (behind) */}
+      <rect x="6" y="16" width="20" height="14" rx="2" fill="#007AFF" opacity="0.3" transform="rotate(-25 16 23)" />
+      <rect x="22" y="16" width="20" height="14" rx="2" fill="#007AFF" opacity="0.3" transform="rotate(25 32 23)" />
+      {/* Top and bottom cards rendered last (on top) */}
       <rect x="14" y="8" width="20" height="14" rx="2" fill="#007AFF" opacity="0.4" transform="rotate(-15 24 15)" />
       <rect x="14" y="26" width="20" height="14" rx="2" fill="#007AFF" opacity="0.4" transform="rotate(15 24 33)" />
-      <rect x="6" y="16" width="20" height="14" rx="2" fill="#007AFF" opacity="0.4" transform="rotate(-25 16 23)" />
-      <rect x="22" y="16" width="20" height="14" rx="2" fill="#007AFF" opacity="0.4" transform="rotate(25 32 23)" />
 
       {/* Główna karta centralna */}
       <rect x="12" y="14" width="24" height="20" rx="4" fill={getMainCardFill()} />

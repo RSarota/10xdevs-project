@@ -465,18 +465,18 @@
   --apple-fill-quaternary: 0 0% 45.5%; /* Quaternary fill */
 
   /* Apple Background Colors (Dark Mode) */
-  --apple-bg-primary: 0 0% 0%; /* Primary background */
-  --apple-bg-secondary: 0 0% 7%; /* Secondary background */
-  --apple-bg-tertiary: 0 0% 11%; /* Tertiary background */
+  --apple-bg-primary: 220 13% 8%; /* Primary background - dark blue-gray */
+  --apple-bg-secondary: 220 13% 11%; /* Secondary background */
+  --apple-bg-tertiary: 220 12% 14%; /* Tertiary background */
 
   /* Apple Grouped Background (Dark Mode) */
-  --apple-grouped-bg: 0 0% 0%; /* Grouped background */
-  --apple-grouped-bg-secondary: 0 0% 7%; /* Grouped secondary */
-  --apple-grouped-bg-tertiary: 0 0% 11%; /* Grouped tertiary */
+  --apple-grouped-bg: 220 13% 9%; /* Grouped background - dark blue-gray instead of pure black */
+  --apple-grouped-bg-secondary: 220 13% 13%; /* Grouped secondary - slightly lighter */
+  --apple-grouped-bg-tertiary: 220 12% 16%; /* Grouped tertiary - even lighter */
 
   /* Apple Separator Colors (Dark Mode) */
-  --apple-separator: 0 0% 33%; /* Separator */
-  --apple-separator-opaque: 0 0% 22%; /* Opaque separator */
+  --apple-separator: 220 10% 30%; /* Separator - lighter and with blue tint */
+  --apple-separator-opaque: 220 12% 25%; /* Opaque separator - more visible */
 
   /* Apple Shadows (Dark Mode - more prominent) */
   --apple-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
@@ -730,4 +730,78 @@
     background-color: hsl(var(--primary) / 0.2);
     color: hsl(var(--foreground));
   }
+
+  /* ============================================
+     ANIMATIONS
+     ============================================ */
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes slideInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInScale {
+    0% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes slideInLeft {
+    0% {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideInRight {
+    0% {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+/* Utility animations */
+.animate-slideInUp {
+  animation: slideInUp 0.6s ease-out forwards;
+}
+
+.animate-fadeInScale {
+  animation: fadeInScale 0.6s ease-out forwards;
+}
+
+.animate-slideInLeft {
+  animation: slideInLeft 0.6s ease-out forwards;
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.6s ease-out forwards;
 }
