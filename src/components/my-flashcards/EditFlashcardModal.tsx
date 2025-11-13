@@ -46,7 +46,7 @@ export function EditFlashcardModal({ flashcard, open, onSave, onCancel }: EditFl
   };
 
   const handleCancel = () => {
-    form.resetTouched();
+    form.resetForm();
     onCancel();
   };
 

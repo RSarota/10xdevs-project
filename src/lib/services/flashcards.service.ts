@@ -52,8 +52,10 @@ export async function getFlashcards(
     query = query.eq("generation_id", generation_id);
   }
 
-  // Sortowanie
+  // Sortowanie z stabilnym fallbackiem na id
   query = query.order(sort_by, { ascending: sort_order === "asc" });
+  // Dodaj id jako secondary sort dla stabilnej kolejności gdy primary sort ma identyczne wartości
+  query = query.order("id", { ascending: sort_order === "asc" });
 
   // Paginacja
   query = query.range(offset, offset + limit - 1);

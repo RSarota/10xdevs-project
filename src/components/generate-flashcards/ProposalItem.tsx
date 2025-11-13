@@ -44,7 +44,7 @@ export function ProposalItem({ proposal, onAccept, onEdit, onReject, disabled = 
 
   return (
     <div
-      className={`relative bg-white/50 dark:bg-white/6 backdrop-blur-sm border border-[hsl(var(--apple-separator))]/25 rounded-3xl ${shadowClasses} ${hoverClasses} ${cardClassName} ${!isRejected ? "cursor-pointer" : ""}`}
+      className={`relative bg-white dark:bg-gray-900 backdrop-blur-sm border border-[hsl(var(--apple-separator))]/25 rounded-3xl ${shadowClasses} ${hoverClasses} ${cardClassName} ${!isRejected ? "cursor-pointer" : ""}`}
     >
       {/* Status badge - absolutne pozycjonowanie */}
       <div className="absolute top-4 right-4 z-10 pointer-events-none">{getStatusBadge()}</div>

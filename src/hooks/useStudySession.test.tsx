@@ -37,6 +37,7 @@ describe("useStudySession", () => {
       front: "Q1",
       back: "A1",
       type: "manual",
+      generation_id: null,
       created_at: "2024-01-01T00:00:00Z",
       updated_at: "2024-01-01T00:00:00Z",
     },
@@ -46,6 +47,7 @@ describe("useStudySession", () => {
       front: "Q2",
       back: "A2",
       type: "manual",
+      generation_id: null,
       created_at: "2024-01-02T00:00:00Z",
       updated_at: "2024-01-02T00:00:00Z",
     },
@@ -123,8 +125,10 @@ describe("useStudySession", () => {
       } as Response);
 
       // Mock window.location.href
-      delete (window as { location?: { href?: string } }).location;
-      window.location = { href: "" } as Location;
+      Object.defineProperty(window, "location", {
+        value: { href: "" },
+        writable: true,
+      });
 
       const { result } = renderHook(() => useStudySession());
 

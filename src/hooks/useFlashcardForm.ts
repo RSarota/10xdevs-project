@@ -27,9 +27,7 @@ export function useFlashcardForm({ initialData, onDataChange }: UseFlashcardForm
       setTouchedBack(false);
       setIsInitialized(true);
     }
-  }, [initialData, isInitialized]);
-
-  // Notify parent of data changes
+  }, [initialData, isInitialized]); // Notify parent of data changes
   useEffect(() => {
     if (onDataChange) {
       onDataChange({ front, back });

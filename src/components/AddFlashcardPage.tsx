@@ -49,9 +49,7 @@ export default function AddFlashcardPage() {
           {/* Header Section */}
           <div className="mb-8">
             <Stack direction="vertical" spacing="sm">
-              <Title2 className="text-[hsl(var(--apple-label))] font-[var(--apple-weight-bold)]">
-                Dodaj fiszkę
-              </Title2>
+              <Title2 className="text-[hsl(var(--apple-label))] font-[var(--apple-weight-bold)]">Dodaj fiszkę</Title2>
               <Body className="text-[hsl(var(--apple-label-secondary))]">
                 Stwórz fiszkę ręcznie dla pełnej kontroli nad treścią
               </Body>

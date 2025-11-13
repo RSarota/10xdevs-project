@@ -19,7 +19,7 @@ export function StatisticsCard({ title, value, icon, trend }: StatisticsCardProp
       <CardContent>
         {/* Subtle gradient overlay - much more subtle */}
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--apple-blue)/0.005)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
+
         <Stack direction="vertical" spacing="md" className="relative">
           <Stack direction="horizontal" justify="between" align="center">
             <Footnote className="text-[hsl(var(--apple-label-secondary))] uppercase tracking-wide font-medium">

@@ -11,7 +11,10 @@ export function LandingHowItWorksV2() {
   return (
     <>
       <Divider />
-      <Container size="xl" className="py-[var(--apple-space-20)] sm:py-[var(--apple-space-24)] lg:py-[var(--apple-space-28)]">
+      <Container
+        size="xl"
+        className="py-[var(--apple-space-20)] sm:py-[var(--apple-space-24)] lg:py-[var(--apple-space-28)]"
+      >
         <Stack direction="vertical" spacing="xl">
           {/* Section Header */}
           <Stack direction="vertical" spacing="md" align="center" className="text-center max-w-4xl mx-auto">

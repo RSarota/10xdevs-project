@@ -1,19 +1,14 @@
-import { RefreshCw } from "lucide-react";
-import { Stack, Title2, Button } from "../apple-hig";
+import { Stack, Title2, Body } from "../apple-hig";
 
-interface FlashcardsPageHeaderProps {
-  onRefresh: () => void;
-  loading: boolean;
-}
-
-export function FlashcardsPageHeader({ onRefresh, loading }: FlashcardsPageHeaderProps) {
+export function FlashcardsPageHeader() {
   return (
-    <Stack direction="horizontal" justify="between" align="center">
-      <Title2>Twoje fiszki</Title2>
-      <Button variant="default" color="blue" size="medium" onClick={onRefresh} disabled={loading}>
-        <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-        Odśwież
-      </Button>
-    </Stack>
+    <div className="mb-8">
+      <Stack direction="vertical" spacing="sm">
+        <Title2 className="text-[hsl(var(--apple-label))] font-[var(--apple-weight-bold)]">Twoje fiszki</Title2>
+        <Body className="text-[hsl(var(--apple-label-secondary))]">
+          Zarządzaj swoimi fiszkami i śledź postępy w nauce
+        </Body>
+      </Stack>
+    </div>
   );
 }

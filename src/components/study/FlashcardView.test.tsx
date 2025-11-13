@@ -10,6 +10,7 @@ const mockFlashcard: FlashcardDTO = {
   front: "What is React?",
   back: "A JavaScript library for building user interfaces",
   type: "manual",
+  generation_id: null,
   created_at: "2024-01-01T00:00:00Z",
   updated_at: "2024-01-01T00:00:00Z",
 };
@@ -47,7 +48,8 @@ describe("FlashcardView", () => {
     const onReveal = vi.fn();
     render(<FlashcardView flashcard={mockFlashcard} isRevealed={true} onReveal={onReveal} />);
 
-    const card = screen.getByRole("button");
+    // Element nie ma roli button gdy jest revealed
+    const card = screen.getByTestId("flashcard-view");
     await user.click(card);
 
     expect(onReveal).not.toHaveBeenCalled();
@@ -81,25 +83,26 @@ describe("FlashcardView", () => {
     const onReveal = vi.fn();
     const { rerender } = render(<FlashcardView flashcard={mockFlashcard} isRevealed={false} onReveal={onReveal} />);
 
-    expect(screen.getByText("Przód")).toBeInTheDocument();
+    expect(screen.getByText("PRZÓD")).toBeInTheDocument();
 
     rerender(<FlashcardView flashcard={mockFlashcard} isRevealed={true} onReveal={onReveal} />);
 
-    expect(screen.getByText("Tył")).toBeInTheDocument();
+    expect(screen.getByText("TYŁ")).toBeInTheDocument();
   });
 
   it("should show reveal hint when not revealed", () => {
     const onReveal = vi.fn();
     render(<FlashcardView flashcard={mockFlashcard} isRevealed={false} onReveal={onReveal} />);
 
-    expect(screen.getByText("Kliknij, aby odsłonić")).toBeInTheDocument();
+    expect(screen.getByText("Kliknij aby odsłonić")).toBeInTheDocument();
   });
 
   it("should not show reveal hint when revealed", () => {
     const onReveal = vi.fn();
     render(<FlashcardView flashcard={mockFlashcard} isRevealed={true} onReveal={onReveal} />);
 
-    expect(screen.queryByText("Kliknij, aby odsłonić")).not.toBeInTheDocument();
+    expect(screen.queryByText("Kliknij aby odsłonić")).not.toBeInTheDocument();
+    expect(screen.getByText("Fiszka odsłonięta")).toBeInTheDocument();
   });
 
   it("should have correct aria attributes", () => {
@@ -112,7 +115,9 @@ describe("FlashcardView", () => {
 
     rerender(<FlashcardView flashcard={mockFlashcard} isRevealed={true} onReveal={onReveal} />);
 
-    expect(card).toHaveAttribute("aria-pressed", "true");
-    expect(card).toHaveAttribute("tabIndex", "-1");
+    // Po reveal element nie ma już roli button
+    const revealedCard = screen.getByTestId("flashcard-view");
+    expect(revealedCard).toHaveAttribute("aria-pressed", "true");
+    expect(revealedCard).toHaveAttribute("tabIndex", "-1");
   });
 });

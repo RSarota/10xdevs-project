@@ -1,4 +1,4 @@
-import { Badge, Button, Stack, Title2, Body } from "@/components/apple-hig";
+import { Badge, Button, Title2, Body } from "@/components/apple-hig";
 
 interface StudySessionHeaderProps {
   flashcardsCount: number;
@@ -20,17 +20,10 @@ export function StudySessionHeader({
   const formattedAverageRating = hasAverageRating && averageRating !== null ? averageRating.toFixed(2) : null;
 
   return (
-    <Stack
-      direction="horizontal"
-      justify="between"
-      align="flex-start"
-      wrap
-      className="w-full gap-[var(--apple-space-4)]"
-      data-testid="study-session-header"
-    >
-      <Stack direction="vertical" spacing="xs" className="flex-1 min-w-[240px]">
-        <Title2 className="text-[hsl(var(--apple-label))]">Sesja nauki</Title2>
-        <Stack direction="horizontal" spacing="sm" align="center" wrap>
+    <div className="flex justify-between items-start flex-wrap gap-4 w-full" data-testid="study-session-header">
+      <div className="flex-1 min-w-[240px]">
+        <Title2 className="text-[hsl(var(--apple-label))] mb-2">Sesja nauki</Title2>
+        <div className="flex items-center gap-3 flex-wrap">
           <Body className="text-[hsl(var(--apple-label-secondary))]">
             Fiszka {displayIndex} z {flashcardsCount}
           </Body>
@@ -39,13 +32,13 @@ export function StudySessionHeader({
               Średnia {formattedAverageRating}
             </Badge>
           )}
-        </Stack>
-      </Stack>
+        </div>
+      </div>
       {showEndSessionAction && (
         <Button variant="plain" color="red" onClick={onEndSession} data-testid="end-session-button">
           Zakończ sesję
         </Button>
       )}
-    </Stack>
+    </div>
   );
 }

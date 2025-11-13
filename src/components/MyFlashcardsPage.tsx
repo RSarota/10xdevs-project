@@ -9,7 +9,7 @@ import { FlashcardsPageHeader } from "./my-flashcards/FlashcardsPageHeader";
 import { FlashcardsEmptyState } from "./my-flashcards/FlashcardsEmptyState";
 
 // Apple HIG Components
-import { Stack, Banner, Container, Skeleton, Divider } from "./apple-hig";
+import { Stack, Banner, Container, Skeleton } from "./apple-hig";
 
 export default function MyFlashcardsPage() {
   const { items, loading, error, filters, totalPages, setFilters, fetchPage, refetch } = useFlashcards();
@@ -38,16 +38,34 @@ export default function MyFlashcardsPage() {
   const hasFlashcards = items.length > 0;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Main Content Container */}
-      <div className="flex-1 overflow-y-auto">
-        <Container size="xl" className="py-[var(--apple-space-8)]">
-          <Stack direction="vertical" spacing="lg">
-            {/* Header */}
-            <FlashcardsPageHeader onRefresh={refetch} loading={loading} />
+    <div className="flex flex-col relative">
+      {/* Subtle animated background pattern */}
+      <div className="fixed inset-0 opacity-15 pointer-events-none">
+        <div
+          className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-transparent via-[hsl(var(--apple-blue)/0.006)] to-transparent animate-pulse"
+          style={{ animationDuration: "4s" }}
+        />
+        <div
+          className="absolute top-1/3 right-1/4 w-80 h-80 bg-[hsl(var(--apple-green)/0.012)] rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "2s", animationDuration: "6s" }}
+        />
+        <div
+          className="absolute bottom-1/2 left-1/4 w-72 h-72 bg-[hsl(var(--apple-blue)/0.008)] rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s", animationDuration: "5s" }}
+        />
+      </div>
 
-            {/* Error Banner */}
-            {error && (
+      {/* Main Content Container */}
+      <div className="relative z-10">
+        <Container size="xl" className="py-[var(--apple-space-6)]">
+          {/* Header Section */}
+          <div className="mb-8">
+            <FlashcardsPageHeader />
+          </div>
+
+          {/* Error Banner */}
+          {error && (
+            <div className="mb-6">
               <Banner
                 open={!!error}
                 message="Nie udało się załadować fiszek"
@@ -58,24 +76,31 @@ export default function MyFlashcardsPage() {
                   onClick: refetch,
                 }}
               />
-            )}
+            </div>
+          )}
 
+          {/* Main Content */}
+          <div className="space-y-6">
             {/* Filters */}
-            {!loading && <FilterSortControls filters={filters} onChange={setFilters} />}
-
-            <Divider />
+            {!loading && hasFlashcards && <FilterSortControls filters={filters} onChange={setFilters} />}
 
             {/* Loading State */}
             {loading && (
-              <Stack direction="vertical" spacing="md">
-                <Skeleton height={150} />
-                <Skeleton height={150} />
-                <Skeleton height={150} />
-              </Stack>
+              <div className="bg-white/60 dark:bg-black/15 backdrop-blur-sm border border-[hsl(var(--apple-separator))]/25 rounded-3xl p-6 shadow-md">
+                <Stack direction="vertical" spacing="md">
+                  <Skeleton height={150} />
+                  <Skeleton height={150} />
+                  <Skeleton height={150} />
+                </Stack>
+              </div>
             )}
 
             {/* Empty State */}
-            {!loading && !hasFlashcards && <FlashcardsEmptyState />}
+            {!loading && !hasFlashcards && (
+              <div className="bg-white/60 dark:bg-black/15 backdrop-blur-sm border border-[hsl(var(--apple-separator))]/25 rounded-3xl p-6 shadow-md">
+                <FlashcardsEmptyState />
+              </div>
+            )}
 
             {/* Flashcards List */}
             {!loading && hasFlashcards && (
@@ -86,12 +111,13 @@ export default function MyFlashcardsPage() {
                 <PaginationControls page={filters.page} totalPages={totalPages} onChange={fetchPage} />
               </>
             )}
-          </Stack>
+          </div>
         </Container>
       </div>
 
       {/* Modals */}
       <EditFlashcardModal
+        key={editingFlashcard?.id || "modal"}
         flashcard={editingFlashcard}
         open={editingFlashcard !== null}
         onSave={handleSaveEdit}

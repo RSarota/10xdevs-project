@@ -56,13 +56,13 @@ export function FlashcardsForm({ onSubmit, loading, disabled = false }: Flashcar
                 {validation.length.toLocaleString()} / {FLASHCARD_GENERATION_LIMITS.MAX_LENGTH.toLocaleString()}
               </Badge>
             </Stack>
-            <div className="relative flex px-4 py-3 bg-transparent border border-[hsl(var(--apple-separator))]/25 rounded-2xl transition-all duration-200 ease-out hover:border-[hsl(var(--apple-separator))]/40 focus-within:border-[hsl(var(--apple-blue))] focus-within:ring-2 focus-within:ring-[hsl(var(--apple-blue))]/20 focus-within:shadow-sm">
+            <div className="relative flex px-[var(--apple-space-4)] py-[var(--apple-space-3)] bg-[hsl(var(--apple-grouped-bg-secondary))] border border-[hsl(var(--apple-separator-opaque))] rounded-[var(--apple-radius-medium)] transition-all duration-[var(--apple-spring-duration)] ease-[var(--apple-spring-easing)] hover:border-[hsl(var(--apple-separator))]/60 focus-within:border-[hsl(var(--apple-blue))] focus-within:ring-2 focus-within:ring-[hsl(var(--apple-blue))]/20 focus-within:shadow-[var(--apple-shadow-sm)]">
               <textarea
                 id="source-text"
                 value={validation.value}
                 onChange={handleChange}
                 placeholder="Wklej tutaj tekst z którego chcesz wygenerować fiszki..."
-                className="flex-1 w-full min-w-0 resize-none bg-transparent text-[var(--apple-font-body)] text-[hsl(var(--apple-label))] placeholder:text-[hsl(var(--apple-label-tertiary))] outline-none disabled:cursor-not-allowed min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] font-mono text-sm"
+                className="flex-1 w-full min-w-0 resize-none bg-transparent text-[var(--apple-font-body)] text-[hsl(var(--apple-label))] placeholder:text-[hsl(var(--apple-label-tertiary))] outline-none disabled:cursor-not-allowed min-h-[300px] sm:min-h-[400px] lg:min-h-[500px]"
                 disabled={loading || disabled}
                 rows={20}
                 data-testid="generate-flashcards-textarea"

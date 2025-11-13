@@ -12,13 +12,13 @@ export function DashboardHeader({ userName, lastActivity }: HeaderProps) {
         <LargeTitle className="text-[hsl(var(--apple-label))] font-[var(--apple-weight-bold)]">
           Witaj{userName ? `, ${userName}` : ""}!
         </LargeTitle>
-        
+
         {lastActivity && (
           <Body className="text-[hsl(var(--apple-label-secondary))] opacity-80">
             Ostatnia aktywność: {lastActivity}
           </Body>
         )}
-        
+
         <Body className="text-[hsl(var(--apple-label-tertiary))] text-sm mt-2">
           Zarządzaj swoimi fiszkami i śledź postępy w nauce
         </Body>

@@ -32,7 +32,7 @@ export function SidebarHeader({
             </span>
           )}
         </button>
-        
+
         {/* Toggle Button - in same row but separated */}
         {!isCollapsed && (
           <div className="flex-shrink-0">
@@ -50,7 +50,7 @@ export function SidebarHeader({
           </div>
         )}
       </div>
-      
+
       {/* Expand button for collapsed state */}
       {isCollapsed && (
         <div className="mt-6 flex justify-center">

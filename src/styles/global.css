@@ -746,7 +746,8 @@
      ============================================ */
 
   @keyframes float {
-    0%, 100% {
+    0%,
+    100% {
       transform: translateY(0px);
     }
     50% {
@@ -796,6 +797,49 @@
       opacity: 1;
       transform: translateX(0);
     }
+  }
+
+  /* ============================================
+     3D TRANSFORM UTILITIES FOR FLASHCARDS
+     ============================================ */
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .transform-style-preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -ms-backface-visibility: hidden;
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+
+  /* Fix for mirrored back side */
+  .rotate-y-180-fix {
+    transform: rotateY(180deg) scaleX(-1);
+  }
+
+  /* Improve 3D rendering performance and fix artifacts */
+  .perspective-1000 * {
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
+    -ms-transform-style: preserve-3d;
+  }
+
+  .backface-hidden,
+  .rotate-y-180 {
+    will-change: transform;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 

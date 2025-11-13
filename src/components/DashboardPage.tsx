@@ -123,7 +123,7 @@ export default function DashboardPage() {
                     <RecentActivityFeed activities={recentActivities} />
                   </div>
                 )}
-                
+
                 {/* Additional sidebar content can go here */}
                 <div className="bg-gradient-to-br from-[hsl(var(--apple-blue)/0.15)] to-[hsl(var(--apple-purple)/0.15)] backdrop-blur-sm rounded-2xl border border-[hsl(var(--apple-separator))]/25 shadow-md p-6">
                   <h3 className="text-lg font-semibold mb-3 bg-gradient-to-r from-[hsl(var(--apple-blue))] to-[hsl(var(--apple-purple))] bg-clip-text text-transparent">

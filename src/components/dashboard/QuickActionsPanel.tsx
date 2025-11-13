@@ -29,7 +29,7 @@ export function QuickActionsPanel({ actions }: QuickActionsPanelProps) {
   return (
     <div className="space-y-6">
       <Title2 className="text-[hsl(var(--apple-label))]">Szybkie akcje</Title2>
-      
+
       {/* Primary Actions - Large Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {primaryActions.map((action) => {

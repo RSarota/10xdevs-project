@@ -28,7 +28,7 @@ export function SidebarUserSection({ isCollapsed, userInfo, loadingUser, onLogou
             </div>
           </div>
         </div>
-        
+
         {/* Logout Button */}
         <div className="flex justify-center">
           <button
@@ -59,13 +59,11 @@ export function SidebarUserSection({ isCollapsed, userInfo, loadingUser, onLogou
             <Body className="text-[hsl(var(--apple-label))] font-[var(--apple-weight-semibold)] truncate mb-1">
               {userInfo.name}
             </Body>
-            <Footnote className="text-[hsl(var(--apple-label-secondary))] truncate">
-              {userInfo.email}
-            </Footnote>
+            <Footnote className="text-[hsl(var(--apple-label-secondary))] truncate">{userInfo.email}</Footnote>
           </div>
         </div>
       </div>
-      
+
       {/* Logout Button */}
       <button
         onClick={onLogout}
