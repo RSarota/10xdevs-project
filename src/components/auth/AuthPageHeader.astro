@@ -1,0 +1,24 @@
+---
+import { Stack, Title1, Body } from "../apple-hig";
+import type { LucideIcon } from "lucide-react";
+
+interface Props {
+  icon: LucideIcon;
+  iconColor: string;
+  iconBgColor: string;
+  title: string;
+  description: string;
+}
+
+const { icon: Icon, iconColor, iconBgColor, title, description } = Astro.props;
+---
+
+<div class="text-center">
+  <Stack direction="vertical" spacing="sm" align="center">
+    <div class={`w-14 h-14 flex items-center justify-center rounded-[var(--apple-radius-large)] ${iconBgColor}`}>
+      <Icon className={`w-7 h-7 ${iconColor}`} />
+    </div>
+    <Title1 className="text-[hsl(var(--apple-label))] text-3xl sm:text-4xl">{title}</Title1>
+    <Body className="text-[hsl(var(--apple-label-secondary))]">{description}</Body>
+  </Stack>
+</div>

@@ -89,7 +89,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
       );
     }
 
-    // 4. Zwrócenie odpowiedzi
+    // 4. Return response
     return new Response(JSON.stringify(generation), {
       status: 200,
       headers: { "Content-Type": "application/json" },

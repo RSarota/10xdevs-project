@@ -95,39 +95,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           />
 
           {rightElement && <div className="flex-shrink-0">{rightElement}</div>}
-
-          {/* Status icons */}
-          {hasError && !rightElement && (
-            <svg
-              className="flex-shrink-0 w-5 h-5 text-[hsl(var(--apple-red))]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          )}
-
-          {hasSuccess && !rightElement && (
-            <svg
-              className="flex-shrink-0 w-5 h-5 text-[hsl(var(--apple-green))]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          )}
         </div>
 
         {/* Helper text or error message */}

@@ -9,6 +9,7 @@ interface PasswordChangeFieldsProps {
   passwordError?: string;
   confirmPasswordError?: string;
   disabled?: boolean;
+  required?: boolean; // If true, password is required (e.g., password reset)
 }
 
 export function PasswordChangeFields({
@@ -19,8 +20,9 @@ export function PasswordChangeFields({
   passwordError,
   confirmPasswordError,
   disabled,
+  required = false,
 }: PasswordChangeFieldsProps) {
-  const showConfirmPassword = password.trim().length > 0;
+  const showConfirmPassword = password.trim().length > 0 || required;
 
   return (
     <>
@@ -31,10 +33,11 @@ export function PasswordChangeFields({
           label="Nowe hasło"
           value={password}
           onChange={(e) => onPasswordChange(e.target.value)}
-          placeholder="Pozostaw puste, jeśli nie chcesz zmieniać"
+          placeholder={required ? "Wprowadź nowe hasło" : "Pozostaw puste, jeśli nie chcesz zmieniać"}
           disabled={disabled}
           error={passwordError}
           icon={<Lock className="w-5 h-5" />}
+          required={required}
           data-testid="profile-password-input"
         />
         <Footnote className="text-[hsl(var(--apple-label-tertiary))]">

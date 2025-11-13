@@ -23,8 +23,8 @@ export class StudySessionPage {
   constructor(page: Page) {
     this.page = page;
     this.flashcardCard = page.locator('[data-testid="flashcard-view"]');
-    this.flashcardFront = page.getByText(/przód/i).first();
-    this.flashcardBack = page.getByText(/tył/i).first();
+    this.flashcardFront = page.locator('[data-testid="flashcard-front-content"]');
+    this.flashcardBack = page.locator('[data-testid="flashcard-back-content"]');
     this.revealHint = page.getByText(/kliknij, aby odsłonić/i);
     this.ratingControls = page.locator('[data-testid="rating-controls"]');
     this.ratingButton1 = page.locator('[data-testid="rating-button-1"]');
@@ -133,24 +133,31 @@ export class StudySessionPage {
       return null;
     });
 
-    // Get the Body element (p tag) that contains the flashcard text
-    // The flashcard text is in a p element inside the flashcard-view, but not in the footnotes
-    const flashcardTextElement = this.flashcardCard
-      .locator("p")
-      .filter({
-        hasNotText: /przód|tył|kliknij/i,
-      })
-      .first();
+    // Get the flashcard content using data-testid
+    // When not revealed, front content is visible; when revealed, back content is visible
+    const frontContent = this.flashcardCard.getByTestId("flashcard-front-content");
+    const backContent = this.flashcardCard.getByTestId("flashcard-back-content");
 
-    if (await flashcardTextElement.isVisible().catch(() => false)) {
-      const text = await flashcardTextElement.textContent();
+    // Check which side is currently visible
+    const isFrontVisible = await frontContent.isVisible().catch(() => false);
+    const isBackVisible = await backContent.isVisible().catch(() => false);
+
+    if (isFrontVisible) {
+      const text = await frontContent.textContent();
+      return text?.trim() || null;
+    }
+    if (isBackVisible) {
+      const text = await backContent.textContent();
       return text?.trim() || null;
     }
     return null;
   }
 
   async isFlashcardRevealed(): Promise<boolean> {
-    return await this.flashcardBack.isVisible().catch(() => false);
+    // Use aria-pressed attribute which is more reliable than visibility checks
+    // with CSS 3D transforms, both sides might be in DOM but only one is visible
+    const ariaPressed = await this.flashcardCard.getAttribute("aria-pressed");
+    return ariaPressed === "true";
   }
 
   async getProgressText(): Promise<string | null> {

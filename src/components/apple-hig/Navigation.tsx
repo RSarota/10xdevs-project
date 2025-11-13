@@ -93,7 +93,7 @@ TabBar.displayName = "AppleTabBar";
  * Navigation Bar - Top navigation with title and actions
  */
 export interface NavigationBarProps {
-  title?: string;
+  title?: string | React.ReactNode;
   subtitle?: string;
   leftAction?: React.ReactNode;
   rightAction?: React.ReactNode;
@@ -101,6 +101,7 @@ export interface NavigationBarProps {
   shadow?: boolean;
   large?: boolean;
   className?: string;
+  onTitleClick?: () => void;
 }
 
 export const NavigationBar: React.FC<NavigationBarProps> = ({
@@ -112,6 +113,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   shadow = true,
   large = false,
   className = "",
+  onTitleClick,
 }) => {
   return (
     <header
@@ -136,12 +138,23 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
         {/* Title */}
         <div className="flex-1 flex flex-col items-center text-center min-w-0 px-[var(--apple-space-4)]">
           {title && (
+            // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
             <h1
+              onClick={onTitleClick}
+              onKeyDown={(e) => {
+                if (onTitleClick && (e.key === "Enter" || e.key === " ")) {
+                  e.preventDefault();
+                  onTitleClick();
+                }
+              }}
+              tabIndex={onTitleClick ? 0 : undefined}
+              role={onTitleClick ? "button" : undefined}
               className={`
               ${large ? "text-[var(--apple-font-large-title)]" : "text-[var(--apple-font-headline)]"}
               font-[var(--apple-weight-bold)]
               text-[hsl(var(--apple-label))]
               truncate max-w-full
+              ${onTitleClick ? "cursor-pointer hover:opacity-70 transition-opacity focus:outline-none focus:ring-2 focus:ring-[hsl(var(--apple-blue))] focus:ring-offset-2 rounded" : ""}
             `
                 .trim()
                 .replace(/\s+/g, " ")}
@@ -323,9 +336,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ children, header, footer, clas
         flex flex-col
         ${collapsed ? "w-16" : "w-64"}
         h-screen
-        bg-[hsl(var(--apple-grouped-bg-secondary))]
+        bg-gradient-to-b from-[hsl(var(--apple-grouped-bg-secondary))] to-[hsl(var(--apple-grouped-bg-tertiary))]
         border-r border-[hsl(var(--apple-separator-opaque))]
         transition-all duration-300 ease-in-out
+        backdrop-blur-xl backdrop-saturate-200
         ${className}
       `
         .trim()
@@ -337,12 +351,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ children, header, footer, clas
         className={`
         flex-1 overflow-y-auto overflow-x-hidden
         ${collapsed ? "px-[var(--apple-space-2)]" : "px-[var(--apple-space-4)]"}
-        py-[var(--apple-space-4)] 
-        space-y-[var(--apple-space-1)]
+        py-[var(--apple-space-6)] 
+        space-y-[var(--apple-space-2)]
         transition-all duration-300
+        relative
       `}
       >
-        {children}
+        {/* Subtle background pattern for navigation area */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[hsl(var(--apple-grouped-bg-secondary))]/30 to-transparent pointer-events-none" />
+        <div className="relative">{children}</div>
       </nav>
 
       {footer && <div className="flex-shrink-0 border-t border-[hsl(var(--apple-separator-opaque))]">{footer}</div>}

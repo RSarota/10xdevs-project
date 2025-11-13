@@ -1,7 +1,7 @@
-import { LogOut } from "lucide-react";
 import { Sidebar, SidebarItem } from "../apple-hig";
 import { NAV_ITEMS, ADMIN_NAV_ITEMS, type NavItem } from "@/lib/constants/navigation";
 import { SidebarHeader } from "./SidebarHeader";
+import { SidebarUserSection } from "./SidebarUserSection";
 import type { UserInfo } from "@/lib/services/userService";
 
 interface DesktopSidebarProps {
@@ -33,26 +33,14 @@ export function DesktopSidebar({
     >
       <Sidebar
         collapsed={isCollapsed}
-        header={
-          <SidebarHeader
+        header={<SidebarHeader isCollapsed={isCollapsed} onToggle={onToggle} onNavigate={onNavigate} />}
+        footer={
+          <SidebarUserSection
             isCollapsed={isCollapsed}
-            onToggle={onToggle}
-            onNavigate={onNavigate}
             userInfo={userInfo}
             loadingUser={loadingUser}
+            onLogout={onLogout}
           />
-        }
-        footer={
-          <div
-            className={`${isCollapsed ? "px-[var(--apple-space-2)]" : "px-[var(--apple-space-4)]"} py-[var(--apple-space-2)]`}
-          >
-            <SidebarItem
-              icon={<LogOut className="w-5 h-5" />}
-              label="Wyloguj się"
-              onClick={onLogout}
-              collapsed={isCollapsed}
-            />
-          </div>
         }
       >
         <div className="space-y-[var(--apple-space-1)]">

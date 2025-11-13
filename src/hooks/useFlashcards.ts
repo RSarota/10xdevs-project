@@ -16,6 +16,7 @@ interface UseFlashcardsReturn {
   error: Error | null;
   filters: FlashcardsFilters;
   totalPages: number;
+  totalWithoutFilters: number; // Dodajemy całkowitą liczbę fiszek bez filtrów
   setFilters: (f: FlashcardsFilters) => void;
   deleteFlashcard: (id: number) => Promise<void>;
   updateFlashcard: (id: number, data: UpdateFlashcardCommand) => Promise<void>;
@@ -28,6 +29,7 @@ export function useFlashcards(): UseFlashcardsReturn {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalWithoutFilters, setTotalWithoutFilters] = useState(0);
   const [filters, setFilters] = useState<FlashcardsFilters>({
     page: 1,
     limit: 21,
@@ -35,7 +37,7 @@ export function useFlashcards(): UseFlashcardsReturn {
     sort_order: "desc",
   });
 
-  const buildQueryString = (f: FlashcardsFilters): string => {
+  const buildQueryString = useCallback((f: FlashcardsFilters): string => {
     const params = new URLSearchParams();
     params.append("page", f.page.toString());
     params.append("limit", f.limit.toString());
@@ -50,38 +52,42 @@ export function useFlashcards(): UseFlashcardsReturn {
     }
 
     return params.toString();
-  };
-
-  const fetchFlashcards = useCallback(async (f: FlashcardsFilters) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const queryString = buildQueryString(f);
-      const response = await fetch(`/api/flashcards?${queryString}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          window.location.href = "/auth/login";
-          return;
-        }
-        throw new Error("Nie udało się pobrać fiszek");
-      }
-
-      const data = await response.json();
-      setItems(data.data || []);
-      setTotalPages(data.pagination?.total_pages || 1);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error("Wystąpił nieoczekiwany błąd"));
-    } finally {
-      setLoading(false);
-    }
   }, []);
+
+  const fetchFlashcards = useCallback(
+    async (f: FlashcardsFilters) => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const queryString = buildQueryString(f);
+        const response = await fetch(`/api/flashcards?${queryString}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            window.location.href = "/auth/login";
+            return;
+          }
+          throw new Error("Nie udało się pobrać fiszek");
+        }
+
+        const data = await response.json();
+        setItems(data.data || []);
+        setTotalPages(data.pagination?.total_pages || 1);
+        setTotalWithoutFilters(data.pagination?.total_without_filters || 0);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error("Wystąpił nieoczekiwany błąd"));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [buildQueryString]
+  );
 
   const deleteFlashcard = async (id: number): Promise<void> => {
     const response = await fetch(`/api/flashcards/${id}`, {
@@ -125,41 +131,75 @@ export function useFlashcards(): UseFlashcardsReturn {
   };
 
   const updateFlashcard = async (id: number, data: UpdateFlashcardCommand): Promise<void> => {
-    const response = await fetch(`/api/flashcards/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+    // Optimistic update - update local state immediately
+    setItems((prevItems) =>
+      prevItems.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              front: data.front ?? item.front,
+              back: data.back ?? item.back,
+              updated_at: new Date().toISOString(),
+            }
+          : item
+      )
+    );
 
-    if (!response.ok) {
-      if (response.status === 401) {
-        window.location.href = "/auth/login";
-        return;
+    try {
+      const response = await fetch(`/api/flashcards/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        // Revert optimistic update on error
+        await fetchFlashcards(filters);
+
+        if (response.status === 401) {
+          window.location.href = "/auth/login";
+          return;
+        }
+        if (response.status === 404) {
+          throw new Error("Fiszka nie istnieje");
+        }
+        throw new Error("Nie udało się zaktualizować fiszki");
       }
-      if (response.status === 404) {
-        throw new Error("Fiszka nie istnieje");
-      }
-      throw new Error("Nie udało się zaktualizować fiszki");
+
+      // Success - optimistic update was correct, no need to refetch
+    } catch (err) {
+      // Revert optimistic update on network error
+      await fetchFlashcards(filters);
+      throw err;
     }
-
-    // Refresh the list
-    await fetchFlashcards(filters);
   };
 
   const fetchPage = async (page: number): Promise<void> => {
     const newFilters = { ...filters, page };
     setFilters(newFilters);
+    await fetchFlashcards(newFilters);
   };
 
   const refetch = async (): Promise<void> => {
     await fetchFlashcards(filters);
   };
 
+  // Only fetch on initial load
   useEffect(() => {
     fetchFlashcards(filters);
-  }, [filters, fetchFlashcards]);
+  }, [fetchFlashcards, filters]);
+
+  // Optimized setFilters with manual fetch
+  const setFiltersOptimized = useCallback(
+    (newFilters: FlashcardsFilters) => {
+      setFilters(newFilters);
+      // Fetch with new filters immediately
+      fetchFlashcards(newFilters);
+    },
+    [fetchFlashcards]
+  );
 
   return {
     items,
@@ -167,7 +207,8 @@ export function useFlashcards(): UseFlashcardsReturn {
     error,
     filters,
     totalPages,
-    setFilters,
+    totalWithoutFilters,
+    setFilters: setFiltersOptimized,
     deleteFlashcard,
     updateFlashcard,
     fetchPage,

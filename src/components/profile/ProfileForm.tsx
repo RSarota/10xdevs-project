@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardHeader, Stack, Input, Button } from "@/components/apple-hig";
+import { CardHeader, Stack, Input, Button, Title3 } from "@/components/apple-hig";
 import { Mail } from "lucide-react";
 import { profileUpdateSchema, type ProfileUpdateInput } from "@/lib/schemas/profile.schema";
 import { PasswordChangeFields } from "./PasswordChangeFields";
@@ -32,7 +32,7 @@ export function ProfileForm({ profile, onSubmit, loading = false }: ProfileFormP
   };
 
   const validateFormConditionally = (): boolean => {
-    // Jeśli hasło nie jest podane, nie walidujemy
+    // If password is not provided, don't validate
     if (formData.password?.trim().length === 0) {
       setErrors({});
       return true;
@@ -68,9 +68,15 @@ export function ProfileForm({ profile, onSubmit, loading = false }: ProfileFormP
   const hasChanges = (formData.password?.trim().length ?? 0) > 0;
 
   return (
-    <Card elevation="md" padding="xl" variant="grouped">
-      <Stack direction="vertical" spacing="xl">
-        <CardHeader title="Dane konta" subtitle="Zarządzaj danymi swojego konta" />
+    <div className="relative">
+      <Stack direction="vertical" spacing="xl" className="relative">
+        <CardHeader
+          title={
+            <Title3 className="bg-gradient-to-r from-[hsl(var(--apple-label))] to-[hsl(var(--apple-label-secondary))] bg-clip-text text-transparent">
+              Dane konta
+            </Title3>
+          }
+        />
 
         <form
           onSubmit={handleSubmit}
@@ -119,6 +125,6 @@ export function ProfileForm({ profile, onSubmit, loading = false }: ProfileFormP
           </Stack>
         </form>
       </Stack>
-    </Card>
+    </div>
   );
 }

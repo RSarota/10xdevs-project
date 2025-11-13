@@ -90,17 +90,17 @@ const GenerateFlashcardsResponseSchema = z.object({
 // Validate OpenAI endpoint format (Astro already validates presence and type)
 function validateEndpoint(endpoint: string): void {
   if (!endpoint.startsWith("https://")) {
-    throw new Error("Endpoint (OPENAI_URL) musi używać protokołu HTTPS");
+    throw new Error("Endpoint (OPENAI_URL) must use HTTPS protocol");
   }
 }
 
 /**
- * Serwis do komunikacji z Azure OpenAI API
+ * Service for communication with Azure OpenAI API
  *
- * Umożliwia:
- * - Wysyłanie zapytań do modelu Azure OpenAI
- * - Parsowanie ustrukturyzowanych odpowiedzi (function calling)
- * - Obsługę błędów autoryzacji, sieci i formatu odpowiedzi
+ * Enables:
+ * - Sending requests to Azure OpenAI model
+ * - Parsing structured responses (function calling)
+ * - Handling authorization, network and response format errors
  */
 export class OpenAIService {
   public readonly configuration: OpenAIServiceConfiguration;
@@ -109,12 +109,12 @@ export class OpenAIService {
   private readonly _endpoint: string;
 
   /**
-   * Konstruktor serwisu Azure OpenAI
+   * Azure OpenAI service constructor
    *
-   * Używa zmiennych środowiskowych zdefiniowanych w astro.config.mjs:
-   * - OPENAI_API_KEY: Klucz API do autoryzacji
-   * - OPENAI_URL: Pełny URL endpointu API Azure OpenAI
-   *   (np. https://{resource}.openai.azure.com/openai/deployments/{model}/chat/completions?api-version=2024-02-15-preview)
+   * Uses environment variables defined in astro.config.mjs:
+   * - OPENAI_API_KEY: API key for authorization
+   * - OPENAI_URL: Full URL of Azure OpenAI API endpoint
+   *   (e.g. https://{resource}.openai.azure.com/openai/deployments/{model}/chat/completions?api-version=2024-02-15-preview)
    */
   constructor() {
     // Validate endpoint format (Astro already validates presence and type)
@@ -123,11 +123,11 @@ export class OpenAIService {
     this._apiKey = OPENAI_API_KEY;
     this._endpoint = OPENAI_URL.trim();
 
-    // Domyślny komunikat systemowy dla generowania fiszek
+    // Default system message for flashcard generation
     const defaultSystemMessage =
       "You are an expert flashcard generator for language learners. Always respond with concise, clear definitions and examples. Your goal is to create front and back for a flashcard where front can have up to 200 characters and back up to 500 characters. Expected response should be in polish.";
 
-    // Publiczna konfiguracja
+    // Public configuration
     this.configuration = {
       apiKey: this._apiKey,
       endpoint: this._endpoint,
@@ -136,27 +136,27 @@ export class OpenAIService {
   }
 
   /**
-   * Wysyła zapytanie do modelu Azure OpenAI
+   * Sends a request to Azure OpenAI model
    *
-   * @param message - Komunikat użytkownika
-   * @param context - Opcjonalny kontekst rozmowy (dla przyszłej implementacji historii)
-   * @returns Promise z surową odpowiedzią z API
-   * @throws {OpenAIServiceError} W przypadku błędu autoryzacji, sieci lub formatu
+   * @param message - User message
+   * @param context - Optional conversation context (for future history implementation)
+   * @returns Promise with raw API response
+   * @throws {OpenAIServiceError} In case of authorization, network or format error
    */
   public async sendRequest(message: string, context?: unknown): Promise<AzureOpenAIResponse> {
-    // Walidacja danych wejściowych
+    // Input validation
     if (!message || typeof message !== "string" || message.trim().length === 0) {
-      throw new OpenAIServiceError("Komunikat użytkownika nie może być pusty", "INVALID_INPUT", 400);
+      throw new OpenAIServiceError("User message cannot be empty", "INVALID_INPUT", 400);
     }
 
-    // Sanityzacja danych wejściowych (podstawowa ochrona przed injection)
-    const sanitizedMessage = message.trim().slice(0, 10000); // Limit długości
+    // Input sanitization (basic protection against injection)
+    const sanitizedMessage = message.trim().slice(0, 10000); // Length limit
 
     try {
-      // Budowanie payloadu
+      // Building payload
       const payload = this._buildPayload(sanitizedMessage, context);
 
-      // Wysyłanie żądania HTTP - używamy pełnego URL ze zmiennych środowiskowych
+      // Sending HTTP request - using full URL from environment variables
       const response = await fetch(this._endpoint, {
         method: "POST",
         headers: {
@@ -166,46 +166,46 @@ export class OpenAIService {
         body: JSON.stringify(payload),
       });
 
-      // Obsługa błędów HTTP
+      // HTTP error handling
       if (!response.ok) {
         this._handleError(response, "HTTP_ERROR");
 
-        // Próba wyciągnięcia szczegółów błędu z odpowiedzi
-        let errorMessage = `Błąd HTTP: ${response.status} ${response.statusText}`;
+        // Attempt to extract error details from response
+        let errorMessage = `HTTP Error: ${response.status} ${response.statusText}`;
         try {
           const errorData = await response.json();
           if (errorData?.error?.message) {
             errorMessage = errorData.error.message;
           }
         } catch {
-          // Ignoruj błędy parsowania JSON
+          // Ignore JSON parsing errors
         }
 
         throw new OpenAIServiceError(errorMessage, "HTTP_ERROR", response.status);
       }
 
-      // Parsowanie odpowiedzi
+      // Parsing response
       const data = await response.json();
 
-      // Walidacja struktury odpowiedzi
+      // Response structure validation
       if (!data || typeof data !== "object" || !Array.isArray(data.choices)) {
-        throw new OpenAIServiceError("Nieprawidłowa struktura odpowiedzi z API", "INVALID_RESPONSE_FORMAT", 500);
+        throw new OpenAIServiceError("Invalid API response structure", "INVALID_RESPONSE_FORMAT", 500);
       }
 
       return data as AzureOpenAIResponse;
     } catch (error) {
-      // Obsługa błędów sieciowych i innych
+      // Network and other error handling
       if (error instanceof OpenAIServiceError) {
         throw error;
       }
 
       if (error instanceof TypeError && error.message.includes("fetch")) {
-        throw new OpenAIServiceError("Błąd połączenia z Azure OpenAI API", "NETWORK_ERROR", 503);
+        throw new OpenAIServiceError("Connection error with Azure OpenAI API", "NETWORK_ERROR", 503);
       }
 
       this._handleError(error, "UNKNOWN_ERROR");
       throw new OpenAIServiceError(
-        `Nieoczekiwany błąd: ${error instanceof Error ? error.message : "Unknown error"}`,
+        `Unexpected error: ${error instanceof Error ? error.message : "Unknown error"}`,
         "UNKNOWN_ERROR",
         500
       );
@@ -213,55 +213,55 @@ export class OpenAIService {
   }
 
   /**
-   * Przetwarza surową odpowiedź z API, parsując ustrukturyzowane dane
+   * Processes raw API response, parsing structured data
    *
-   * @param rawResponse - Surowe dane z API
-   * @returns Sparsowana odpowiedź z walidacją
-   * @throws {OpenAIServiceError} Jeśli odpowiedź nie pasuje do schematu { front, back }
+   * @param rawResponse - Raw data from API
+   * @returns Parsed response with validation
+   * @throws {OpenAIServiceError} If response doesn't match { front, back } schema
    */
   public parseResponse(rawResponse: AzureOpenAIResponse): ParsedResponse {
     if (!rawResponse || !rawResponse.choices || rawResponse.choices.length === 0) {
-      throw new OpenAIServiceError("Brak danych w odpowiedzi z API", "EMPTY_RESPONSE", 500);
+      throw new OpenAIServiceError("No data in API response", "EMPTY_RESPONSE", 500);
     }
 
     const firstChoice = rawResponse.choices[0];
 
-    // Sprawdzenie czy odpowiedź zawiera function_call
+    // Check if response contains function_call
     if (!firstChoice.message.function_call) {
-      throw new OpenAIServiceError("Odpowiedź z API nie zawiera function_call", "MISSING_FUNCTION_CALL", 500);
+      throw new OpenAIServiceError("API response does not contain function_call", "MISSING_FUNCTION_CALL", 500);
     }
 
     const functionCall = firstChoice.message.function_call;
 
-    // Parsowanie arguments jako JSON
+    // Parsing arguments as JSON
     let parsedArguments: unknown;
     try {
       parsedArguments = JSON.parse(functionCall.arguments);
     } catch {
-      throw new OpenAIServiceError("Nie można sparsować arguments z function_call", "INVALID_JSON", 500);
+      throw new OpenAIServiceError("Cannot parse arguments from function_call", "INVALID_JSON", 500);
     }
 
-    // Walidacja przy użyciu Zod schema
+    // Validation using Zod schema
     const validationResult = GenerateFlashcardsResponseSchema.safeParse(parsedArguments);
 
     if (!validationResult.success) {
       const errorMessages = validationResult.error.issues.map((issue) => issue.message).join(", ");
-      throw new OpenAIServiceError(`Błąd walidacji odpowiedzi: ${errorMessages}`, "VALIDATION_ERROR", 500);
+      throw new OpenAIServiceError(`Response validation error: ${errorMessages}`, "VALIDATION_ERROR", 500);
     }
 
     return validationResult.data;
   }
 
   /**
-   * Prywatna metoda do budowania payloadu żądania
+   * Private method to build request payload
    *
-   * @param message - Komunikat użytkownika (tekst źródłowy do generowania fiszek)
-   * @param _context - Opcjonalny kontekst rozmowy (nieużywany w obecnej implementacji)
-   * @returns Payload gotowy do wysłania w żądaniu
+   * @param message - User message (source text for flashcard generation)
+   * @param _context - Optional conversation context (unused in current implementation)
+   * @returns Payload ready to send in request
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private _buildPayload(message: string, _context?: unknown): object {
-    // Budowanie komunikatu użytkownika z instrukcją generowania
+    // Building user message with generation instruction
     const userMessage = `Create flashcards from the following text. Generate multiple flashcards that cover key concepts, definitions, and important information:\n\n${message}`;
 
     const messages = [
@@ -311,13 +311,13 @@ export class OpenAIService {
   }
 
   /**
-   * Prywatna metoda do obsługi błędów
+   * Private method for error handling
    *
-   * @param error - Błąd do obsłużenia
-   * @param errorType - Typ błędu dla klasyfikacji
+   * @param error - Error to handle
+   * @param errorType - Error type for classification
    */
   private _handleError(error: unknown, errorType: string): void {
-    // Logowanie błędów (bez wrażliwych danych)
+    // Error logging (without sensitive data)
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorDetails = {
       type: errorType,
@@ -325,57 +325,57 @@ export class OpenAIService {
       timestamp: new Date().toISOString(),
     };
 
-    // W produkcji można użyć dedykowanego systemu logowania
+    // In production, a dedicated logging system can be used
     console.error("[OpenAIService Error]", errorDetails);
 
-    // Obsługa błędów autoryzacji
+    // Authorization error handling
     if (errorType === "HTTP_ERROR" && error instanceof Response) {
       if (error.status === 401 || error.status === 403) {
-        console.error("[OpenAIService] Błąd autoryzacji - sprawdź klucz API");
+        console.error("[OpenAIService] Authorization error - check API key");
       }
     }
 
-    // Obsługa błędów sieciowych
+    // Network error handling
     if (errorType === "NETWORK_ERROR") {
-      console.error("[OpenAIService] Błąd sieci - sprawdź połączenie z Azure OpenAI");
+      console.error("[OpenAIService] Network error - check connection to Azure OpenAI");
     }
   }
 }
 
 /**
- * Generuje fiszki przy użyciu Azure OpenAI API
+ * Generates flashcards using Azure OpenAI API
  *
- * Pomocnicza funkcja, która tworzy instancję OpenAIService i generuje fiszki.
- * Mapuje błędy OpenAIServiceError na odpowiednie kody dla kompatybilności.
+ * Helper function that creates an OpenAIService instance and generates flashcards.
+ * Maps OpenAIServiceError errors to appropriate codes for compatibility.
  *
- * @param sourceText - Tekst źródłowy do wygenerowania fiszek (1000-10000 znaków)
- * @returns Tablica propozycji fiszek wygenerowanych przez AI
- * @throws {OpenAIServiceError} W przypadku błędu API, sieci lub walidacji
+ * @param sourceText - Source text to generate flashcards from (1000-10000 characters)
+ * @returns Array of flashcard proposals generated by AI
+ * @throws {OpenAIServiceError} In case of API, network or validation error
  */
 export async function generateFlashcards(sourceText: string): Promise<FlashcardProposal[]> {
   try {
-    // Utworzenie instancji serwisu (zmienne środowiskowe są już załadowane na poziomie modułu)
+    // Create service instance (environment variables are already loaded at module level)
     const openAIService = new OpenAIService();
 
-    // Wysłanie zapytania do Azure OpenAI
+    // Send request to Azure OpenAI
     const rawResponse = await openAIService.sendRequest(sourceText);
 
-    // Parsowanie odpowiedzi
+    // Parsing response
     const parsedResponse = openAIService.parseResponse(rawResponse);
 
-    // Mapowanie odpowiedzi na format FlashcardProposal
+    // Mapping response to FlashcardProposal format
     return parsedResponse.flashcards.map((flashcard) => ({
       front: flashcard.front,
       back: flashcard.back,
     }));
   } catch (error) {
-    // Mapowanie błędów na odpowiednie kody dla kompatybilności
+    // Mapping errors to appropriate codes for compatibility
     if (error instanceof OpenAIServiceError) {
-      // Mapowanie kodów błędów na odpowiednie kody HTTP
+      // Mapping error codes to appropriate HTTP codes
       let statusCode = error.statusCode;
       let code = error.code;
 
-      // Mapowanie specyficznych błędów
+      // Mapping specific errors
       if (error.statusCode === 401 || error.statusCode === 403) {
         code = "AUTHENTICATION_ERROR";
       } else if (error.statusCode === 429) {
@@ -385,15 +385,15 @@ export async function generateFlashcards(sourceText: string): Promise<FlashcardP
         statusCode = 503;
       }
 
-      // Rzucamy nowy błąd z zmapowanym kodem
+      // Throw new error with mapped code
       throw new OpenAIServiceError(error.message, code, statusCode);
     }
 
-    // Obsługa innych błędów
+    // Handling other errors
     if (error instanceof Error) {
       throw new OpenAIServiceError(error.message, "UNKNOWN_ERROR", 500);
     }
 
-    throw new OpenAIServiceError("Nieoczekiwany błąd podczas generowania fiszek", "UNKNOWN_ERROR", 500);
+    throw new OpenAIServiceError("Unexpected error during flashcard generation", "UNKNOWN_ERROR", 500);
   }
 }

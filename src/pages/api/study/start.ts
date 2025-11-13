@@ -9,6 +9,22 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const { user, supabase } = locals;
 
+    // Security: userId must come from authenticated session, never from request body
+    if (!user?.id) {
+      return new Response(
+        JSON.stringify({
+          error: "Unauthorized",
+          message: "Brak uwierzytelnienia użytkownika",
+        }),
+        {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const userId = user.id;
+
     const body = await request.json().catch(() => ({}));
     const validation = StartStudySessionSchema.safeParse(body);
 
@@ -21,21 +37,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
         }),
         {
           status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    const userId = user?.id ?? validation.data.userId;
-
-    if (!userId) {
-      return new Response(
-        JSON.stringify({
-          error: "Unauthorized",
-          message: "Brak uwierzytelnienia użytkownika",
-        }),
-        {
-          status: 401,
           headers: { "Content-Type": "application/json" },
         }
       );

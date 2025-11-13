@@ -17,7 +17,7 @@ export function RatingControls({ onRatingSelect, disabled = false }: RatingContr
   return (
     <Stack direction="vertical" spacing="sm" align="stretch" className="w-full" data-testid="rating-controls">
       <Body className="text-[hsl(var(--apple-label-secondary))]">Jak poszło? Wybierz ocenę</Body>
-      <div className="grid w-full gap-[var(--apple-space-3)] sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid w-full gap-[var(--apple-space-3)] sm:grid-cols-2 lg:grid-cols-5 xl:grid-cols-1 2xl:grid-cols-2">
         {RATINGS.map((rating) => (
           <Button
             key={rating.value}

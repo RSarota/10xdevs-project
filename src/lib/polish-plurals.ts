@@ -1,11 +1,11 @@
 /**
- * Zwraca poprawną formę polskiego rzeczownika w zależności od liczby
+ * Returns the correct form of a Polish noun depending on the number
  *
- * @param count - Liczba elementów
- * @param singular - Forma pojedyncza (np. "fiszka")
- * @param plural - Forma mnoga 2-4 (np. "fiszki")
- * @param pluralMany - Forma mnoga 5+ (np. "fiszek")
- * @returns Poprawna forma rzeczownika
+ * @param count - Number of items
+ * @param singular - Singular form (e.g. "fiszka")
+ * @param plural - Plural form 2-4 (e.g. "fiszki")
+ * @param pluralMany - Plural form 5+ (e.g. "fiszek")
+ * @returns Correct noun form
  *
  * @example
  * pluralize(1, "fiszka", "fiszki", "fiszek") // "fiszka"
@@ -21,22 +21,22 @@ export function pluralize(count: number, singular: string, plural: string, plura
   const lastDigit = count % 10;
   const lastTwoDigits = count % 100;
 
-  // 12-14 zawsze pluralMany
+  // 12-14 always pluralMany
   if (lastTwoDigits >= 12 && lastTwoDigits <= 14) {
     return pluralMany;
   }
 
-  // 2-4 (ale nie 12-14) -> plural
+  // 2-4 (but not 12-14) -> plural
   if (lastDigit >= 2 && lastDigit <= 4) {
     return plural;
   }
 
-  // Wszystko inne -> pluralMany
+  // Everything else -> pluralMany
   return pluralMany;
 }
 
 /**
- * Zwraca pełny ciąg z liczbą i poprawną formą rzeczownika
+ * Returns a full string with the number and correct noun form
  *
  * @example
  * pluralizeWithCount(1, "fiszka", "fiszki", "fiszek") // "1 fiszka"

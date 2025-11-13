@@ -43,7 +43,7 @@ export const LANDING_FEATURES: LandingFeature[] = [
 
 export const LANDING_STATS: LandingStat[] = [
   { value: "10,000+", label: "Fiszek wygenerowanych" },
-  { value: "95%", label: "Fiszek zaakceptowanych z AI" },
+  { value: "75%", label: "Fiszek zaakceptowanych z AI" },
   { value: "< 30s", label: "Średni czas generacji" },
 ];
 

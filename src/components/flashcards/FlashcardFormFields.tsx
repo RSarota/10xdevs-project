@@ -6,7 +6,6 @@ import type { useFlashcardForm } from "@/hooks/useFlashcardForm";
 
 export interface FlashcardFormFieldsProps {
   form: ReturnType<typeof useFlashcardForm>;
-  showHelperText?: boolean;
   frontLabel?: string;
   backLabel?: string;
   frontPlaceholder?: string;
@@ -21,7 +20,6 @@ export interface FlashcardFormFieldsProps {
 
 export function FlashcardFormFields({
   form,
-  showHelperText = false,
   frontLabel = "Przód fiszki",
   backLabel = "Tył fiszki",
   frontPlaceholder = "Pytanie lub termin",
@@ -36,43 +34,53 @@ export function FlashcardFormFields({
   return (
     <>
       <Stack direction="vertical" spacing="lg">
-        <Input
-          id={frontId}
-          label={frontLabel}
-          value={form.front}
-          onChange={(e) => form.handleFrontChange(e.target.value)}
-          placeholder={frontPlaceholder}
-          error={form.showFrontError && form.frontLength === 0 ? "Pole wymagane" : undefined}
-          success={!form.showFrontError && form.isFrontValid && form.touchedFront}
-          helperText={showHelperText ? form.getFrontHelperText() : undefined}
-          data-testid={frontTestId}
-        />
-        <Stack direction="horizontal" justify="between" align="center">
-          <Badge color={form.getFrontBadgeColor()} variant="outlined" size="sm" data-testid={frontCountTestId}>
-            {form.frontLength} / {FLASHCARD_LIMITS.FRONT_MAX}
-          </Badge>
-        </Stack>
+        <div>
+          <Stack direction="horizontal" justify="between" align="center" className="mb-2">
+            <label
+              htmlFor={frontId}
+              className="text-[var(--apple-font-subheadline)] font-[var(--apple-weight-medium)] text-[hsl(var(--apple-label))]"
+            >
+              {frontLabel}
+            </label>
+            <Badge color={form.getFrontBadgeColor()} variant="filled" size="md" data-testid={frontCountTestId}>
+              {form.frontLength} / {FLASHCARD_LIMITS.FRONT_MAX}
+            </Badge>
+          </Stack>
+          <Input
+            id={frontId}
+            value={form.front}
+            onChange={(e) => form.handleFrontChange(e.target.value)}
+            placeholder={frontPlaceholder}
+            error={form.showFrontError && form.frontLength === 0 ? "Pole wymagane" : undefined}
+            data-testid={frontTestId || "flashcard-front-input"}
+          />
+        </div>
       </Stack>
 
       <Stack direction="vertical" spacing="lg">
-        <TextArea
-          id={backId}
-          label={backLabel}
-          value={form.back}
-          onChange={(e) => form.handleBackChange(e.target.value)}
-          placeholder={backPlaceholder}
-          className="min-h-[150px]"
-          rows={6}
-          error={form.showBackError && form.backLength === 0 ? "Pole wymagane" : undefined}
-          success={!form.showBackError && form.isBackValid && form.touchedBack}
-          helperText={showHelperText ? form.getBackHelperText() : undefined}
-          data-testid={backTestId}
-        />
-        <Stack direction="horizontal" justify="between" align="center">
-          <Badge color={form.getBackBadgeColor()} variant="outlined" size="sm" data-testid={backCountTestId}>
-            {form.backLength} / {FLASHCARD_LIMITS.BACK_MAX}
-          </Badge>
-        </Stack>
+        <div>
+          <Stack direction="horizontal" justify="between" align="center" className="mb-2">
+            <label
+              htmlFor={backId}
+              className="text-[var(--apple-font-subheadline)] font-[var(--apple-weight-medium)] text-[hsl(var(--apple-label))]"
+            >
+              {backLabel}
+            </label>
+            <Badge color={form.getBackBadgeColor()} variant="filled" size="md" data-testid={backCountTestId}>
+              {form.backLength} / {FLASHCARD_LIMITS.BACK_MAX}
+            </Badge>
+          </Stack>
+          <TextArea
+            id={backId}
+            value={form.back}
+            onChange={(e) => form.handleBackChange(e.target.value)}
+            placeholder={backPlaceholder}
+            className="min-h-[150px]"
+            rows={6}
+            error={form.showBackError && form.backLength === 0 ? "Pole wymagane" : undefined}
+            data-testid={backTestId || "flashcard-back-input"}
+          />
+        </div>
       </Stack>
     </>
   );

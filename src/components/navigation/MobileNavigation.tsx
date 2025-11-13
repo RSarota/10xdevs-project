@@ -18,11 +18,11 @@ export function MobileNavigation({ onNavigate }: MobileNavigationProps) {
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-[hsl(var(--apple-grouped-bg-secondary))]/80 backdrop-blur-[var(--apple-blur-amount)] border-b border-[hsl(var(--apple-separator-opaque))]">
         <div className="flex items-center justify-between px-[var(--apple-space-4)] py-[var(--apple-space-3)]">
           <button
-            onClick={() => onNavigate("/")}
+            onClick={() => onNavigate("/dashboard")}
             className="flex items-center gap-2 group hover:opacity-70 transition-opacity"
           >
-            <Logo size={28} variant="default" />
-            <h2 className="text-[var(--apple-font-title3)] font-[var(--apple-weight-bold)] text-[hsl(var(--apple-label))]">
+            <Logo size={28} variant="gradient" />
+            <h2 className="text-[var(--apple-font-title3)] font-[var(--apple-weight-bold)] bg-gradient-to-r from-[hsl(var(--apple-blue))] to-[hsl(var(--apple-purple))] bg-clip-text text-transparent">
               10xCards
             </h2>
           </button>

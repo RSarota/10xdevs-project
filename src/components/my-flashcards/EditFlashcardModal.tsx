@@ -37,7 +37,7 @@ export function EditFlashcardModal({ flashcard, open, onSave, onCancel }: EditFl
       updateCommand.back = data.back;
     }
 
-    // Zapisz tylko jeśli są zmiany
+    // Save only if there are changes
     if (Object.keys(updateCommand).length > 0) {
       onSave(flashcard.id, updateCommand);
     } else {
@@ -46,7 +46,7 @@ export function EditFlashcardModal({ flashcard, open, onSave, onCancel }: EditFl
   };
 
   const handleCancel = () => {
-    form.resetTouched();
+    form.resetForm();
     onCancel();
   };
 
@@ -58,7 +58,13 @@ export function EditFlashcardModal({ flashcard, open, onSave, onCancel }: EditFl
     <BaseModal open={open} onClose={handleCancel} title="Edytuj fiszkę">
       <form onSubmit={handleSubmit}>
         <Stack direction="vertical" spacing="xl">
-          <FlashcardFormFields form={form} frontId="edit-front" backId="edit-back" />
+          <FlashcardFormFields
+            form={form}
+            frontId="edit-front"
+            backId="edit-back"
+            frontTestId="edit-flashcard-front-input"
+            backTestId="edit-flashcard-back-input"
+          />
 
           <Stack
             direction="horizontal"

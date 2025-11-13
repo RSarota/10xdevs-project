@@ -22,7 +22,7 @@ function mapStudySessionToActivity(session: StudySessionDTO): ActivityViewModel 
   const ratingText = session.average_rating ? ` (średnia ocena: ${session.average_rating.toFixed(1)})` : "";
   const description = `Sesja nauki: ${flashcardsText}${ratingText}`;
 
-  // Użyj completed_at jeśli dostępne, w przeciwnym razie started_at
+  // Use completed_at if available, otherwise started_at
   const timestamp = session.completed_at || session.started_at;
 
   return {
@@ -79,7 +79,7 @@ export function useDashboard(): UseDashboardReturn {
       });
 
       if (!response.ok) {
-        // Nie rzucamy błędu, jeśli nie uda się pobrać sesji - to nie jest krytyczne
+        // Don't throw error if session fetch fails - it's not critical
         return;
       }
 

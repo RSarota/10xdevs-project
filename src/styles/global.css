@@ -255,6 +255,11 @@
   --apple-grouped-bg-secondary: 0 0% 100%; /* Grouped secondary */
   --apple-grouped-bg-tertiary: 0 0% 98%; /* Grouped tertiary */
 
+  /* Gradient variables for light mode */
+  --apple-gradient-from: 0 0% 95%; /* Base light color */
+  --apple-gradient-via: 0 0% 97%; /* Slightly lighter */
+  --apple-gradient-to: 0 0% 93%; /* Slightly darker endpoint */
+
   /* Apple Separator Colors */
   --apple-separator: 0 0% 23.5%; /* 24% opacity */
   --apple-separator-opaque: 0 0% 78%; /* Opaque separator */
@@ -305,6 +310,24 @@
   --apple-space-8: 2rem; /* 32px */
   --apple-space-9: 2.5rem; /* 40px */
   --apple-space-10: 3rem; /* 48px */
+  --apple-space-11: 3.25rem; /* 52px */
+  --apple-space-12: 3.5rem; /* 56px */
+  --apple-space-13: 3.75rem; /* 60px */
+  --apple-space-14: 4rem; /* 64px */
+  --apple-space-15: 4.25rem; /* 68px */
+  --apple-space-16: 4.5rem; /* 72px */
+  --apple-space-17: 4.75rem; /* 76px */
+  --apple-space-18: 5rem; /* 80px */
+  --apple-space-19: 5.25rem; /* 84px */
+  --apple-space-20: 5.5rem; /* 88px */
+  --apple-space-21: 5.75rem; /* 92px */
+  --apple-space-22: 6rem; /* 96px */
+  --apple-space-23: 6.25rem; /* 100px */
+  --apple-space-24: 6.5rem; /* 104px */
+  --apple-space-25: 6.75rem; /* 108px */
+  --apple-space-26: 7rem; /* 112px */
+  --apple-space-27: 7.25rem; /* 116px */
+  --apple-space-28: 7.5rem; /* 120px */
 
   /* Apple Elevation (Shadows) */
   --apple-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -465,18 +488,23 @@
   --apple-fill-quaternary: 0 0% 45.5%; /* Quaternary fill */
 
   /* Apple Background Colors (Dark Mode) */
-  --apple-bg-primary: 0 0% 0%; /* Primary background */
-  --apple-bg-secondary: 0 0% 7%; /* Secondary background */
-  --apple-bg-tertiary: 0 0% 11%; /* Tertiary background */
+  --apple-bg-primary: 220 13% 8%; /* Primary background - dark blue-gray */
+  --apple-bg-secondary: 220 13% 11%; /* Secondary background */
+  --apple-bg-tertiary: 220 12% 14%; /* Tertiary background */
 
   /* Apple Grouped Background (Dark Mode) */
-  --apple-grouped-bg: 0 0% 0%; /* Grouped background */
-  --apple-grouped-bg-secondary: 0 0% 7%; /* Grouped secondary */
-  --apple-grouped-bg-tertiary: 0 0% 11%; /* Grouped tertiary */
+  --apple-grouped-bg: 220 13% 9%; /* Grouped background - dark blue-gray instead of pure black */
+  --apple-grouped-bg-secondary: 220 13% 13%; /* Grouped secondary - slightly lighter */
+  --apple-grouped-bg-tertiary: 220 12% 16%; /* Grouped tertiary - even lighter */
+
+  /* Additional gradient variables for dark mode */
+  --apple-gradient-from: 220 13% 9%; /* Base dark color */
+  --apple-gradient-via: 220 15% 11%; /* Slightly different hue */
+  --apple-gradient-to: 220 12% 8%; /* Darker endpoint */
 
   /* Apple Separator Colors (Dark Mode) */
-  --apple-separator: 0 0% 33%; /* Separator */
-  --apple-separator-opaque: 0 0% 22%; /* Opaque separator */
+  --apple-separator: 220 10% 30%; /* Separator - lighter and with blue tint */
+  --apple-separator-opaque: 220 12% 25%; /* Opaque separator - more visible */
 
   /* Apple Shadows (Dark Mode - more prominent) */
   --apple-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
@@ -730,4 +758,122 @@
     background-color: hsl(var(--primary) / 0.2);
     color: hsl(var(--foreground));
   }
+
+  /* ============================================
+     ANIMATIONS
+     ============================================ */
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes slideInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInScale {
+    0% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes slideInLeft {
+    0% {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideInRight {
+    0% {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* ============================================
+     3D TRANSFORM UTILITIES FOR FLASHCARDS
+     ============================================ */
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .transform-style-preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -ms-backface-visibility: hidden;
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+
+  /* Fix for mirrored back side */
+  .rotate-y-180-fix {
+    transform: rotateY(180deg) scaleX(-1);
+  }
+
+  /* Improve 3D rendering performance and fix artifacts */
+  .perspective-1000 * {
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
+    -ms-transform-style: preserve-3d;
+  }
+
+  .backface-hidden,
+  .rotate-y-180 {
+    will-change: transform;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Utility animations */
+.animate-slideInUp {
+  animation: slideInUp 0.6s ease-out forwards;
+}
+
+.animate-fadeInScale {
+  animation: fadeInScale 0.6s ease-out forwards;
+}
+
+.animate-slideInLeft {
+  animation: slideInLeft 0.6s ease-out forwards;
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.6s ease-out forwards;
 }

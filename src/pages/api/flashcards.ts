@@ -4,7 +4,7 @@ import type { FlashcardDTO, BulkCreateFlashcardsResponse } from "../../types";
 import { getFlashcards, createOne, createMany } from "../../lib/services/flashcards.service";
 import { CreateFlashcardSchema, isBulkInput } from "../../lib/schemas/flashcard.schema";
 
-// Schemat walidacji dla parametrów zapytania
+// Validation schema for query parameters
 const queryParamsSchema = z.object({
   type: z.enum(["ai-full", "ai-edited", "manual"]).optional().describe("Filtracja według typu fiszki"),
   generation_id: z
@@ -37,6 +37,7 @@ interface FlashcardsResponse {
     limit: number;
     total: number;
     total_pages: number;
+    total_without_filters: number; // Dodajemy całkowitą liczbę fiszek bez filtrów
   };
 }
 
@@ -66,7 +67,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     const userId = user.id;
 
-    // 2. Walidacja parametrów zapytania
+    // 2. Validate query parameters
     const url = new URL(request.url);
     const rawParams = {
       type: url.searchParams.get("type") || undefined,
@@ -95,10 +96,19 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     const params = validationResult.data;
 
-    // 2. Delegowanie logiki do serwisu
+    // 2. Delegate logic to service
     const result = await getFlashcards(locals.supabase, userId, params);
 
-    // 3. Zwrócenie odpowiedzi
+    // 3. Get total without filters for better UX
+    const totalWithoutFiltersResult = await getFlashcards(locals.supabase, userId, {
+      page: 1,
+      limit: 1,
+      sort_by: params.sort_by,
+      sort_order: params.sort_order,
+      // No type or generation_id filters
+    });
+
+    // 4. Return response
     const response: FlashcardsResponse = {
       data: result.flashcards,
       pagination: {
@@ -106,6 +116,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
         limit: params.limit,
         total: result.total,
         total_pages: Math.ceil(result.total / params.limit),
+        total_without_filters: totalWithoutFiltersResult.total,
       },
     };
 
@@ -179,7 +190,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    // 2. Walidacja przy użyciu Zod schema
+    // 2. Validate using Zod schema
     const validationResult = CreateFlashcardSchema.safeParse(body);
 
     if (!validationResult.success) {
@@ -224,9 +235,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
   } catch (error) {
     console.error("Error in POST /api/flashcards:", error);
 
-    // Obsługa specyficznych błędów biznesowych
+    // Handle specific business errors
     if (error instanceof Error) {
-      // 404: Generation ID nie istnieje lub nie należy do użytkownika
+      // 404: Generation ID does not exist or does not belong to user
       if (error.message.includes("Generation ID") || error.message.includes("generation_id")) {
         return new Response(
           JSON.stringify({
@@ -240,7 +251,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         );
       }
 
-      // 400: Inne błędy walidacji biznesowej
+      // 400: Other business validation errors
       if (
         error.message.includes("walidacji") ||
         error.message.includes("validation") ||
@@ -259,7 +270,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       }
     }
 
-    // 500: Ogólny błąd serwera
+    // 500: General server error
     return new Response(
       JSON.stringify({
         error: "Internal Server Error",

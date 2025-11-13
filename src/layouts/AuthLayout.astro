@@ -11,7 +11,22 @@ const { title } = Astro.props;
 ---
 
 <Layout title={title}>
-  <div class="min-h-screen flex flex-col bg-[hsl(var(--apple-grouped-bg))]">
+  <div
+    class="min-h-screen flex flex-col bg-gradient-to-br from-[hsl(var(--apple-gradient-from))] via-[hsl(var(--apple-gradient-via))] to-[hsl(var(--apple-gradient-to))]"
+  >
+    <!-- Subtle animated background pattern -->
+    <div class="fixed inset-0 opacity-8 pointer-events-none">
+      <div
+        class="absolute top-1/3 right-1/4 w-72 h-72 bg-[hsl(var(--apple-blue)/0.006)] rounded-full blur-3xl animate-pulse"
+        style="animation-duration: 7s; animation-delay: 0s;"
+      >
+      </div>
+      <div
+        class="absolute bottom-1/4 left-1/3 w-64 h-64 bg-[hsl(var(--apple-purple)/0.004)] rounded-full blur-3xl animate-pulse"
+        style="animation-duration: 5.5s; animation-delay: 2s;"
+      >
+      </div>
+    </div>
     <!-- Header -->
     <header
       class="sticky top-0 left-0 right-0 z-40 bg-[hsl(var(--apple-grouped-bg-secondary))]/80 backdrop-blur-[var(--apple-blur-amount)] border-b border-[hsl(var(--apple-separator-opaque))] shadow-[var(--apple-shadow-sm)]"
@@ -19,9 +34,9 @@ const { title } = Astro.props;
       <div class="max-w-7xl mx-auto px-[var(--apple-space-5)] py-[var(--apple-space-4)]">
         <div class="flex items-center justify-center">
           <a href="/" class="flex items-center gap-2 group">
-            <Logo size={32} variant="default" client:load />
+            <Logo size={32} variant="gradient" client:load />
             <span
-              class="text-[var(--apple-font-headline)] font-[var(--apple-weight-semibold)] text-[hsl(var(--apple-label))] group-hover:text-[hsl(var(--apple-blue))] transition-colors"
+              class="text-[1.375rem] font-[var(--apple-weight-semibold)] bg-gradient-to-r from-[hsl(var(--apple-blue))] to-[hsl(var(--apple-purple))] bg-clip-text text-transparent transition-colors leading-none"
             >
               10xCards
             </span>

@@ -43,41 +43,67 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[hsl(var(--apple-grouped-bg))]">
+    <div className="flex flex-col relative">
+      {/* Subtle animated background pattern */}
+      <div className="fixed inset-0 opacity-15 pointer-events-none">
+        <div
+          className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-transparent via-[hsl(var(--apple-blue)/0.006)] to-transparent animate-pulse"
+          style={{ animationDuration: "4s" }}
+        />
+        <div
+          className="absolute top-1/3 right-1/4 w-80 h-80 bg-[hsl(var(--apple-green)/0.012)] rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "2s", animationDuration: "6s" }}
+        />
+        <div
+          className="absolute bottom-1/2 left-1/4 w-72 h-72 bg-[hsl(var(--apple-blue)/0.008)] rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s", animationDuration: "5s" }}
+        />
+      </div>
+
       {/* Main Content Container */}
-      <div className="flex-1 overflow-y-auto">
-        <Container size="xl" className="py-[var(--apple-space-8)]">
-          <Stack direction="vertical" spacing="xl">
-            {/* Header */}
+      <div className="relative z-10">
+        <Container size="xl" className="py-[var(--apple-space-6)]">
+          {/* Header Section */}
+          <div className="mb-8">
             <Stack direction="vertical" spacing="sm">
               <Title2>Profil</Title2>
               <Body className="text-[hsl(var(--apple-label-secondary))]">Zarządzaj danymi konta</Body>
             </Stack>
+          </div>
 
-            {/* Error Banner */}
-            {error && <Banner open={!!error} message="Nie udało się załadować profilu" type="error" dismissible />}
+          {/* Error Banner */}
+          {error && (
+            <div className="mb-6">
+              <Banner open={!!error} message="Nie udało się załadować profilu" type="error" dismissible />
+            </div>
+          )}
 
-            {/* Loading State */}
-            {loading && (
-              <Stack direction="vertical" spacing="lg">
+          {/* Loading State */}
+          {loading && (
+            <div className="grid grid-cols-1 gap-6">
+              <div className="bg-white/60 dark:bg-black/15 backdrop-blur-sm rounded-3xl border border-[hsl(var(--apple-separator))]/25 shadow-md p-6">
                 <Skeleton height={300} />
-                <Skeleton height={200} />
-              </Stack>
-            )}
-
-            {/* Profile loaded */}
-            {!loading && profile && (
-              <div className="max-w-2xl mx-auto">
-                <Stack direction="vertical" spacing="xl">
-                  {/* Profile Form */}
-                  <ProfileForm profile={profile} onSubmit={handleUpdateProfile} loading={updating} />
-
-                  {/* Danger Zone */}
-                  <DangerZoneSection onDeleteClick={() => setShowDeleteConfirm(true)} />
-                </Stack>
               </div>
-            )}
-          </Stack>
+              <div className="bg-white/60 dark:bg-black/15 backdrop-blur-sm rounded-3xl border border-[hsl(var(--apple-separator))]/25 shadow-md p-6">
+                <Skeleton height={200} />
+              </div>
+            </div>
+          )}
+
+          {/* Profile loaded */}
+          {!loading && profile && (
+            <div className="max-w-4xl mx-auto space-y-8">
+              {/* Profile Form */}
+              <div className="bg-white/60 dark:bg-black/15 backdrop-blur-sm border border-[hsl(var(--apple-separator))]/25 rounded-3xl p-8 shadow-md">
+                <ProfileForm profile={profile} onSubmit={handleUpdateProfile} loading={updating} />
+              </div>
+
+              {/* Danger Zone */}
+              <div className="bg-white/60 dark:bg-black/15 backdrop-blur-sm border border-[hsl(var(--apple-separator))]/25 rounded-3xl p-8 shadow-md">
+                <DangerZoneSection onDeleteClick={() => setShowDeleteConfirm(true)} />
+              </div>
+            </div>
+          )}
         </Container>
       </div>
 

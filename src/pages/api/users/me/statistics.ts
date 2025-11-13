@@ -38,10 +38,10 @@ export const GET: APIRoute = async ({ locals }) => {
 
     const userId = user.id;
 
-    // Delegowanie logiki do serwisu
+    // Delegate logic to service
     const statistics = await getUserStatistics(locals.supabase, userId);
 
-    // Zwrócenie odpowiedzi
+    // Return response
     return new Response(JSON.stringify(statistics), {
       status: 200,
       headers: { "Content-Type": "application/json" },

@@ -72,7 +72,13 @@ export const GET: APIRoute = async ({ params, locals }) => {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
-  } catch {
+  } catch (error) {
+    console.error("Error in GET /api/flashcards/[id]:", {
+      error: error instanceof Error ? error.message : String(error),
+      flashcardId: params.id,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+
     return new Response(
       JSON.stringify({
         error: "Internal Server Error",
@@ -153,6 +159,12 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
+    console.error("Error in PATCH /api/flashcards/[id]:", {
+      error: error instanceof Error ? error.message : String(error),
+      flashcardId: params.id,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+
     if (error instanceof Error) {
       // 404: Fiszka nie istnieje
       if (error.message.includes("nie istnieje") || error.message.includes("not found")) {
@@ -168,7 +180,7 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
         );
       }
 
-      // 400: Błąd walidacji
+      // 400: Validation error
       if (error.message.includes("walidacji") || error.message.includes("validation")) {
         return new Response(
           JSON.stringify({
@@ -238,7 +250,7 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
 
     const flashcardId = idValidation.data;
 
-    // Usunięcie fiszki
+    // Delete flashcard
     const result = await deleteFlashcard(locals.supabase, userId, flashcardId);
 
     if (!result.success) {
@@ -264,7 +276,13 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
         headers: { "Content-Type": "application/json" },
       }
     );
-  } catch {
+  } catch (error) {
+    console.error("Error in DELETE /api/flashcards/[id]:", {
+      error: error instanceof Error ? error.message : String(error),
+      flashcardId: params.id,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+
     return new Response(
       JSON.stringify({
         error: "Internal Server Error",

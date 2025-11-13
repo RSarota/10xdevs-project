@@ -1,24 +1,30 @@
 ---
 import AuthLayout from "../../layouts/AuthLayout.astro";
 import { LoginForm } from "../../components/auth/LoginForm";
-import { Card, CardContent, Stack, Title1, Body } from "../../components/apple-hig";
-import { LogIn, CheckCircle, AlertCircle } from "lucide-react";
+import { Card, CardContent, Stack } from "../../components/apple-hig";
+import { LogIn } from "lucide-react";
+import AuthMessage from "../../components/auth/AuthMessage.astro";
+import AuthPageHeader from "../../components/auth/AuthPageHeader.astro";
 import { createSupabaseServerInstance } from "../../db/supabase.client";
+import { isRecoverySession } from "../../lib/utils/recoverySession";
+import { getAuthErrorMessage } from "../../lib/constants/auth";
 
 export const prerender = false;
 
 // Check if user is already authenticated
-const supabase = createSupabaseServerInstance({
-  cookies: Astro.cookies,
-  headers: Astro.request.headers,
-});
+const supabase =
+  Astro.locals.supabase ??
+  createSupabaseServerInstance({
+    cookies: Astro.cookies,
+    headers: Astro.request.headers,
+  });
 
 const {
   data: { user },
 } = await supabase.auth.getUser();
 
-// Redirect authenticated users to dashboard
-if (user) {
+// Redirect authenticated users to dashboard (but not recovery sessions)
+if (user && !isRecoverySession(Astro.cookies)) {
   await supabase.flushPendingCookies();
   return Astro.redirect("/dashboard");
 }
@@ -36,51 +42,34 @@ await supabase.flushPendingCookies();
     <!-- Success Message -->
     {
       confirmed && (
-        <div class="flex items-start gap-3 p-4 bg-[hsl(var(--apple-green))]/10 border border-[hsl(var(--apple-green))]/20 rounded-[var(--apple-radius-medium)]">
-          <CheckCircle className="w-5 h-5 text-[hsl(var(--apple-green))] flex-shrink-0 mt-0.5" />
-          <div>
-            <Body className="text-[hsl(var(--apple-green))] font-medium">Email potwierdzony!</Body>
-            <Body className="text-[hsl(var(--apple-green))] text-sm">
-              Twoje konto zostało aktywowane. Możesz się teraz zalogować.
-            </Body>
-          </div>
-        </div>
+        <AuthMessage
+          type="success"
+          title="Email potwierdzony!"
+          message="Twoje konto zostało aktywowane. Możesz się teraz zalogować."
+        />
       )
     }
 
     <!-- Error Message -->
     {
       error && (
-        <div class="flex items-start gap-3 p-4 bg-[hsl(var(--apple-red))]/10 border border-[hsl(var(--apple-red))]/20 rounded-[var(--apple-radius-medium)]">
-          <AlertCircle className="w-5 h-5 text-[hsl(var(--apple-red))] flex-shrink-0 mt-0.5" />
-          <div>
-            <Body className="text-[hsl(var(--apple-red))] font-medium">
-              {error === "no_token" && "Brak tokenu potwierdzenia"}
-              {error === "confirmation_failed" && "Błąd potwierdzenia"}
-              {error === "unexpected" && "Wystąpił nieoczekiwany błąd"}
-            </Body>
-            {errorMessage && (
-              <Body className="text-[hsl(var(--apple-red))] text-sm mt-1">{decodeURIComponent(errorMessage)}</Body>
-            )}
-          </div>
-        </div>
+        <AuthMessage
+          type="error"
+          title={getAuthErrorMessage(error)}
+          message={errorMessage ? decodeURIComponent(errorMessage) : undefined}
+          errorKey={error}
+        />
       )
     }
 
     <!-- Header -->
-    <div class="text-center">
-      <Stack direction="vertical" spacing="sm" align="center">
-        <div
-          class="w-14 h-14 flex items-center justify-center rounded-[var(--apple-radius-large)] bg-[hsl(var(--apple-blue))]/10"
-        >
-          <LogIn className="w-7 h-7 text-[hsl(var(--apple-blue))]" />
-        </div>
-        <Title1 className="text-[hsl(var(--apple-label))] text-3xl sm:text-4xl">Zaloguj się</Title1>
-        <Body className="text-[hsl(var(--apple-label-secondary))]">
-          Witamy z powrotem! Wprowadź swoje dane aby kontynuować.
-        </Body>
-      </Stack>
-    </div>
+    <AuthPageHeader
+      icon={LogIn}
+      iconColor="text-[hsl(var(--apple-blue))]"
+      iconBgColor="bg-[hsl(var(--apple-blue))]/10"
+      title="Zaloguj się"
+      description="Witamy z powrotem! Wprowadź swoje dane aby kontynuować."
+    />
 
     <!-- Login Form Card -->
     <Card elevation="md" padding="xl" variant="grouped">

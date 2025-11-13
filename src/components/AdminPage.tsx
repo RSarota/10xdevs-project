@@ -45,69 +45,61 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[hsl(var(--apple-grouped-bg))]">
-      {/* Main Content Container */}
-      <div className="flex-1 overflow-y-auto">
-        <Container size="xl" className="py-[var(--apple-space-8)]">
-          <Stack direction="vertical" spacing="xl">
-            {/* Header */}
-            <Stack direction="vertical" spacing="sm">
-              <Title2>Panel Administratora</Title2>
-              <Body className="text-[hsl(var(--apple-label-secondary))]">
-                Zarządzaj użytkownikami i przeglądaj logi błędów generacji
-              </Body>
-            </Stack>
-
-            {/* Error Banner */}
-            {error && (
-              <Banner
-                open={!!error}
-                message="Nie udało się załadować danych"
-                type="error"
-                dismissible
-                action={{
-                  label: "Spróbuj ponownie",
-                  onClick: handleRefetch,
-                }}
-              />
-            )}
-
-            {/* Tab Selector */}
-            <AdminTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-            <Divider />
-
-            {/* Loading State */}
-            {loading && (
-              <Stack direction="vertical" spacing="md">
-                <Skeleton height={100} />
-                <Skeleton height={100} />
-                <Skeleton height={100} />
-              </Stack>
-            )}
-
-            {/* Error Logs Tab */}
-            {!loading && activeTab === "logs" && (
-              <ErrorLogsSection
-                logs={logs}
-                totalPages={totalPages}
-                currentPage={currentPage}
-                onPageChange={fetchLogs}
-              />
-            )}
-
-            {/* Users Management Tab */}
-            {!loading && activeTab === "users" && (
-              <UserManagementSection
-                users={users}
-                onRefresh={fetchUsers}
-                onDelete={handleDeleteUser}
-                onRoleChange={(id, role) => handleRoleChange(id, role)}
-              />
-            )}
+    <>
+      <Container size="xl" className="py-[var(--apple-space-8)]">
+        <Stack direction="vertical" spacing="xl">
+          {/* Header */}
+          <Stack direction="vertical" spacing="sm">
+            <Title2>Panel Administratora</Title2>
+            <Body className="text-[hsl(var(--apple-label-secondary))]">
+              Zarządzaj użytkownikami i przeglądaj logi błędów generacji
+            </Body>
           </Stack>
-        </Container>
-      </div>
+
+          {/* Error Banner */}
+          {error && (
+            <Banner
+              open={!!error}
+              message="Nie udało się załadować danych"
+              type="error"
+              dismissible
+              action={{
+                label: "Spróbuj ponownie",
+                onClick: handleRefetch,
+              }}
+            />
+          )}
+
+          {/* Tab Selector */}
+          <AdminTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+          <Divider />
+
+          {/* Loading State */}
+          {loading && (
+            <Stack direction="vertical" spacing="md">
+              <Skeleton height={100} />
+              <Skeleton height={100} />
+              <Skeleton height={100} />
+            </Stack>
+          )}
+
+          {/* Error Logs Tab */}
+          {!loading && activeTab === "logs" && (
+            <ErrorLogsSection logs={logs} totalPages={totalPages} currentPage={currentPage} onPageChange={fetchLogs} />
+          )}
+
+          {/* Users Management Tab */}
+          {!loading && activeTab === "users" && (
+            <UserManagementSection
+              users={users}
+              onRefresh={fetchUsers}
+              onDelete={handleDeleteUser}
+              onRoleChange={(id, role) => handleRoleChange(id, role)}
+            />
+          )}
+        </Stack>
+      </Container>
 
       {/* Confirmation Modal */}
       <ConfirmationModal
@@ -116,6 +108,6 @@ export default function AdminPage() {
         onConfirm={handleConfirmActionWithRefresh}
         onCancel={handleCancelAction}
       />
-    </div>
+    </>
   );
 }

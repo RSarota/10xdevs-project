@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       image_tag:
-        description: 'Docker image tag (default: latest)'
+        description: "Docker image tag (default: latest)"
         required: false
-        default: 'latest'
+        default: "latest"
 
 jobs:
   deploy:
@@ -42,4 +42,3 @@ jobs:
             ${{ secrets.ACR_REGISTRY }}/10xcards:${{ github.sha }}
           cache-from: type=registry,ref=${{ secrets.ACR_REGISTRY }}/10xcards:buildcache
           cache-to: type=registry,ref=${{ secrets.ACR_REGISTRY }}/10xcards:buildcache,mode=max
-

@@ -2,7 +2,7 @@ import type { SupabaseClient } from "../../db/supabase.client";
 import type { FlashcardDTO, FlashcardType, CreateFlashcardCommand } from "../../types";
 
 /**
- * Parametry dla funkcji getFlashcards
+ * Parameters for getFlashcards function
  */
 export interface GetFlashcardsParams {
   type?: FlashcardType;
@@ -14,7 +14,7 @@ export interface GetFlashcardsParams {
 }
 
 /**
- * Wynik funkcji getFlashcards
+ * Result of getFlashcards function
  */
 export interface GetFlashcardsResult {
   flashcards: FlashcardDTO[];
@@ -22,12 +22,12 @@ export interface GetFlashcardsResult {
 }
 
 /**
- * Pobiera fiszki dla danego użytkownika z zastosowaniem filtrów, paginacji i sortowania.
+ * Retrieves flashcards for a given user with filtering, pagination and sorting.
  *
- * @param supabase - Klient Supabase
- * @param userId - ID użytkownika
- * @param params - Parametry zapytania (filtry, paginacja, sortowanie)
- * @returns Lista fiszek i łączna liczba rekordów
+ * @param supabase - Supabase client
+ * @param userId - User ID
+ * @param params - Query parameters (filters, pagination, sorting)
+ * @returns List of flashcards and total number of records
  */
 export async function getFlashcards(
   supabase: SupabaseClient,
@@ -36,32 +36,34 @@ export async function getFlashcards(
 ): Promise<GetFlashcardsResult> {
   const { type, generation_id, page, limit, sort_by, sort_order } = params;
 
-  // Obliczenie offsetu dla paginacji
+  // Calculate offset for pagination
   const offset = (page - 1) * limit;
 
-  // Budowanie zapytania z filtrowaniem po user_id (autoryzacja)
+  // Build query with filtering by user_id (authorization)
   let query = supabase.from("flashcards").select("*", { count: "exact" }).eq("user_id", userId);
 
-  // Filtracja według typu (opcjonalne)
+  // Filter by type (optional)
   if (type) {
     query = query.eq("type", type);
   }
 
-  // Filtracja według generation_id (opcjonalne)
+  // Filter by generation_id (optional)
   if (generation_id !== undefined) {
     query = query.eq("generation_id", generation_id);
   }
 
-  // Sortowanie
+  // Sorting with stable fallback on id
   query = query.order(sort_by, { ascending: sort_order === "asc" });
+  // Add id as secondary sort for stable order when primary sort has identical values
+  query = query.order("id", { ascending: sort_order === "asc" });
 
-  // Paginacja
+  // Pagination
   query = query.range(offset, offset + limit - 1);
 
-  // Wykonanie zapytania
+  // Execute query
   const { data, error, count } = await query;
 
-  // Obsługa błędów
+  // Error handling
   if (error) {
     console.error("Error fetching flashcards:", error);
     throw new Error(`Błąd podczas pobierania fiszek: ${error.message || error.code || "Unknown error"}`);
@@ -74,20 +76,20 @@ export async function getFlashcards(
 }
 
 /**
- * Wynik funkcji createMany
+ * Result of createMany function
  */
 export interface CreateManyResult {
   flashcards: FlashcardDTO[];
 }
 
 /**
- * Pobiera pojedynczą fiszkę na podstawie ID.
- * Weryfikuje, czy fiszka należy do użytkownika.
+ * Retrieves a single flashcard by ID.
+ * Verifies that the flashcard belongs to the user.
  *
- * @param supabase - Klient Supabase
- * @param userId - ID użytkownika
- * @param flashcardId - ID fiszki
- * @returns Fiszka lub null jeśli nie znaleziono
+ * @param supabase - Supabase client
+ * @param userId - User ID
+ * @param flashcardId - Flashcard ID
+ * @returns Flashcard or null if not found
  */
 export async function getFlashcardById(
   supabase: SupabaseClient,
@@ -102,7 +104,7 @@ export async function getFlashcardById(
     .single();
 
   if (error) {
-    // Not found error nie jest błędem technicznym
+    // Not found error is not a technical error
     if (error.code === "PGRST116") {
       return null;
     }
@@ -113,14 +115,14 @@ export async function getFlashcardById(
 }
 
 /**
- * Aktualizuje istniejącą fiszkę.
- * Weryfikuje ownership i waliduje dane wejściowe.
+ * Updates an existing flashcard.
+ * Verifies ownership and validates input data.
  *
- * @param supabase - Klient Supabase
- * @param userId - ID użytkownika
- * @param flashcardId - ID fiszki
- * @param updateData - Dane do aktualizacji (front i/lub back)
- * @returns Zaktualizowana fiszka
+ * @param supabase - Supabase client
+ * @param userId - User ID
+ * @param flashcardId - Flashcard ID
+ * @param updateData - Data to update (front and/or back)
+ * @returns Updated flashcard
  */
 export async function updateFlashcard(
   supabase: SupabaseClient,
@@ -128,10 +130,10 @@ export async function updateFlashcard(
   flashcardId: number,
   updateData: unknown
 ): Promise<FlashcardDTO> {
-  // Dynamiczny import schematu walidacji
+  // Dynamic import of validation schema
   const { UpdateFlashcardSchema } = await import("../schemas/flashcard.schema");
 
-  // Walidacja danych wejściowych
+  // Input data validation
   const validation = UpdateFlashcardSchema.safeParse(updateData);
 
   if (!validation.success) {
@@ -140,14 +142,14 @@ export async function updateFlashcard(
 
   const { front, back } = validation.data;
 
-  // Sprawdzenie czy fiszka istnieje i należy do użytkownika
+  // Check if flashcard exists and belongs to user
   const existingFlashcard = await getFlashcardById(supabase, userId, flashcardId);
 
   if (!existingFlashcard) {
     throw new Error("Fiszka nie istnieje lub nie należy do użytkownika");
   }
 
-  // Przygotowanie danych do aktualizacji
+  // Prepare data for update
   const updateFields: Partial<FlashcardDTO> = {};
   if (front !== undefined) updateFields.front = front;
   if (back !== undefined) updateFields.back = back;
@@ -169,13 +171,13 @@ export async function updateFlashcard(
 }
 
 /**
- * Usuwa fiszkę.
- * Weryfikuje ownership poprzez warunek user_id w DELETE.
+ * Deletes a flashcard.
+ * Verifies ownership through user_id condition in DELETE.
  *
- * @param supabase - Klient Supabase
- * @param userId - ID użytkownika
- * @param flashcardId - ID fiszki
- * @returns Obiekt z informacją o sukcesie i ID usuniętej fiszki
+ * @param supabase - Supabase client
+ * @param userId - User ID
+ * @param flashcardId - Flashcard ID
+ * @returns Object with success information and deleted flashcard ID
  */
 export async function deleteFlashcard(
   supabase: SupabaseClient,
@@ -192,7 +194,7 @@ export async function deleteFlashcard(
     throw new Error(`Błąd podczas usuwania fiszki: ${error.message}`);
   }
 
-  // Sprawdzenie czy coś zostało usunięte
+  // Check if anything was deleted
   if (count === 0) {
     return { success: false };
   }
@@ -201,12 +203,12 @@ export async function deleteFlashcard(
 }
 
 /**
- * Pobiera wszystkie ID fiszek użytkownika.
- * Używane do usuwania wszystkich fiszek przed usunięciem konta.
+ * Retrieves all flashcard IDs for a user.
+ * Used to delete all flashcards before account deletion.
  *
- * @param supabase - Klient Supabase
- * @param userId - ID użytkownika
- * @returns Tablica ID fiszek
+ * @param supabase - Supabase client
+ * @param userId - User ID
+ * @returns Array of flashcard IDs
  */
 export async function getAllFlashcardIds(supabase: SupabaseClient, userId: string): Promise<number[]> {
   const { data, error } = await supabase.from("flashcards").select("id").eq("user_id", userId);
@@ -219,25 +221,25 @@ export async function getAllFlashcardIds(supabase: SupabaseClient, userId: strin
 }
 
 /**
- * Usuwa wiele fiszek jednocześnie (bulk delete).
- * Weryfikuje ownership - usuwa tylko fiszki należące do użytkownika.
+ * Deletes multiple flashcards at once (bulk delete).
+ * Verifies ownership - only deletes flashcards belonging to the user.
  *
- * @param supabase - Klient Supabase
- * @param userId - ID użytkownika
- * @param flashcardIds - Tablica ID fiszek do usunięcia
- * @returns Liczba usuniętych fiszek
+ * @param supabase - Supabase client
+ * @param userId - User ID
+ * @param flashcardIds - Array of flashcard IDs to delete
+ * @returns Number of deleted flashcards
  */
 export async function bulkDeleteFlashcards(
   supabase: SupabaseClient,
   userId: string,
   flashcardIds: number[]
 ): Promise<{ deletedCount: number }> {
-  // Jeśli brak fiszek do usunięcia, zwróć 0
+  // If no flashcards to delete, return 0
   if (flashcardIds.length === 0) {
     return { deletedCount: 0 };
   }
 
-  // Deduplikacja ID
+  // Deduplicate IDs
   const uniqueIds = [...new Set(flashcardIds)];
 
   const { error, count } = await supabase
@@ -254,13 +256,13 @@ export async function bulkDeleteFlashcards(
 }
 
 /**
- * Pomocnicza funkcja do walidacji generation_id.
- * Sprawdza czy generation_id istnieje i należy do użytkownika.
+ * Helper function to validate generation_id.
+ * Checks if generation_id exists and belongs to the user.
  *
- * @param supabase - Klient Supabase
- * @param userId - ID użytkownika
- * @param generationId - ID generacji do walidacji
- * @throws Error jeśli generation_id nie istnieje lub nie należy do użytkownika
+ * @param supabase - Supabase client
+ * @param userId - User ID
+ * @param generationId - Generation ID to validate
+ * @throws Error if generation_id does not exist or does not belong to user
  */
 async function validateGenerationOwnership(
   supabase: SupabaseClient,
@@ -280,18 +282,18 @@ async function validateGenerationOwnership(
 }
 
 /**
- * Tworzy pojedynczą fiszkę.
+ * Creates a single flashcard.
  *
- * Przepływ:
- * 1. Walidacja generation_id (jeśli AI)
- * 2. INSERT fiszki
- * 3. UPDATE statystyk w tabeli generations (jeśli AI)
+ * Flow:
+ * 1. Validate generation_id (if AI)
+ * 2. INSERT flashcard
+ * 3. UPDATE statistics in generations table (if AI)
  *
- * @param supabase - Klient Supabase
- * @param userId - ID użytkownika
- * @param command - Dane fiszki do utworzenia
- * @returns Utworzona fiszka
- * @throws Error w przypadku błędu walidacji lub bazy danych
+ * @param supabase - Supabase client
+ * @param userId - User ID
+ * @param command - Flashcard data to create
+ * @returns Created flashcard
+ * @throws Error in case of validation or database error
  */
 export async function createOne(
   supabase: SupabaseClient,
@@ -300,12 +302,12 @@ export async function createOne(
 ): Promise<FlashcardDTO> {
   const { front, back, source, generation_id } = command;
 
-  // 1. Walidacja generation_id dla fiszek AI
+  // 1. Validate generation_id for AI flashcards
   if ((source === "ai-full" || source === "ai-edited") && generation_id) {
     await validateGenerationOwnership(supabase, userId, generation_id);
   }
 
-  // 2. INSERT fiszki
+  // 2. INSERT flashcard
   const { data: flashcard, error: insertError } = await supabase
     .from("flashcards")
     .insert({
@@ -322,13 +324,13 @@ export async function createOne(
     throw new Error(`Błąd podczas tworzenia fiszki: ${insertError?.message || "Unknown error"}`);
   }
 
-  // 3. UPDATE statystyk dla fiszek AI
+  // 3. UPDATE statistics for AI flashcards
   if ((source === "ai-full" || source === "ai-edited") && generation_id) {
-    // Inkrementacja odpowiedniego licznika
+    // Increment appropriate counter
     // ai-full -> accepted_unedited_count
     // ai-edited -> accepted_edited_count
 
-    // Pobierz aktualne wartości
+    // Get current values
     const { data: currentGen } = await supabase
       .from("generations")
       .select("accepted_unedited_count, accepted_edited_count")
@@ -341,36 +343,36 @@ export async function createOne(
           ? { accepted_unedited_count: (currentGen.accepted_unedited_count || 0) + 1 }
           : { accepted_edited_count: (currentGen.accepted_edited_count || 0) + 1 };
 
-      // UPDATE z inkrementacją
+      // UPDATE with increment
       await supabase.from("generations").update(updateData).eq("id", generation_id);
     }
-    // Nie rzucamy błędu - fiszka została utworzona, tylko statystyki mogą nie być zaktualizowane
+    // Don't throw error - flashcard was created, only statistics may not be updated
   }
 
   return flashcard;
 }
 
 /**
- * Tworzy wiele fiszek jednocześnie (bulk create).
+ * Creates multiple flashcards at once (bulk create).
  *
- * Przepływ (w transakcji):
- * 1. Walidacja wszystkich generation_id (jeśli AI)
- * 2. Bulk INSERT fiszek
- * 3. Grupowanie fiszek per generation_id
- * 4. Bulk UPDATE statystyk per generation
+ * Flow (in transaction):
+ * 1. Validate all generation_id (if AI)
+ * 2. Bulk INSERT flashcards
+ * 3. Group flashcards per generation_id
+ * 4. Bulk UPDATE statistics per generation
  *
- * @param supabase - Klient Supabase
- * @param userId - ID użytkownika
- * @param commands - Tablica danych fiszek do utworzenia
- * @returns Utworzone fiszki w tej samej kolejności co input
- * @throws Error w przypadku błędu walidacji lub bazy danych
+ * @param supabase - Supabase client
+ * @param userId - User ID
+ * @param commands - Array of flashcard data to create
+ * @returns Created flashcards in the same order as input
+ * @throws Error in case of validation or database error
  */
 export async function createMany(
   supabase: SupabaseClient,
   userId: string,
   commands: CreateFlashcardCommand[]
 ): Promise<CreateManyResult> {
-  // 1. Walidacja wszystkich generation_id dla fiszek AI
+  // 1. Validate all generation_id for AI flashcards
   const uniqueGenerationIds = new Set<number>();
   for (const command of commands) {
     if ((command.source === "ai-full" || command.source === "ai-edited") && command.generation_id) {
@@ -378,7 +380,7 @@ export async function createMany(
     }
   }
 
-  // Walidacja każdego unikalnego generation_id
+  // Validate each unique generation_id
   if (uniqueGenerationIds.size > 0) {
     const { data: generations, error: validationError } = await supabase
       .from("generations")
@@ -390,7 +392,7 @@ export async function createMany(
       throw new Error(`Błąd podczas walidacji generation_id: ${validationError.message}`);
     }
 
-    // Sprawdzenie czy wszystkie generation_id istnieją
+    // Check if all generation_id exist
     const foundIds = new Set((generations || []).map((g) => g.id));
     const missingIds = Array.from(uniqueGenerationIds).filter((id) => !foundIds.has(id));
 
@@ -399,7 +401,7 @@ export async function createMany(
     }
   }
 
-  // 2. Bulk INSERT fiszek
+  // 2. Bulk INSERT flashcards
   const flashcardsToInsert = commands.map((command) => ({
     user_id: userId,
     front: command.front,
@@ -417,7 +419,7 @@ export async function createMany(
     throw new Error(`Błąd podczas tworzenia fiszek: ${insertError?.message || "Unknown error"}`);
   }
 
-  // 3. Grupowanie fiszek per generation_id i liczenie statystyk
+  // 3. Group flashcards per generation_id and count statistics
   const generationStats = new Map<number, { accepted_unedited_count: number; accepted_edited_count: number }>();
 
   for (const command of commands) {
@@ -437,9 +439,9 @@ export async function createMany(
     }
   }
 
-  // 4. Bulk UPDATE statystyk per generation
+  // 4. Bulk UPDATE statistics per generation
   for (const [generationId, stats] of generationStats.entries()) {
-    // Pobierz aktualne wartości
+    // Get current values
     const { data: currentGen, error: fetchError } = await supabase
       .from("generations")
       .select("accepted_unedited_count, accepted_edited_count")
@@ -447,10 +449,10 @@ export async function createMany(
       .single();
 
     if (fetchError || !currentGen) {
-      continue; // Nie przerywamy całej operacji
+      continue; // Don't interrupt entire operation
     }
 
-    // UPDATE z nowymi wartościami
+    // UPDATE with new values
     await supabase
       .from("generations")
       .update({
@@ -458,11 +460,11 @@ export async function createMany(
         accepted_edited_count: (currentGen.accepted_edited_count || 0) + stats.accepted_edited_count,
       })
       .eq("id", generationId);
-    // Nie rzucamy błędu - fiszki zostały utworzone
+    // Don't throw error - flashcards were created
   }
 
-  // Zwracamy fiszki w tej samej kolejności co input
-  // Supabase INSERT...RETURNING zwraca w tej samej kolejności
+  // Return flashcards in the same order as input
+  // Supabase INSERT...RETURNING returns in the same order
   return {
     flashcards: insertedFlashcards,
   };

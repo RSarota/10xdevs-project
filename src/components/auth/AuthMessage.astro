@@ -1,0 +1,33 @@
+---
+import { CheckCircle, AlertCircle } from "lucide-react";
+import { Body } from "../apple-hig";
+
+interface Props {
+  type: "success" | "error";
+  title: string;
+  message?: string;
+  errorKey?: string;
+}
+
+const { type, title, message } = Astro.props;
+
+const isSuccess = type === "success";
+const iconColor = isSuccess ? "text-[hsl(var(--apple-green))]" : "text-[hsl(var(--apple-red))]";
+const bgColor = isSuccess
+  ? "bg-[hsl(var(--apple-green))]/10 border border-[hsl(var(--apple-green))]/20"
+  : "bg-[hsl(var(--apple-red))]/10 border border-[hsl(var(--apple-red))]/20";
+const textColor = isSuccess ? "text-[hsl(var(--apple-green))]" : "text-[hsl(var(--apple-red))]";
+const Icon = isSuccess ? CheckCircle : AlertCircle;
+---
+
+{
+  title && (
+    <div class={`flex items-start gap-3 p-4 ${bgColor} rounded-[var(--apple-radius-medium)]`}>
+      <Icon className={`w-5 h-5 ${iconColor} flex-shrink-0 mt-0.5`} />
+      <div>
+        <Body className={`${textColor} font-medium`}>{title}</Body>
+        {message && <Body className={`${textColor} text-sm ${title ? "mt-1" : ""}`}>{message}</Body>}
+      </div>
+    </div>
+  )
+}

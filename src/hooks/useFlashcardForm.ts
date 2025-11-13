@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FLASHCARD_LIMITS } from "@/lib/constants/flashcardLimits";
 
 export interface FlashcardFormData {
@@ -16,18 +16,36 @@ export function useFlashcardForm({ initialData, onDataChange }: UseFlashcardForm
   const [back, setBack] = useState(initialData?.back || "");
   const [touchedFront, setTouchedFront] = useState(false);
   const [touchedBack, setTouchedBack] = useState(false);
+  const previousInitialDataRef = useRef<FlashcardFormData | undefined>(initialData);
 
-  // Reset form when initial data changes
+  // Update form when initialData changes (not just on first mount)
   useEffect(() => {
-    if (initialData) {
+    if (!initialData) {
+      // If initialData becomes undefined, reset to empty
+      if (previousInitialDataRef.current !== undefined) {
+        setFront("");
+        setBack("");
+        setTouchedFront(false);
+        setTouchedBack(false);
+        previousInitialDataRef.current = undefined;
+      }
+      return;
+    }
+
+    // Check if initialData actually changed
+    const hasChanged =
+      previousInitialDataRef.current === undefined ||
+      previousInitialDataRef.current.front !== initialData.front ||
+      previousInitialDataRef.current.back !== initialData.back;
+
+    if (hasChanged) {
       setFront(initialData.front);
       setBack(initialData.back);
       setTouchedFront(false);
       setTouchedBack(false);
+      previousInitialDataRef.current = initialData;
     }
-  }, [initialData]);
-
-  // Notify parent of data changes
+  }, [initialData]); // Notify parent of data changes
   useEffect(() => {
     if (onDataChange) {
       onDataChange({ front, back });
@@ -56,22 +74,6 @@ export function useFlashcardForm({ initialData, onDataChange }: UseFlashcardForm
     return "green";
   };
 
-  const getFrontHelperText = (): string | undefined => {
-    if (frontLength === 0) return undefined;
-    if (frontLength > FLASHCARD_LIMITS.FRONT_MAX) {
-      return `Przekroczono o ${frontLength - FLASHCARD_LIMITS.FRONT_MAX} znaków`;
-    }
-    return `${FLASHCARD_LIMITS.FRONT_MAX - frontLength} znaków pozostało`;
-  };
-
-  const getBackHelperText = (): string | undefined => {
-    if (backLength === 0) return undefined;
-    if (backLength > FLASHCARD_LIMITS.BACK_MAX) {
-      return `Przekroczono o ${backLength - FLASHCARD_LIMITS.BACK_MAX} znaków`;
-    }
-    return `${FLASHCARD_LIMITS.BACK_MAX - backLength} znaków pozostało`;
-  };
-
   const handleFrontChange = (value: string) => {
     setFront(value);
     if (!touchedFront) setTouchedFront(true);
@@ -88,6 +90,18 @@ export function useFlashcardForm({ initialData, onDataChange }: UseFlashcardForm
   };
 
   const resetTouched = () => {
+    setTouchedFront(false);
+    setTouchedBack(false);
+  };
+
+  const resetForm = () => {
+    if (initialData) {
+      setFront(initialData.front);
+      setBack(initialData.back);
+    } else {
+      setFront("");
+      setBack("");
+    }
     setTouchedFront(false);
     setTouchedBack(false);
   };
@@ -116,14 +130,13 @@ export function useFlashcardForm({ initialData, onDataChange }: UseFlashcardForm
     // Helpers
     getFrontBadgeColor,
     getBackBadgeColor,
-    getFrontHelperText,
-    getBackHelperText,
 
     // Handlers
     handleFrontChange,
     handleBackChange,
     markAllTouched,
     resetTouched,
+    resetForm,
     getData,
   };
 }

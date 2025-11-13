@@ -6,7 +6,7 @@ import { z } from "zod";
  */
 export const profileUpdateSchema = z
   .object({
-    email: z.string().email(), // Read-only, zawsze używamy oryginalnego
+    email: z.string().email(), // Read-only, always use original
     password: z
       .string()
       .min(8, "Hasło musi mieć co najmniej 8 znaków")
@@ -17,7 +17,7 @@ export const profileUpdateSchema = z
   })
   .refine(
     (data) => {
-      // Jeśli hasło jest podane, confirmPassword też musi być podane
+      // If password is provided, confirmPassword must also be provided
       if (data.password && !data.confirmPassword) {
         return false;
       }
@@ -30,7 +30,7 @@ export const profileUpdateSchema = z
   )
   .refine(
     (data) => {
-      // Jeśli hasło jest podane, musi być zgodne z confirmPassword
+      // If password is provided, it must match confirmPassword
       if (data.password && data.confirmPassword) {
         return data.password === data.confirmPassword;
       }
