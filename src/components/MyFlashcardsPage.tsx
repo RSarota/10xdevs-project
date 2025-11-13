@@ -1,4 +1,5 @@
-import { useFlashcards } from "@/hooks/useFlashcards";
+import { useCallback } from "react";
+import { useFlashcards, type FlashcardsFilters } from "@/hooks/useFlashcards";
 import { useFlashcardManagement } from "@/hooks/useFlashcardManagement";
 import { FilterSortControls } from "./my-flashcards/FilterSortControls";
 import { FlashcardsList } from "./my-flashcards/FlashcardsList";
@@ -6,27 +7,27 @@ import { PaginationControls } from "./my-flashcards/PaginationControls";
 import { EditFlashcardModal } from "./my-flashcards/EditFlashcardModal";
 import { ConfirmationModal } from "./my-flashcards/ConfirmationModal";
 import { FlashcardsPageHeader } from "./my-flashcards/FlashcardsPageHeader";
-import { FlashcardsEmptyState } from "./my-flashcards/FlashcardsEmptyState";
+import { FlashcardsFilteredEmptyState } from "./my-flashcards/FlashcardsFilteredEmptyState";
 
 // Apple HIG Components
 import { Stack, Banner, Container, Skeleton } from "./apple-hig";
 
 export default function MyFlashcardsPage() {
-  const { items, loading, error, filters, totalPages, setFilters, fetchPage, refetch } = useFlashcards();
-
   const {
-    editingFlashcard,
-    deletingFlashcardId,
-    handleEdit,
-    handleSaveEdit,
-    handleCancelEdit,
-    handleDelete,
-    handleConfirmDelete,
-    handleCancelDelete,
-  } = useFlashcardManagement({
-    onFlashcardUpdated: refetch,
-    onFlashcardDeleted: refetch,
-  });
+    items,
+    loading,
+    error,
+    filters,
+    totalPages,
+    totalWithoutFilters,
+    setFilters,
+    fetchPage,
+    updateFlashcard,
+    deleteFlashcard,
+  } = useFlashcards();
+
+  const { editingFlashcard, deletingFlashcardId, handleEdit, handleCancelEdit, handleDelete, handleCancelDelete } =
+    useFlashcardManagement();
 
   const handleEditWithFlashcard = (id: number) => {
     const flashcard = items.find((f) => f.id === id);
@@ -36,6 +37,16 @@ export default function MyFlashcardsPage() {
   };
 
   const hasFlashcards = items.length > 0;
+  const hasAnyFlashcards = totalWithoutFilters > 0;
+  const hasActiveFilters = !!filters.type;
+
+  // Stable reference for filter change handler to prevent unnecessary re-renders
+  const handleFiltersChange = useCallback(
+    (newFilters: FlashcardsFilters) => {
+      setFilters(newFilters);
+    },
+    [setFilters]
+  );
 
   return (
     <div className="flex flex-col relative">
@@ -73,17 +84,21 @@ export default function MyFlashcardsPage() {
                 dismissible
                 action={{
                   label: "Spróbuj ponownie",
-                  onClick: refetch,
+                  onClick: () => window.location.reload(),
                 }}
               />
             </div>
           )}
 
+          {/* Static Filters Section - always visible when user has any flashcards */}
+          {hasAnyFlashcards && (
+            <div className="mb-6">
+              <FilterSortControls filters={filters} onChange={handleFiltersChange} />
+            </div>
+          )}
+
           {/* Main Content */}
           <div className="space-y-6">
-            {/* Filters */}
-            {!loading && hasFlashcards && <FilterSortControls filters={filters} onChange={setFilters} />}
-
             {/* Loading State */}
             {loading && (
               <div className="bg-white/60 dark:bg-black/15 backdrop-blur-sm border border-[hsl(var(--apple-separator))]/25 rounded-3xl p-6 shadow-md">
@@ -98,7 +113,10 @@ export default function MyFlashcardsPage() {
             {/* Empty State */}
             {!loading && !hasFlashcards && (
               <div className="bg-white/60 dark:bg-black/15 backdrop-blur-sm border border-[hsl(var(--apple-separator))]/25 rounded-3xl p-6 shadow-md">
-                <FlashcardsEmptyState />
+                <FlashcardsFilteredEmptyState
+                  totalFlashcards={totalWithoutFilters}
+                  hasActiveFilters={hasActiveFilters}
+                />
               </div>
             )}
 
@@ -120,14 +138,22 @@ export default function MyFlashcardsPage() {
         key={editingFlashcard?.id || "modal"}
         flashcard={editingFlashcard}
         open={editingFlashcard !== null}
-        onSave={handleSaveEdit}
+        onSave={async (id, data) => {
+          await updateFlashcard(id, data);
+          handleCancelEdit();
+        }}
         onCancel={handleCancelEdit}
       />
 
       <ConfirmationModal
         isOpen={deletingFlashcardId !== null}
         message="Czy na pewno chcesz usunąć tę fiszkę? Ta operacja jest nieodwracalna."
-        onConfirm={handleConfirmDelete}
+        onConfirm={async () => {
+          if (deletingFlashcardId) {
+            await deleteFlashcard(deletingFlashcardId);
+            handleCancelDelete();
+          }
+        }}
         onCancel={handleCancelDelete}
       />
     </div>

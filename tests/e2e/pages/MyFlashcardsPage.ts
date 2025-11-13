@@ -7,6 +7,7 @@ export class MyFlashcardsPage {
   readonly editButton: Locator;
   readonly deleteButton: Locator;
   readonly emptyState: Locator;
+  readonly filteredEmptyState: Locator;
   readonly filterControls: Locator;
   readonly paginationControls: Locator;
   readonly confirmationModal: Locator;
@@ -25,6 +26,7 @@ export class MyFlashcardsPage {
     this.editButton = page.getByTestId("flashcard-edit-button");
     this.deleteButton = page.getByTestId("flashcard-delete-button");
     this.emptyState = page.getByText(/brak fiszek/i);
+    this.filteredEmptyState = page.getByTestId("flashcards-filtered-empty-state");
     this.filterControls = page.locator('[data-testid="filter-controls"]');
     this.paginationControls = page.locator('[data-testid="pagination-controls"]');
     this.confirmationModal = page.getByText(/czy na pewno chcesz usunąć/i);
@@ -110,6 +112,15 @@ export class MyFlashcardsPage {
   async isEmptyStateVisible(): Promise<boolean> {
     try {
       await this.emptyState.waitFor({ timeout: 2000 });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async isFilteredEmptyStateVisible(): Promise<boolean> {
+    try {
+      await this.filteredEmptyState.waitFor({ timeout: 2000 });
       return true;
     } catch {
       return false;

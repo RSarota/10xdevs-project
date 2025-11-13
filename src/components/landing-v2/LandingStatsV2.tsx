@@ -7,39 +7,10 @@ const statIcons = [TrendingUp, Clock, CheckCircle2];
 
 export function LandingStatsV2() {
   const [animatedStats, setAnimatedStats] = useState(LANDING_STATS.map(() => 0));
-  const [hasAnimated, setHasAnimated] = useState(false);
+  const [showAnimation, setShowAnimation] = useState(false);
+  const hasAnimatedRef = useRef(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const animationTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    const currentRef = sectionRef.current;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !hasAnimated) {
-            setHasAnimated(true);
-            startAnimation();
-          }
-        });
-      },
-      { threshold: 0.3 } // Start animation when 30% of the section is visible
-    );
-
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-      // Clean up animation timer if component unmounts
-      if (animationTimerRef.current) {
-        clearInterval(animationTimerRef.current);
-        animationTimerRef.current = null;
-      }
-    };
-  }, [hasAnimated]);
 
   const startAnimation = () => {
     // Clear any existing timer before starting a new one
@@ -50,8 +21,10 @@ export function LandingStatsV2() {
 
     // Animate numbers counting up
     const targets = LANDING_STATS.map((stat) => {
-      const numericPart = stat.value.replace(/[^0-9.]/g, "");
-      return parseFloat(numericPart) || 0;
+      // Remove commas first, then extract only digits and dots
+      const cleanValue = stat.value.replace(/,/g, "").replace(/[^0-9.]/g, "");
+      const parsed = parseFloat(cleanValue);
+      return isNaN(parsed) ? 0 : parsed;
     });
 
     const duration = 2000;
@@ -76,6 +49,35 @@ export function LandingStatsV2() {
     }, stepTime);
   };
 
+  useEffect(() => {
+    const currentRef = sectionRef.current;
+
+    if (!currentRef) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !hasAnimatedRef.current) {
+            hasAnimatedRef.current = true;
+            setShowAnimation(true);
+            startAnimation();
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(currentRef);
+
+    return () => {
+      observer.unobserve(currentRef);
+      if (animationTimerRef.current) {
+        clearInterval(animationTimerRef.current);
+        animationTimerRef.current = null;
+      }
+    };
+  }, []); // Remove hasAnimated from dependency array to avoid re-creating observer
+
   const formatAnimatedValue = (index: number, animatedValue: number) => {
     const originalValue = LANDING_STATS[index].value;
     if (originalValue.includes("%")) {
@@ -85,13 +87,13 @@ export function LandingStatsV2() {
     } else if (originalValue.includes("s")) {
       return `< ${animatedValue}s`;
     }
-    return animatedValue.toString();
+    return animatedValue.toLocaleString();
   };
 
   return (
     <div ref={sectionRef} className="relative">
       <Container size="xl" className="py-16 sm:py-20 lg:py-24">
-        <Grid columns={3} gap="lg" className="grid-cols-1 sm:grid-cols-3">
+        <Grid columns={3} gap="lg">
           {LANDING_STATS.map((stat, index) => {
             const Icon = statIcons[index] || TrendingUp;
             return (
@@ -101,11 +103,11 @@ export function LandingStatsV2() {
                 padding="xl"
                 variant="grouped"
                 className={`text-center hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group ${
-                  hasAnimated ? "animate-slideInUp" : "opacity-0 translate-y-4"
+                  showAnimation ? "animate-slideInUp" : "opacity-0 translate-y-4"
                 }`}
                 style={{
-                  animationDelay: hasAnimated ? `${index * 0.1}s` : undefined,
-                  animationFillMode: hasAnimated ? "both" : undefined,
+                  animationDelay: showAnimation ? `${index * 0.1}s` : undefined,
+                  animationFillMode: showAnimation ? "both" : undefined,
                 }}
               >
                 <CardContent>

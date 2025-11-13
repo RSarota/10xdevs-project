@@ -37,6 +37,7 @@ interface FlashcardsResponse {
     limit: number;
     total: number;
     total_pages: number;
+    total_without_filters: number; // Dodajemy całkowitą liczbę fiszek bez filtrów
   };
 }
 
@@ -98,7 +99,16 @@ export const GET: APIRoute = async ({ request, locals }) => {
     // 2. Delegate logic to service
     const result = await getFlashcards(locals.supabase, userId, params);
 
-    // 3. Return response
+    // 3. Get total without filters for better UX
+    const totalWithoutFiltersResult = await getFlashcards(locals.supabase, userId, {
+      page: 1,
+      limit: 1,
+      sort_by: params.sort_by,
+      sort_order: params.sort_order,
+      // No type or generation_id filters
+    });
+
+    // 4. Return response
     const response: FlashcardsResponse = {
       data: result.flashcards,
       pagination: {
@@ -106,6 +116,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
         limit: params.limit,
         total: result.total,
         total_pages: Math.ceil(result.total / params.limit),
+        total_without_filters: totalWithoutFiltersResult.total,
       },
     };
 

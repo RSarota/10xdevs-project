@@ -1,3 +1,4 @@
+import React from "react";
 import { ArrowUpDown } from "lucide-react";
 
 interface SortButtonProps {
@@ -8,7 +9,13 @@ interface SortButtonProps {
   onClick: () => void;
 }
 
-export function SortButton({ label, field, activeField, sortOrder, onClick }: SortButtonProps) {
+export const SortButton = React.memo(function SortButton({
+  label,
+  field,
+  activeField,
+  sortOrder,
+  onClick,
+}: SortButtonProps) {
   const isActive = activeField === field;
 
   return (
@@ -28,4 +35,4 @@ export function SortButton({ label, field, activeField, sortOrder, onClick }: So
       {isActive && <span className="ml-1">{sortOrder === "desc" ? "↓" : "↑"}</span>}
     </button>
   );
-}
+});

@@ -85,7 +85,10 @@ export function LandingHeroV2({ onRegister, onLogin }: LandingHeroV2Props) {
             </div>
 
             {/* Trust indicators - Better mobile layout */}
-            <Body className="text-[hsl(var(--apple-label-tertiary))] text-xs sm:text-sm mt-4 sm:mt-6 flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-4 sm:px-0">
+            <Body
+              as="div"
+              className="text-[hsl(var(--apple-label-tertiary))] text-xs sm:text-sm mt-4 sm:mt-6 flex flex-col sm:flex-row items-center gap-1 sm:gap-2 px-4 sm:px-0"
+            >
               <div className="flex items-center gap-2">
                 <span>✓ Bez karty kredytowej</span>
                 <span className="hidden sm:inline text-[hsl(var(--apple-separator-opaque))]">•</span>
