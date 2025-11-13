@@ -129,7 +129,7 @@ export function LandingTestimonialsV2() {
                       {/* Content */}
                       <div className="flex-1">
                         <Body className="text-[hsl(var(--apple-label))] text-sm sm:text-base leading-relaxed italic">
-                          "{testimonial.content}"
+                          &ldquo;{testimonial.content}&rdquo;
                         </Body>
                       </div>
 

@@ -140,12 +140,20 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
           {title && (
             <h1
               onClick={onTitleClick}
+              onKeyDown={(e) => {
+                if (onTitleClick && (e.key === "Enter" || e.key === " ")) {
+                  e.preventDefault();
+                  onTitleClick();
+                }
+              }}
+              tabIndex={onTitleClick ? 0 : undefined}
+              role={onTitleClick ? "button" : undefined}
               className={`
               ${large ? "text-[var(--apple-font-large-title)]" : "text-[var(--apple-font-headline)]"}
               font-[var(--apple-weight-bold)]
               text-[hsl(var(--apple-label))]
               truncate max-w-full
-              ${onTitleClick ? "cursor-pointer hover:opacity-70 transition-opacity" : ""}
+              ${onTitleClick ? "cursor-pointer hover:opacity-70 transition-opacity focus:outline-none focus:ring-2 focus:ring-[hsl(var(--apple-blue))] focus:ring-offset-2 rounded" : ""}
             `
                 .trim()
                 .replace(/\s+/g, " ")}
