@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Card, CardHeader, Stack, Input, Button } from "@/components/apple-hig";
-import { Mail } from "lucide-react";
+import { Card, CardHeader, Stack, Input, Button, Badge, Title3 } from "@/components/apple-hig";
+import { Mail, User, Shield } from "lucide-react";
 import { profileUpdateSchema, type ProfileUpdateInput } from "@/lib/schemas/profile.schema";
 import { PasswordChangeFields } from "./PasswordChangeFields";
 import type { ProfileFormData, UserProfileDTO } from "@/hooks/useProfile";
@@ -68,9 +68,31 @@ export function ProfileForm({ profile, onSubmit, loading = false }: ProfileFormP
   const hasChanges = (formData.password?.trim().length ?? 0) > 0;
 
   return (
-    <Card elevation="md" padding="xl" variant="grouped">
-      <Stack direction="vertical" spacing="xl">
-        <CardHeader title="Dane konta" subtitle="Zarządzaj danymi swojego konta" />
+    <Card
+      elevation="md"
+      padding="xl"
+      variant="grouped"
+      className="relative overflow-hidden group hover:shadow-md transition-all duration-300"
+    >
+      {/* Subtle gradient overlay - much more subtle */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--apple-blue)/0.005)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+      <Stack direction="vertical" spacing="xl" className="relative">
+        <div className="flex items-center gap-3">
+          <Badge color="blue" variant="filled" size="md">
+            <User className="w-3 h-3" />
+            Profil
+          </Badge>
+        </div>
+
+        <CardHeader
+          title={
+            <Title3 className="bg-gradient-to-r from-[hsl(var(--apple-label))] to-[hsl(var(--apple-label-secondary))] bg-clip-text text-transparent">
+              Dane konta
+            </Title3>
+          }
+          subtitle="Zarządzaj danymi swojego konta"
+        />
 
         <form
           onSubmit={handleSubmit}

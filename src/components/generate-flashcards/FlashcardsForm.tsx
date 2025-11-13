@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Card, TextArea, Stack, Badge } from "@/components/apple-hig";
+import { Button, Stack, Badge } from "@/components/apple-hig";
 import { useTextAreaValidation } from "@/hooks/useTextAreaValidation";
 import { FLASHCARD_GENERATION_LIMITS } from "@/lib/constants/flashcardGeneration";
 
@@ -36,7 +36,7 @@ export function FlashcardsForm({ onSubmit, loading, disabled = false }: Flashcar
   };
 
   return (
-    <Card elevation="md" padding="xl" variant="grouped" className="h-fit">
+    <div className="h-fit">
       <form
         onSubmit={handleSubmit}
         data-testid="generate-flashcards-form"
@@ -44,29 +44,41 @@ export function FlashcardsForm({ onSubmit, loading, disabled = false }: Flashcar
         aria-busy={!isReady}
       >
         <Stack direction="vertical" spacing="lg">
-          <TextArea
-            id="source-text"
-            value={validation.value}
-            onChange={handleChange}
-            placeholder="Wklej tutaj tekst z którego chcesz wygenerować fiszki..."
-            className="min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] font-mono text-sm !resize-y"
-            disabled={loading || disabled}
-            rows={20}
-            data-testid="generate-flashcards-textarea"
-          />
-
-          <Stack direction="horizontal" justify="between" align="center" wrap>
-            <div data-testid="generate-character-count">
-              <Badge color={validation.badgeColor} variant="outlined" size="md">
-                {validation.length.toLocaleString()} / {FLASHCARD_GENERATION_LIMITS.MAX_LENGTH.toLocaleString()} znaków
+          <div>
+            <Stack direction="horizontal" justify="between" align="center" className="mb-2">
+              <label
+                htmlFor="source-text"
+                className="text-[var(--apple-font-subheadline)] font-[var(--apple-weight-medium)] text-[hsl(var(--apple-label))]"
+              >
+                Tekst źródłowy
+              </label>
+              <Badge color={validation.badgeColor} variant="filled" size="md" data-testid="generate-character-count">
+                {validation.length.toLocaleString()} / {FLASHCARD_GENERATION_LIMITS.MAX_LENGTH.toLocaleString()}
               </Badge>
+            </Stack>
+            <div className="relative flex px-4 py-3 bg-transparent border border-[hsl(var(--apple-separator))]/25 rounded-2xl transition-all duration-200 ease-out hover:border-[hsl(var(--apple-separator))]/40 focus-within:border-[hsl(var(--apple-blue))] focus-within:ring-2 focus-within:ring-[hsl(var(--apple-blue))]/20 focus-within:shadow-sm">
+              <textarea
+                id="source-text"
+                value={validation.value}
+                onChange={handleChange}
+                placeholder="Wklej tutaj tekst z którego chcesz wygenerować fiszki..."
+                className="flex-1 w-full min-w-0 resize-none bg-transparent text-[var(--apple-font-body)] text-[hsl(var(--apple-label))] placeholder:text-[hsl(var(--apple-label-tertiary))] outline-none disabled:cursor-not-allowed min-h-[300px] sm:min-h-[400px] lg:min-h-[500px] font-mono text-sm"
+                disabled={loading || disabled}
+                rows={20}
+                data-testid="generate-flashcards-textarea"
+                aria-invalid={!!validation.errorMessage}
+                aria-describedby={validation.errorMessage ? "source-text-error" : undefined}
+              />
             </div>
             {validation.errorMessage && (
-              <span className="text-[var(--apple-font-caption-1)] text-[hsl(var(--apple-label-tertiary))]">
+              <p
+                id="source-text-error"
+                className="text-[var(--apple-font-footnote)] text-[hsl(var(--apple-red))] animate-in slide-in-from-top-1 duration-200"
+              >
                 {validation.errorMessage}
-              </span>
+              </p>
             )}
-          </Stack>
+          </div>
 
           <Button
             variant="filled"
@@ -82,6 +94,6 @@ export function FlashcardsForm({ onSubmit, loading, disabled = false }: Flashcar
           </Button>
         </Stack>
       </form>
-    </Card>
+    </div>
   );
 }

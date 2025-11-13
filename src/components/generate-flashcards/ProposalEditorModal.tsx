@@ -38,7 +38,7 @@ export function ProposalEditorModal({ proposal, open, onSave, onCancel }: Propos
   };
 
   const handleCancel = () => {
-    form.resetTouched();
+    form.resetForm();
     onCancel();
   };
 
@@ -55,7 +55,7 @@ export function ProposalEditorModal({ proposal, open, onSave, onCancel }: Propos
     >
       <form onSubmit={handleSubmit}>
         <Stack direction="vertical" spacing="xl">
-          <FlashcardFormFields form={form} showHelperText={true} frontId="edit-front" backId="edit-back" />
+          <FlashcardFormFields form={form} frontId="edit-front" backId="edit-back" />
 
           <Stack
             direction="horizontal"

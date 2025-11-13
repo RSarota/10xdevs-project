@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, CardHeader, Stack, Button } from "@/components/apple-hig";
+import { Card, Stack, Button } from "@/components/apple-hig";
 import { FlashcardFormFields } from "@/components/flashcards/FlashcardFormFields";
 import { useFlashcardForm } from "@/hooks/useFlashcardForm";
 import type { AddFlashcardFormData } from "@/hooks/useAddFlashcard";
@@ -29,10 +29,13 @@ export function AddFlashcardForm({ onSubmit, loading = false }: AddFlashcardForm
   };
 
   return (
-    <Card elevation="md" padding="xl" variant="grouped">
-      <Stack direction="vertical" spacing="xl">
-        <CardHeader title="Dodaj nową fiszkę" subtitle="Stwórz fiszkę ręcznie, wpisując pytanie i odpowiedź" />
-
+    <Card
+      elevation="md"
+      padding="xl"
+      variant="grouped"
+      className="relative overflow-hidden group hover:shadow-lg transition-all duration-300 bg-white/60 dark:bg-black/15 backdrop-blur-sm border border-[hsl(var(--apple-separator))]/25 shadow-md"
+    >
+      <Stack direction="vertical" spacing="xl" className="relative">
         <form
           onSubmit={handleSubmit}
           data-testid="add-flashcard-form"

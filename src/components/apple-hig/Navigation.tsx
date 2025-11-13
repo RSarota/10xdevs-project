@@ -327,9 +327,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ children, header, footer, clas
         flex flex-col
         ${collapsed ? "w-16" : "w-64"}
         h-screen
-        bg-[hsl(var(--apple-grouped-bg-secondary))]
+        bg-gradient-to-b from-[hsl(var(--apple-grouped-bg-secondary))] to-[hsl(var(--apple-grouped-bg-tertiary))]
         border-r border-[hsl(var(--apple-separator-opaque))]
         transition-all duration-300 ease-in-out
+        backdrop-blur-xl backdrop-saturate-200
         ${className}
       `
         .trim()
@@ -341,12 +342,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ children, header, footer, clas
         className={`
         flex-1 overflow-y-auto overflow-x-hidden
         ${collapsed ? "px-[var(--apple-space-2)]" : "px-[var(--apple-space-4)]"}
-        py-[var(--apple-space-4)] 
-        space-y-[var(--apple-space-1)]
+        py-[var(--apple-space-6)] 
+        space-y-[var(--apple-space-2)]
         transition-all duration-300
+        relative
       `}
       >
-        {children}
+        {/* Subtle background pattern for navigation area */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[hsl(var(--apple-grouped-bg-secondary))]/30 to-transparent pointer-events-none" />
+        <div className="relative">{children}</div>
       </nav>
 
       {footer && <div className="flex-shrink-0 border-t border-[hsl(var(--apple-separator-opaque))]">{footer}</div>}

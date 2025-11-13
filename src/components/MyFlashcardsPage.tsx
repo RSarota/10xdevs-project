@@ -38,7 +38,7 @@ export default function MyFlashcardsPage() {
   const hasFlashcards = items.length > 0;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[hsl(var(--apple-grouped-bg))]">
+    <div className="min-h-screen flex flex-col">
       {/* Main Content Container */}
       <div className="flex-1 overflow-y-auto">
         <Container size="xl" className="py-[var(--apple-space-8)]">

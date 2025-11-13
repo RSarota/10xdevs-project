@@ -155,7 +155,7 @@ export default function StudySessionPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[hsl(var(--apple-grouped-bg))]">
+    <div className="min-h-screen flex flex-col">
       <div className="flex-1 overflow-y-auto">
         <Container size="lg" className="py-[var(--apple-space-8)]">
           {content}

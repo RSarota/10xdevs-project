@@ -16,16 +16,18 @@ export function useFlashcardForm({ initialData, onDataChange }: UseFlashcardForm
   const [back, setBack] = useState(initialData?.back || "");
   const [touchedFront, setTouchedFront] = useState(false);
   const [touchedBack, setTouchedBack] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Reset form when initial data changes
+  // Initialize form only on first mount with initialData
   useEffect(() => {
-    if (initialData) {
+    if (initialData && !isInitialized) {
       setFront(initialData.front);
       setBack(initialData.back);
       setTouchedFront(false);
       setTouchedBack(false);
+      setIsInitialized(true);
     }
-  }, [initialData]);
+  }, [initialData, isInitialized]);
 
   // Notify parent of data changes
   useEffect(() => {
@@ -56,22 +58,6 @@ export function useFlashcardForm({ initialData, onDataChange }: UseFlashcardForm
     return "green";
   };
 
-  const getFrontHelperText = (): string | undefined => {
-    if (frontLength === 0) return undefined;
-    if (frontLength > FLASHCARD_LIMITS.FRONT_MAX) {
-      return `Przekroczono o ${frontLength - FLASHCARD_LIMITS.FRONT_MAX} znaków`;
-    }
-    return `${FLASHCARD_LIMITS.FRONT_MAX - frontLength} znaków pozostało`;
-  };
-
-  const getBackHelperText = (): string | undefined => {
-    if (backLength === 0) return undefined;
-    if (backLength > FLASHCARD_LIMITS.BACK_MAX) {
-      return `Przekroczono o ${backLength - FLASHCARD_LIMITS.BACK_MAX} znaków`;
-    }
-    return `${FLASHCARD_LIMITS.BACK_MAX - backLength} znaków pozostało`;
-  };
-
   const handleFrontChange = (value: string) => {
     setFront(value);
     if (!touchedFront) setTouchedFront(true);
@@ -88,6 +74,18 @@ export function useFlashcardForm({ initialData, onDataChange }: UseFlashcardForm
   };
 
   const resetTouched = () => {
+    setTouchedFront(false);
+    setTouchedBack(false);
+  };
+
+  const resetForm = () => {
+    if (initialData) {
+      setFront(initialData.front);
+      setBack(initialData.back);
+    } else {
+      setFront("");
+      setBack("");
+    }
     setTouchedFront(false);
     setTouchedBack(false);
   };
@@ -116,14 +114,13 @@ export function useFlashcardForm({ initialData, onDataChange }: UseFlashcardForm
     // Helpers
     getFrontBadgeColor,
     getBackBadgeColor,
-    getFrontHelperText,
-    getBackHelperText,
 
     // Handlers
     handleFrontChange,
     handleBackChange,
     markAllTouched,
     resetTouched,
+    resetForm,
     getData,
   };
 }

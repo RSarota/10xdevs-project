@@ -1,4 +1,4 @@
-import { Card, Badge } from "@/components/apple-hig";
+import { Badge } from "@/components/apple-hig";
 import { ProposalCardContent } from "./ProposalCardContent";
 import { ProposalActionButtons } from "./ProposalActionButtons";
 import type { ProposalViewModel } from "../GenerateFlashcardsPage";
@@ -33,26 +33,27 @@ export function ProposalItem({ proposal, onAccept, onEdit, onReject, disabled = 
   };
 
   const cardClassName = isRejected ? "opacity-40" : "";
-  const elevation = isRejected ? "none" : isAccepted || isEdited ? "lg" : "md";
+  const shadowClasses = isRejected
+    ? ""
+    : isAccepted || isEdited
+      ? "shadow-[var(--apple-shadow-lg)]"
+      : "shadow-[var(--apple-shadow-md)]";
+  const hoverClasses = isRejected
+    ? ""
+    : "hover:shadow-[var(--apple-shadow-lg)] hover:-translate-y-0.5 transition-all duration-200";
 
   return (
-    <Card
-      elevation={elevation}
-      padding="none"
-      variant="default"
-      hoverable={!isRejected}
-      className={`relative ${cardClassName}`}
+    <div
+      className={`relative bg-white/50 dark:bg-white/6 backdrop-blur-sm border border-[hsl(var(--apple-separator))]/25 rounded-3xl ${shadowClasses} ${hoverClasses} ${cardClassName} ${!isRejected ? "cursor-pointer" : ""}`}
     >
       {/* Status badge - absolutne pozycjonowanie */}
-      <div className="absolute top-[var(--apple-space-4)] right-[var(--apple-space-4)] z-10 pointer-events-none">
-        {getStatusBadge()}
-      </div>
+      <div className="absolute top-4 right-4 z-10 pointer-events-none">{getStatusBadge()}</div>
 
       {/* Main content - flashcard style */}
       <ProposalCardContent front={proposal.front} back={proposal.back} />
 
       {/* Action buttons - footer */}
-      <div className="border-t border-[hsl(var(--apple-separator-opaque))] bg-[hsl(var(--apple-fill))]/5 p-[var(--apple-space-4)] flex justify-end gap-[var(--apple-space-2)]">
+      <div className="border-t border-[hsl(var(--apple-separator))]/25 bg-transparent p-4 flex justify-end gap-2">
         <ProposalActionButtons
           status={proposal.status}
           onAccept={() => onAccept(proposal.temporary_id)}
@@ -61,6 +62,6 @@ export function ProposalItem({ proposal, onAccept, onEdit, onReject, disabled = 
           disabled={disabled}
         />
       </div>
-    </Card>
+    </div>
   );
 }

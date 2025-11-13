@@ -1,4 +1,4 @@
-import { Card, Stack } from "@/components/apple-hig";
+import { Stack } from "@/components/apple-hig";
 import { ProposalsStatsHeader } from "./ProposalsStatsHeader";
 import { ProposalsActionButtons } from "./ProposalsActionButtons";
 
@@ -28,7 +28,7 @@ export function ProposalsStatsCard({
   }
 
   return (
-    <Card elevation="lg" padding="lg" variant="grouped" className="sticky top-[var(--apple-space-8)] z-10">
+    <div className="sticky top-6 z-10">
       <Stack direction="vertical" spacing="md">
         <ProposalsStatsHeader
           reviewedCount={reviewedCount}
@@ -46,6 +46,6 @@ export function ProposalsStatsCard({
           />
         )}
       </Stack>
-    </Card>
+    </div>
   );
 }

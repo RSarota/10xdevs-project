@@ -255,6 +255,11 @@
   --apple-grouped-bg-secondary: 0 0% 100%; /* Grouped secondary */
   --apple-grouped-bg-tertiary: 0 0% 98%; /* Grouped tertiary */
 
+  /* Gradient variables for light mode */
+  --apple-gradient-from: 0 0% 95%; /* Base light color */
+  --apple-gradient-via: 0 0% 97%; /* Slightly lighter */
+  --apple-gradient-to: 0 0% 93%; /* Slightly darker endpoint */
+
   /* Apple Separator Colors */
   --apple-separator: 0 0% 23.5%; /* 24% opacity */
   --apple-separator-opaque: 0 0% 78%; /* Opaque separator */
@@ -473,6 +478,11 @@
   --apple-grouped-bg: 220 13% 9%; /* Grouped background - dark blue-gray instead of pure black */
   --apple-grouped-bg-secondary: 220 13% 13%; /* Grouped secondary - slightly lighter */
   --apple-grouped-bg-tertiary: 220 12% 16%; /* Grouped tertiary - even lighter */
+
+  /* Additional gradient variables for dark mode */
+  --apple-gradient-from: 220 13% 9%; /* Base dark color */
+  --apple-gradient-via: 220 15% 11%; /* Slightly different hue */
+  --apple-gradient-to: 220 12% 8%; /* Darker endpoint */
 
   /* Apple Separator Colors (Dark Mode) */
   --apple-separator: 220 10% 30%; /* Separator - lighter and with blue tint */
