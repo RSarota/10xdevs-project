@@ -40,7 +40,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     const userId = user.id;
 
-    // 1. Walidacja parametrów zapytania
+    // 1. Validate query parameters
     const url = new URL(request.url);
     const rawParams = {
       page: url.searchParams.get("page") || "1",
@@ -66,10 +66,10 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     const params = validationResult.data;
 
-    // 2. Delegowanie logiki do serwisu
+    // 2. Delegate logic to service
     const result = await getGenerations(locals.supabase, userId, params);
 
-    // 3. Zwrócenie odpowiedzi
+    // 3. Return response
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -143,7 +143,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    // 2. Walidacja przy użyciu Zod schema
+    // 2. Validate using Zod schema
     const validationResult = GenerateFlashcardsSchema.safeParse(body);
 
     if (!validationResult.success) {
@@ -162,14 +162,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     const { source_text } = validationResult.data;
 
-    // 3. Obliczenie metadanych dla logowania błędów
+    // 3. Calculate metadata for error logging
     sourceTextHash = await calculateHash(source_text);
     sourceTextLength = source_text.length;
 
-    // 4. Wywołanie serwisu generowania
+    // 4. Call generation service
     const result = await createGeneration(locals.supabase, userId, source_text);
 
-    // 5. Zwrócenie odpowiedzi 201 Created
+    // 5. Return 201 Created response
     return new Response(JSON.stringify(result), {
       status: 201,
       headers: { "Content-Type": "application/json" },
@@ -177,9 +177,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
   } catch (error) {
     console.error("Error in POST /api/generations:", error);
 
-    // Obsługa błędów AI Service
+    // Handle AI Service errors
     if (error instanceof AIServiceError) {
-      // Logowanie błędu do bazy danych
+      // Log error to database
       if (sourceTextHash && sourceTextLength && locals.user) {
         await logGenerationError(
           locals.supabase,
@@ -191,7 +191,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         );
       }
 
-      // Mapowanie błędów AI na odpowiednie kody HTTP
+      // Map AI errors to appropriate HTTP codes
       return new Response(
         JSON.stringify({
           error: error.code === "RATE_LIMIT_EXCEEDED" ? "Too Many Requests" : "Service Unavailable",
@@ -204,7 +204,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    // Logowanie innych błędów
+    // Log other errors
     if (sourceTextHash && sourceTextLength && locals.user) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       await logGenerationError(
@@ -217,7 +217,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    // 500: Ogólny błąd serwera
+    // 500: General server error
     return new Response(
       JSON.stringify({
         error: "Internal Server Error",

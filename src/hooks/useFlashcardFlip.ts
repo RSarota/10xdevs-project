@@ -10,32 +10,32 @@ export interface UseFlashcardFlipReturn {
 }
 
 /**
- * Hook do zarządzania stanem flipowania fiszki z animacją 3D
- * - flip(): jednokrotne odwrócenie z przodu na tył (dla study)
- * - toggle(): wielokrotne przełączanie (dla my-flashcards)
+ * Hook for managing flashcard flip state with 3D animation
+ * - flip(): single flip from front to back (for study)
+ * - toggle(): multiple switching (for my-flashcards)
  */
 export function useFlashcardFlip(initialState = false, duration = 300): UseFlashcardFlipReturn {
   const [isFlipped, setIsFlipped] = useState(initialState);
   const [isFlipping, setIsFlipping] = useState(false);
 
   const flip = useCallback(() => {
-    // Blokuj jeśli już jest odwrócona lub w trakcie odwracania (tylko z przodu na tył)
+    // Block if already flipped or in the process of flipping (only from front to back)
     if (isFlipping || isFlipped) return;
 
     setIsFlipping(true);
     setTimeout(() => {
-      setIsFlipped(true); // Tylko ustaw na true (z przodu na tył), nie toggle
+      setIsFlipped(true); // Only set to true (from front to back), don't toggle
       setIsFlipping(false);
     }, duration);
   }, [isFlipping, isFlipped, duration]);
 
   const toggle = useCallback(() => {
-    // Blokuj tylko jeśli w trakcie odwracania (pozwala na wielokrotne przełączanie)
+    // Block only if in the process of flipping (allows multiple switching)
     if (isFlipping) return;
 
     setIsFlipping(true);
     setTimeout(() => {
-      setIsFlipped((prev) => !prev); // Toggle między true/false
+      setIsFlipped((prev) => !prev); // Toggle between true/false
       setIsFlipping(false);
     }, duration);
   }, [isFlipping, duration]);

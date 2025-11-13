@@ -8,6 +8,7 @@ A modern web application for creating and managing educational flashcards with A
 - [Tech Stack](#tech-stack)
 - [Getting Started Locally](#getting-started-locally)
 - [Available Scripts](#available-scripts)
+- [Testing](#testing)
 - [Project Scope](#project-scope)
 - [Project Status](#project-status)
 - [License](#license)
@@ -93,10 +94,12 @@ A modern web application for creating and managing educational flashcards with A
 
 4. **Set up environment variables**
 
+   Create a `.env` file in the root directory with the following variables:
+
    ```bash
-   # Copy the example environment file
-   cp .env.example .env.local
-   # Edit .env.local with your configuration
+   # Create .env file
+   touch .env
+   # Edit .env with your configuration
    ```
 
 5. **Start the development server**
@@ -110,24 +113,47 @@ A modern web application for creating and managing educational flashcards with A
 
 ### Environment Configuration
 
-You'll need to configure the following environment variables:
+You'll need to configure the following environment variables in your `.env` file:
 
 - `SUPABASE_URL` - Your Supabase project URL
 - `SUPABASE_KEY` - Your Supabase anonymous key
-- `AZURE_OPENAI_ENDPOINT` - Azure OpenAI service endpoint
-- `AZURE_OPENAI_API_KEY` - Azure OpenAI API key
+- `OPENAI_URL` - OpenAI API endpoint (e.g., `https://api.openai.com/v1`)
+- `OPENAI_API_KEY` - OpenAI API key
+
+**Note**: The `.env` file is in `.gitignore` and should not be committed to the repository. For production deployment configuration, see [docs/AZURE_ENVIRONMENT_VARIABLES.md](docs/AZURE_ENVIRONMENT_VARIABLES.md).
 
 ## Available Scripts
 
-| Script             | Description                              |
-| ------------------ | ---------------------------------------- |
-| `npm run dev`      | Start development server with hot reload |
-| `npm run build`    | Build the application for production     |
-| `npm run preview`  | Preview the production build locally     |
-| `npm run astro`    | Run Astro CLI commands                   |
-| `npm run lint`     | Run ESLint to check code quality         |
-| `npm run lint:fix` | Automatically fix ESLint issues          |
-| `npm run format`   | Format code with Prettier                |
+### Development
+
+| Script            | Description                              |
+| ----------------- | ---------------------------------------- |
+| `npm run dev`     | Start development server with hot reload |
+| `npm run build`   | Build the application for production     |
+| `npm run preview` | Preview the production build locally     |
+| `npm run astro`   | Run Astro CLI commands                   |
+
+### Code Quality
+
+| Script             | Description                      |
+| ------------------ | -------------------------------- |
+| `npm run lint`     | Run ESLint to check code quality |
+| `npm run lint:fix` | Automatically fix ESLint issues  |
+| `npm run format`   | Format code with Prettier        |
+
+### Testing
+
+| Script                     | Description                                 |
+| -------------------------- | ------------------------------------------- |
+| `npm run test`             | Run unit and integration tests (Vitest)     |
+| `npm run test:watch`       | Run tests in watch mode                     |
+| `npm run test:ui`          | Run tests with interactive UI               |
+| `npm run test:coverage`    | Run tests with coverage report              |
+| `npm run test:e2e`         | Run end-to-end tests (Playwright)           |
+| `npm run test:e2e:ui`      | Run E2E tests with interactive UI           |
+| `npm run test:e2e:debug`   | Run E2E tests in debug mode                 |
+| `npm run test:e2e:codegen` | Generate E2E tests using Playwright Codegen |
+| `npm run dev:e2e`          | Start development server in test mode       |
 
 ### Development Workflow
 
@@ -136,31 +162,65 @@ The project includes pre-commit hooks via Husky and lint-staged for code quality
 - TypeScript/React files are automatically linted and fixed
 - JSON, CSS, and Markdown files are formatted with Prettier
 
+## Testing
+
+The project includes comprehensive testing infrastructure:
+
+### Unit & Integration Tests
+
+- **Framework**: Vitest with React Testing Library
+- **Location**: Tests are co-located with source files (`.test.ts`, `.test.tsx`)
+- **Run**: `npm run test` or `npm run test:watch` for development
+
+### End-to-End Tests
+
+- **Framework**: Playwright
+- **Location**: `tests/e2e/`
+- **Run**: `npm run test:e2e`
+- **Setup**: Requires `.env.test` file with test credentials (see [tests/e2e/README.md](tests/e2e/README.md))
+
+### Test Coverage
+
+Generate coverage reports with `npm run test:coverage` to identify untested code paths.
+
 ## Project Scope
 
 ### Included in MVP
 
-✅ **Core Functionality**
+✅ **Core Functionality** - All MVP features are implemented and functional
 
-- User registration and authentication with email verification
-- AI-powered flashcard generation from text input
-- Manual flashcard creation with forms
-- Flashcard management (edit, delete, organize)
-- Spaced repetition learning sessions
-- Session history and progress tracking
-- Secure, private flashcard storage
+- ✅ User registration and authentication with email verification
+- ✅ Password recovery (forgot/reset password)
+- ✅ Account management (profile updates, account deletion)
+- ✅ AI-powered flashcard generation from text input (1,000-10,000 characters)
+- ✅ Manual flashcard creation with forms
+- ✅ Flashcard management (view, edit, delete, bulk operations)
+- ✅ Flashcard filtering and sorting (by type, generation, date)
+- ✅ Spaced repetition learning sessions with FSRS algorithm
+- ✅ Session history and progress tracking
+- ✅ Statistics and analytics dashboard
+- ✅ Secure, private flashcard storage with Row-Level Security (RLS)
+- ✅ Admin panel (error logs, user management)
 
 ## Project Status
 
-🚧 **In Development** - MVP Phase
+✅ **MVP Complete** - Production Ready
 
-The project is currently in active development, focusing on implementing the core MVP features outlined in the product requirements. The foundation with Astro, React, and Supabase integration is established, with ongoing work on:
+The MVP is fully implemented with all core features functional:
 
-- User authentication system
-- AI integration with Azure OpenAI
-- Flashcard management interface
-- Learning session implementation
-- Spaced repetition algorithm
+- ✅ **User Authentication**: Complete registration, login, password recovery, and account management
+- ✅ **AI Integration**: Azure OpenAI integration for automated flashcard generation
+- ✅ **Flashcard Management**: Full CRUD operations with filtering, sorting, and bulk operations
+- ✅ **Learning Sessions**: Interactive study sessions with spaced repetition (FSRS algorithm)
+- ✅ **Progress Tracking**: Session history, statistics, and analytics dashboard
+- ✅ **Security**: Row-Level Security (RLS) policies, secure authentication, and private data storage
+
+The application is ready for production deployment. Future enhancements may include:
+
+- Advanced analytics and insights
+- Social features (sharing, collaboration)
+- Mobile applications
+- Additional AI features and integrations
 
 ## License
 

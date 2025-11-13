@@ -38,27 +38,27 @@ export async function getErrors(
 ): Promise<GetErrorsResult> {
   const { page, limit, error_code } = params;
 
-  // Obliczenie offsetu dla paginacji
+  // Calculate offset for pagination
   const offset = (page - 1) * limit;
 
-  // Budowanie zapytania z filtrowaniem po user_id
+  // Build query with filtering by user_id
   let query = supabase.from("generation_error_logs").select("*", { count: "exact" }).eq("user_id", userId);
 
-  // Opcjonalne filtrowanie po error_code
+  // Optional filtering by error_code
   if (error_code) {
     query = query.eq("error_code", error_code);
   }
 
-  // Sortowanie po created_at DESC (najnowsze najpierw)
+  // Sort by created_at DESC (newest first)
   query = query.order("created_at", { ascending: false });
 
-  // Paginacja
+  // Pagination
   query = query.range(offset, offset + limit - 1);
 
-  // Wykonanie zapytania
+  // Execute query
   const { data, error, count } = await query;
 
-  // Obsługa błędów
+  // Error handling
   if (error) {
     console.error("Error fetching generation errors:", error);
     throw new Error(`Błąd podczas pobierania logów błędów: ${error.message || error.code || "Unknown error"}`);

@@ -84,7 +84,7 @@ const FlashcardSide = memo(function FlashcardSide({
           <span className="text-xs text-[hsl(var(--apple-label-tertiary))]">{formatDate(flashcard.created_at)}</span>
         </div>
 
-        {/* Flip indicator - tylko gdy nie jest w trakcie obracania */}
+        {/* Flip indicator - only when not flipping */}
         {!isFlipping && (
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-xs text-[hsl(var(--apple-label-quaternary))] pointer-events-none">
             {isFront ? "Kliknij aby zobaczyć tył" : "Kliknij aby zobaczyć przód"}
@@ -96,7 +96,7 @@ const FlashcardSide = memo(function FlashcardSide({
 });
 
 export const FlashcardItem = memo(function FlashcardItem({ flashcard, onEdit, onDelete }: FlashcardItemProps) {
-  const { isFlipped, isFlipping, toggle } = useFlashcardFlip(false, 200); // 200ms dla szybszego przełączania w my-flashcards
+  const { isFlipped, isFlipping, toggle } = useFlashcardFlip(false, 200); // 200ms for faster switching in my-flashcards
 
   const getTextSize = (length: number) => {
     if (length > 500) return "text-xs";
@@ -112,7 +112,7 @@ export const FlashcardItem = memo(function FlashcardItem({ flashcard, onEdit, on
   const backTextSize = useMemo(() => getTextSize(flashcard.back.length), [flashcard.back.length]);
 
   const handleToggle = () => {
-    // W my-flashcards pozwalamy na wielokrotne odwracanie
+    // In my-flashcards we allow multiple flips
     if (isFlipping) return;
 
     toggle();
@@ -125,7 +125,7 @@ export const FlashcardItem = memo(function FlashcardItem({ flashcard, onEdit, on
     }
   };
 
-  // Memoizacja label dla accessibility
+  // Memoize label for accessibility
   const ariaLabel = useMemo(() => {
     const side = isFlipped ? "tył" : "przód";
     const content = side === "przód" ? flashcard.front : flashcard.back;

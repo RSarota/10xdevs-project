@@ -35,11 +35,11 @@ export const FlashcardInputSchema = z
   })
   .refine(
     (data) => {
-      // Manual flashcards NIE MOGĄ mieć generation_id
+      // Manual flashcards CANNOT have generation_id
       if (data.source === "manual") {
         return data.generation_id === undefined;
       }
-      // AI flashcards (ai-full, ai-edited) MUSZĄ mieć generation_id
+      // AI flashcards (ai-full, ai-edited) MUST have generation_id
       return data.generation_id !== undefined;
     },
     {

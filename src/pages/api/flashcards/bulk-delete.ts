@@ -45,7 +45,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
 
-    // Walidacja przy użyciu Zod
+    // Validate using Zod
     const validation = BulkDeleteFlashcardsSchema.safeParse(body);
 
     if (!validation.success) {

@@ -135,12 +135,12 @@ describe("FlashcardView", () => {
     const onReveal = vi.fn();
     const { rerender } = render(<FlashcardView flashcard={mockFlashcard} isRevealed={false} onReveal={onReveal} />);
 
-    // When not revealed, should show "Kliknij aby odsłonić"
+    // When not revealed, should show reveal hint
     expect(screen.getByText("Kliknij aby odsłonić")).toBeInTheDocument();
 
     rerender(<FlashcardView flashcard={mockFlashcard} isRevealed={true} onReveal={onReveal} />);
 
-    // When revealed, should show "Fiszka odsłonięta"
+    // When revealed, should show revealed message
     expect(screen.getByText("Fiszka odsłonięta")).toBeInTheDocument();
   });
 
@@ -154,7 +154,7 @@ describe("FlashcardView", () => {
 
     rerender(<FlashcardView flashcard={mockFlashcard} isRevealed={true} onReveal={onReveal} />);
 
-    // Po reveal element nie ma już roli button
+    // After reveal, element no longer has button role
     const revealedCard = screen.getByTestId("flashcard-view");
     expect(revealedCard).toHaveAttribute("aria-pressed", "true");
     expect(revealedCard).toHaveAttribute("tabIndex", "-1");

@@ -35,7 +35,7 @@ export const GET: APIRoute = async ({ locals }) => {
       );
     }
 
-    // Pobierz pełne dane użytkownika z Supabase
+    // Get full user data from Supabase
     const { data: userData, error } = await locals.supabase.auth.getUser();
 
     if (error || !userData.user) {

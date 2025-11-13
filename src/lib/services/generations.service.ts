@@ -79,16 +79,16 @@ export async function createGeneration(
   const sourceTextHash = await calculateHash(sourceText);
   const sourceTextLength = sourceText.length;
 
-  // 2. Rozpoczęcie pomiaru czasu
+  // 2. Start time measurement
   const startTime = Date.now();
 
-  // 3. Wywołanie AI service
+  // 3. Call AI service
   const proposals = await generateFlashcards(sourceText);
 
-  // 4. Zatrzymanie pomiaru czasu
+  // 4. Stop time measurement
   const generationDuration = Date.now() - startTime;
 
-  // 5. Zapis do bazy danych
+  // 5. Save to database
   const { data: generation, error } = await supabase
     .from("generations")
     .insert({
@@ -107,7 +107,7 @@ export async function createGeneration(
     throw new Error(`Błąd podczas zapisywania generacji: ${error?.message || "Unknown error"}`);
   }
 
-  // 6. Zwrócenie odpowiedzi
+  // 6. Return response
   return {
     generation_id: generation.id,
     proposals,
@@ -145,7 +145,7 @@ export async function logGenerationError(
       error_message: errorMessage,
     });
   } catch (error) {
-    // Logowanie błędu nie powinno przerwać głównego przepływu
+    // Error logging should not interrupt main flow
     console.error("Error logging generation error:", error);
   }
 }
@@ -165,22 +165,22 @@ export async function getGenerations(
 ): Promise<GetGenerationsResult> {
   const { page, limit, sort_order } = params;
 
-  // Obliczenie offsetu dla paginacji
+  // Calculate offset for pagination
   const offset = (page - 1) * limit;
 
-  // Budowanie zapytania z filtrowaniem po user_id
+  // Build query with filtering by user_id
   let query = supabase.from("generations").select("*", { count: "exact" }).eq("user_id", userId);
 
-  // Sortowanie po created_at
+  // Sort by created_at
   query = query.order("created_at", { ascending: sort_order === "asc" });
 
-  // Paginacja
+  // Pagination
   query = query.range(offset, offset + limit - 1);
 
-  // Wykonanie zapytania
+  // Execute query
   const { data, error, count } = await query;
 
-  // Obsługa błędów
+  // Error handling
   if (error) {
     console.error("Error fetching generations:", error);
     throw new Error(`Błąd podczas pobierania generacji: ${error.message || error.code || "Unknown error"}`);
@@ -210,7 +210,7 @@ export async function getGenerationById(
   userId: string,
   generationId: number
 ): Promise<GenerationWithFlashcards | null> {
-  // 1. Pobierz generację
+  // 1. Get generation
   const { data: generation, error: generationError } = await supabase
     .from("generations")
     .select("*")
@@ -219,7 +219,7 @@ export async function getGenerationById(
     .single();
 
   if (generationError) {
-    // Not found nie jest błędem technicznym
+    // Not found is not a technical error
     if (generationError.code === "PGRST116") {
       return null;
     }
@@ -230,7 +230,7 @@ export async function getGenerationById(
     return null;
   }
 
-  // 2. Pobierz powiązane fiszki (tylko AI-generated)
+  // 2. Get related flashcards (only AI-generated)
   const { data: flashcards, error: flashcardsError } = await supabase
     .from("flashcards")
     .select("id, type, front, back, created_at")
@@ -242,7 +242,7 @@ export async function getGenerationById(
     throw new Error(`Błąd podczas pobierania fiszek: ${flashcardsError.message}`);
   }
 
-  // 3. Połącz dane
+  // 3. Combine data
   return {
     ...generation,
     flashcards: (flashcards || []) as FlashcardInGeneration[],

@@ -35,13 +35,13 @@ describe("useFlashcardFlip", () => {
       expect(result.current.isFlipped).toBe(true);
       expect(result.current.isFlipping).toBe(false);
 
-      // Próba ponownego flip() powinna być zablokowana
+      // Attempt to flip again should be blocked
       act(() => {
         result.current.flip();
       });
 
-      expect(result.current.isFlipped).toBe(true); // Nadal true, nie toggle
-      expect(result.current.isFlipping).toBe(false); // Nie powinno się zacząć flipowanie
+      expect(result.current.isFlipped).toBe(true); // Still true, not toggle
+      expect(result.current.isFlipping).toBe(false); // Should not start flipping
     });
 
     it("should not flip if already flipped", () => {
@@ -95,7 +95,7 @@ describe("useFlashcardFlip", () => {
       expect(result.current.isFlipped).toBe(true);
       expect(result.current.isFlipping).toBe(false);
 
-      // Drugi toggle - powinien wrócić do false
+      // Second toggle - should return to false
       act(() => {
         result.current.toggle();
       });

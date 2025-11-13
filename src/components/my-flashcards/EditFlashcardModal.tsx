@@ -37,7 +37,7 @@ export function EditFlashcardModal({ flashcard, open, onSave, onCancel }: EditFl
       updateCommand.back = data.back;
     }
 
-    // Zapisz tylko jeśli są zmiany
+    // Save only if there are changes
     if (Object.keys(updateCommand).length > 0) {
       onSave(flashcard.id, updateCommand);
     } else {

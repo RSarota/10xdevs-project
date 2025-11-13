@@ -27,7 +27,7 @@ export async function getUserStatistics(supabase: SupabaseClient, userId: string
     throw new Error(`Błąd podczas pobierania statystyk fiszek: ${flashcardsError.message}`);
   }
 
-  // Zliczanie fiszek według typu
+  // Count flashcards by type
   const flashcardsByType: Record<FlashcardType, number> = {
     manual: 0,
     "ai-full": 0,
@@ -67,11 +67,11 @@ export async function getUserStatistics(supabase: SupabaseClient, userId: string
 
   const totalAccepted = totalAcceptedUnedited + totalAcceptedEdited;
 
-  // 3. Obliczenie wskaźników (z zabezpieczeniem przed dzieleniem przez 0)
+  // 3. Calculate indicators (with protection against division by 0)
   const acceptanceRate = totalGenerated > 0 ? Math.round((totalAccepted / totalGenerated) * 100 * 100) / 100 : 0;
   const editRate = totalAccepted > 0 ? Math.round((totalAcceptedEdited / totalAccepted) * 100 * 100) / 100 : 0;
 
-  // 4. Zwrócenie statystyk
+  // 4. Return statistics
   return {
     flashcards: {
       total: totalFlashcards,

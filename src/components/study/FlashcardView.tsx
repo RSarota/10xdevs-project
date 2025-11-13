@@ -52,7 +52,7 @@ function FlashcardSide({ flashcard, side, textSize, isFlipping }: FlashcardSideP
           <span className="text-xs text-[hsl(var(--apple-label-tertiary))]">{formatDate(flashcard.created_at)}</span>
         </div>
 
-        {/* Flip indicator - tylko gdy nie jest w trakcie obracania */}
+        {/* Flip indicator - only when not flipping */}
         {!isFlipping && !isFront && (
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-xs text-[hsl(var(--apple-label-quaternary))] pointer-events-none">
             Fiszka odsłonięta
@@ -92,22 +92,22 @@ export function FlashcardView({ flashcard, isRevealed, onReveal }: FlashcardView
   const backTextSize = useMemo(() => getTextSize(flashcard.back.length), [flashcard.back.length]);
 
   const handleReveal = useCallback(() => {
-    // Ochrona przed podwójnym kliknięciem (debounce)
+    // Protection against double-click (debounce)
     const now = Date.now();
     if (now - lastClickTime.current < 500) {
-      return; // Ignoruj kliknięcia w ciągu 500ms
+      return; // Ignore clicks within 500ms
     }
     lastClickTime.current = now;
 
-    // Blokuj jeśli już jest odwrócona lub w trakcie odwracania
+    // Block if already revealed or in the process of flipping
     if (isRevealed || isFlipping) {
       return;
     }
 
-    // Uruchom animację
+    // Start animation
     setIsFlipping(true);
 
-    // Po animacji wywołaj callback
+    // After animation, call callback
     setTimeout(() => {
       setIsFlipping(false);
       onReveal();
@@ -162,7 +162,7 @@ export function FlashcardView({ flashcard, isRevealed, onReveal }: FlashcardView
             <FlashcardSide flashcard={flashcard} side="back" textSize={backTextSize} isFlipping={isFlipping} />
           </div>
 
-          {/* Loading indicator podczas animacji */}
+          {/* Loading indicator during animation */}
           {isFlipping && (
             <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
               <div className="w-6 h-6 border-2 border-[hsl(var(--apple-blue))]/30 border-t-[hsl(var(--apple-blue))] rounded-full animate-spin"></div>

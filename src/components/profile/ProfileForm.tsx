@@ -32,7 +32,7 @@ export function ProfileForm({ profile, onSubmit, loading = false }: ProfileFormP
   };
 
   const validateFormConditionally = (): boolean => {
-    // Jeśli hasło nie jest podane, nie walidujemy
+    // If password is not provided, don't validate
     if (formData.password?.trim().length === 0) {
       setErrors({});
       return true;

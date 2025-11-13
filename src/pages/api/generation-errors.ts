@@ -38,7 +38,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     const userId = user.id;
 
-    // 1. Walidacja parametrów zapytania
+    // 1. Validate query parameters
     const url = new URL(request.url);
     const rawParams = {
       page: url.searchParams.get("page") || "1",
@@ -64,10 +64,10 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     const params = validationResult.data;
 
-    // 2. Delegowanie logiki do serwisu
+    // 2. Delegate logic to service
     const result = await getErrors(locals.supabase, userId, params);
 
-    // 3. Zwrócenie odpowiedzi
+    // 3. Return response
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: { "Content-Type": "application/json" },
