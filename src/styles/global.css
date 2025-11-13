@@ -310,6 +310,24 @@
   --apple-space-8: 2rem; /* 32px */
   --apple-space-9: 2.5rem; /* 40px */
   --apple-space-10: 3rem; /* 48px */
+  --apple-space-11: 3.25rem; /* 52px */
+  --apple-space-12: 3.5rem; /* 56px */
+  --apple-space-13: 3.75rem; /* 60px */
+  --apple-space-14: 4rem; /* 64px */
+  --apple-space-15: 4.25rem; /* 68px */
+  --apple-space-16: 4.5rem; /* 72px */
+  --apple-space-17: 4.75rem; /* 76px */
+  --apple-space-18: 5rem; /* 80px */
+  --apple-space-19: 5.25rem; /* 84px */
+  --apple-space-20: 5.5rem; /* 88px */
+  --apple-space-21: 5.75rem; /* 92px */
+  --apple-space-22: 6rem; /* 96px */
+  --apple-space-23: 6.25rem; /* 100px */
+  --apple-space-24: 6.5rem; /* 104px */
+  --apple-space-25: 6.75rem; /* 108px */
+  --apple-space-26: 7rem; /* 112px */
+  --apple-space-27: 7.25rem; /* 116px */
+  --apple-space-28: 7.5rem; /* 120px */
 
   /* Apple Elevation (Shadows) */
   --apple-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);

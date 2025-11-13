@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FLASHCARD_LIMITS } from "@/lib/constants/flashcardLimits";
 
 export interface FlashcardFormData {
@@ -16,18 +16,36 @@ export function useFlashcardForm({ initialData, onDataChange }: UseFlashcardForm
   const [back, setBack] = useState(initialData?.back || "");
   const [touchedFront, setTouchedFront] = useState(false);
   const [touchedBack, setTouchedBack] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const previousInitialDataRef = useRef<FlashcardFormData | undefined>(initialData);
 
-  // Initialize form only on first mount with initialData
+  // Update form when initialData changes (not just on first mount)
   useEffect(() => {
-    if (initialData && !isInitialized) {
+    if (!initialData) {
+      // If initialData becomes undefined, reset to empty
+      if (previousInitialDataRef.current !== undefined) {
+        setFront("");
+        setBack("");
+        setTouchedFront(false);
+        setTouchedBack(false);
+        previousInitialDataRef.current = undefined;
+      }
+      return;
+    }
+
+    // Check if initialData actually changed
+    const hasChanged =
+      previousInitialDataRef.current === undefined ||
+      previousInitialDataRef.current.front !== initialData.front ||
+      previousInitialDataRef.current.back !== initialData.back;
+
+    if (hasChanged) {
       setFront(initialData.front);
       setBack(initialData.back);
       setTouchedFront(false);
       setTouchedBack(false);
-      setIsInitialized(true);
+      previousInitialDataRef.current = initialData;
     }
-  }, [initialData, isInitialized]); // Notify parent of data changes
+  }, [initialData]); // Notify parent of data changes
   useEffect(() => {
     if (onDataChange) {
       onDataChange({ front, back });

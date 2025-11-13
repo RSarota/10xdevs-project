@@ -9,6 +9,7 @@ export function LandingStatsV2() {
   const [animatedStats, setAnimatedStats] = useState(LANDING_STATS.map(() => 0));
   const [hasAnimated, setHasAnimated] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const animationTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const currentRef = sectionRef.current;
@@ -32,10 +33,21 @@ export function LandingStatsV2() {
       if (currentRef) {
         observer.unobserve(currentRef);
       }
+      // Clean up animation timer if component unmounts
+      if (animationTimerRef.current) {
+        clearInterval(animationTimerRef.current);
+        animationTimerRef.current = null;
+      }
     };
   }, [hasAnimated]);
 
   const startAnimation = () => {
+    // Clear any existing timer before starting a new one
+    if (animationTimerRef.current) {
+      clearInterval(animationTimerRef.current);
+      animationTimerRef.current = null;
+    }
+
     // Animate numbers counting up
     const targets = LANDING_STATS.map((stat) => {
       const numericPart = stat.value.replace(/[^0-9.]/g, "");
@@ -47,7 +59,7 @@ export function LandingStatsV2() {
     const stepTime = duration / steps;
 
     let currentStep = 0;
-    const timer = setInterval(() => {
+    animationTimerRef.current = setInterval(() => {
       currentStep++;
       const progress = currentStep / steps;
       const easeOutProgress = 1 - Math.pow(1 - progress, 3);
@@ -55,7 +67,10 @@ export function LandingStatsV2() {
       setAnimatedStats(targets.map((target) => Math.floor(target * easeOutProgress)));
 
       if (currentStep >= steps) {
-        clearInterval(timer);
+        if (animationTimerRef.current) {
+          clearInterval(animationTimerRef.current);
+          animationTimerRef.current = null;
+        }
         setAnimatedStats(targets);
       }
     }, stepTime);
